@@ -1,0 +1,21 @@
+# 测试环境配置
+# 模拟生产环境，使用环境变量占位符
+environment: test
+log_level: info
+database:
+  host: localhost
+  port: 5432
+  user: ${DB_USER}
+  password: ${DB_PASSWORD}
+  name: go_manage_starter_test
+  schema: manage_test
+
+redis:
+  host: localhost
+  port: 6379
+  # password: ""  # 本地 Redis 无密码，不设置此字段
+  db: 1 # 使用不同的 Redis DB 避免与开发环境冲突
+
+jwt:
+  secret: ${JWT_SECRET}
+  expire_time: 1 # 测试环境较短的过期时间（1小时）

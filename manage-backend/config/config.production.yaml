@@ -1,0 +1,31 @@
+# 生产环境配置
+environment: production
+log_level: warn
+
+# 生产环境日志配置：JSON 格式，文件输出，支持日志轮转
+log:
+  level: warn
+  format: json             # JSON 格式便于日志分析
+  output_path: logs/app.log # 输出到文件
+  max_size: 100            # 100MB 轮转
+  max_backups: 10          # 保留 10 个备份
+  max_age: 30              # 保留 30 天
+  compress: true           # 压缩旧日志
+
+database:
+  host: prod-db.example.com
+  port: 5432
+  user: prod_user
+  password: ${DB_PASSWORD} # 从环境变量读取
+  name: go_manage_starter_prod
+  schema: manage_prod
+
+redis:
+  host: prod-redis.example.com
+  port: 6379
+  password: ${REDIS_PASSWORD} # 从环境变量读取
+  db: 0
+
+jwt:
+  secret: ${JWT_SECRET} # 从环境变量读取
+  expire_time: 2 # 生产环境较短的过期时间（2小时）

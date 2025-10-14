@@ -1,0 +1,58 @@
+port: 9000
+log_level: info
+
+# 日志配置
+log:
+  level: info              # 日志级别: debug, info, warn, error
+  format: console          # 日志格式: json, console (开发环境推荐 console)
+  output_path: stdout      # 日志输出路径: stdout 或文件路径如 logs/app.log
+  max_size: 100            # 单个日志文件最大大小(MB)
+  max_backups: 3           # 保留的旧日志文件最大数量
+  max_age: 7               # 保留旧日志文件的最大天数
+  compress: false          # 是否压缩旧日志文件
+
+database:
+  host: localhost
+  port: 5432
+  user: xiaozhu
+  password: 12345679
+  name: go_manage_starter
+  schema: manage
+
+redis:
+  host: localhost
+  port: 6379
+  password: ""
+  db: 0
+
+jwt:
+  secret: default-jwt-secret-key
+  expire_time: 24 # Deprecated: for backward compatibility
+  access_token_expire: 30 # Access token expiration in minutes
+  refresh_token_expire: 720 # Refresh token expiration in hours (30 days)
+
+# 验证码配置示例
+captcha:
+  # 验证码类型: digit(数字), string(字符串), math(数学), chinese(中文)
+  type: "digit"
+
+  # 验证码长度
+  length: 4
+
+  # 图片宽度
+  width: 240
+
+  # 图片高度
+  height: 80
+
+  # 噪点强度 (0.0-1.0)
+  noise_count: 0.7
+
+  # 干扰线数量
+  show_line_options: 80
+
+  # 过期时间 (5分钟)
+  expiration: "5m"
+
+  # 是否启用验证码
+  enabled: true

@@ -1,0 +1,33 @@
+# 开发环境配置
+environment: development
+log_level: debug
+
+# 开发环境日志配置：控制台输出，便于调试
+log:
+  level: debug
+  format: console # 彩色控制台输出
+  output_path: logs/dev.log # 仅输出到控制台
+  max_size: 100
+  max_backups: 3
+  max_age: 7
+  compress: false
+
+database:
+  host: localhost
+  port: 5432
+  user: xiaozhu
+  password: 12345679
+  name: go_manage_starter
+  schema: manage_dev
+
+redis:
+  host: localhost
+  port: 6379
+  password: ""
+  db: 0
+
+jwt:
+  secret: dev-jwt-secret-key-change-this-in-production
+  expire_time: 24 # Deprecated: for backward compatibility
+  access_token_expire: 30 # Access token expiration in minutes
+  refresh_token_expire: 720 # Refresh token expiration in hours (30 days)
