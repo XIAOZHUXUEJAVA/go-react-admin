@@ -146,11 +146,6 @@ export function MenuEditDialog({
       toast.error("请输入菜单路径");
       return;
     }
-    // 如果是菜单类型，component 字段必填
-    if (formData.type === "menu" && !formData.component.trim()) {
-      toast.error("菜单类型必须填写组件路径");
-      return;
-    }
 
     setLoading(true);
     try {
@@ -303,12 +298,7 @@ export function MenuEditDialog({
             <TabsContent value="advanced" className="space-y-4 mt-4">
               {/* 组件路径 */}
               <div className="space-y-2">
-                <Label htmlFor="component">
-                  组件路径{" "}
-                  {formData.type === "menu" && (
-                    <span className="text-red-500">*</span>
-                  )}
-                </Label>
+                <Label htmlFor="component">组件路径</Label>
                 <Input
                   id="component"
                   value={formData.component}
@@ -316,12 +306,9 @@ export function MenuEditDialog({
                     setFormData({ ...formData, component: e.target.value })
                   }
                   placeholder="例如: @/app/dashboard/welcome/page"
-                  required={formData.type === "menu"}
                 />
                 <p className="text-xs text-muted-foreground">
-                  {formData.type === "menu"
-                    ? "菜单类型必须填写组件路径，格式: @/app/路径/page"
-                    : "按钮类型可以不填写组件路径"}
+                  可选，格式: @/app/路径/page
                 </p>
               </div>
 
