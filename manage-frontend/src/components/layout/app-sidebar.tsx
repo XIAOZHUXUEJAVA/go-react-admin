@@ -160,19 +160,14 @@ const data = {
   ],
   projects: [
     {
-      name: "系统监控",
-      url: "/dashboard/monitoring",
+      name: "个人站点",
+      url: "https://piggyblog.xyz/",
       icon: Frame,
     },
     {
-      name: "数据分析",
-      url: "/dashboard/analytics",
-      icon: PieChart,
-    },
-    {
-      name: "日志管理",
-      url: "/dashboard/logs",
-      icon: Map,
+      name: "测试热重载",
+      url: "https://piggyblog.xyz/",
+      icon: Frame,
     },
   ],
 };
