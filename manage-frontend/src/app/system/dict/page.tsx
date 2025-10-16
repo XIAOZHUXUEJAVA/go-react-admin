@@ -219,7 +219,7 @@ export default function DictManagePage() {
 
   const breadcrumbs = [
     { label: "Dashboard", href: "/dashboard" },
-    { label: "系统管理", href: "/system" },
+    { label: "系统管理" },
     { label: "字典管理" },
   ];
 

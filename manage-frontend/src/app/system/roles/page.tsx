@@ -127,6 +127,7 @@ export default function RolesManagePage() {
   // 面包屑导航配置
   const breadcrumbs = [
     { label: "Dashboard", href: "/dashboard" },
+    { label: "系统管理" },
     { label: "角色管理" },
   ];
 

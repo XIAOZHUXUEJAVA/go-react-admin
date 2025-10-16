@@ -141,6 +141,7 @@ export default function UsersManagePage() {
   // 面包屑导航配置
   const breadcrumbs = [
     { label: "Dashboard", href: "/dashboard" },
+    { label: "系统管理" },
     { label: "用户管理" },
   ];
 

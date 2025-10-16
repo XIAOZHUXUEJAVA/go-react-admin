@@ -27,8 +27,9 @@ export default function MenusManagePage() {
 
   // 面包屑导航
   const breadcrumbs = [
-    { label: "系统管理", href: "/system" },
-    { label: "菜单管理", href: "/system/menus" },
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "系统管理" },
+    { label: "菜单管理" },
   ];
 
   // 加载菜单数据

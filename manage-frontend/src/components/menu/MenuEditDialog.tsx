@@ -134,10 +134,6 @@ export function MenuEditDialog({
     e.preventDefault();
 
     // 验证
-    if (!formData.name.trim()) {
-      toast.error("请输入菜单名称");
-      return;
-    }
     if (!formData.title.trim()) {
       toast.error("请输入菜单标题");
       return;
@@ -202,7 +198,7 @@ export function MenuEditDialog({
               {/* 菜单名称 */}
               <div className="space-y-2">
                 <Label htmlFor="name">
-                  菜单名称 <span className="text-red-500">*</span>
+                  菜单名称
                 </Label>
                 <Input
                   id="name"
@@ -212,9 +208,6 @@ export function MenuEditDialog({
                   }
                   placeholder="例如: user-management"
                 />
-                <p className="text-xs text-muted-foreground">
-                  用于路由标识，建议使用英文
-                </p>
               </div>
 
               {/* 菜单标题 */}

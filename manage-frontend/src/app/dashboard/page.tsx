@@ -20,7 +20,6 @@ export default function DashboardPage() {
 
   // 面包屑导航配置
   const breadcrumbs = [
-    { label: "管理系统", href: "/dashboard" },
     { label: "Dashboard" },
   ];
 

@@ -130,6 +130,7 @@ export default function PermissionsManagePage() {
   // 面包屑导航配置
   const breadcrumbs = [
     { label: "Dashboard", href: "/dashboard" },
+    { label: "系统管理" },
     { label: "权限管理" },
   ];
 
