@@ -17,6 +17,50 @@ import {
   Database,
   Shield,
   FileText,
+  Key,
+  Server,
+  Activity,
+  BarChart,
+  TrendingUp,
+  Calendar,
+  Mail,
+  Bell,
+  Search,
+  Filter,
+  Download,
+  Upload,
+  Trash2,
+  Edit,
+  Plus,
+  Minus,
+  Check,
+  X,
+  ChevronRight,
+  ChevronLeft,
+  ChevronUp,
+  ChevronDown,
+  Menu as MenuIcon,
+  MoreVertical,
+  MoreHorizontal,
+  Home,
+  Folder,
+  File,
+  Image,
+  Video,
+  Music,
+  Code,
+  Terminal,
+  Package,
+  Layers,
+  Grid,
+  List,
+  Table,
+  Columns,
+  Layout,
+  Sidebar as SidebarIcon,
+  PanelLeft,
+  PanelRight,
+  Settings,
 } from "lucide-react";
 
 import { NavMain } from "./nav-main";
@@ -75,88 +119,6 @@ const data = {
         },
       ],
     },
-    {
-      title: "用户管理",
-      url: "/dashboard/usersmanage",
-      icon: Users,
-      items: [
-        {
-          title: "用户列表",
-          url: "/dashboard/usersmanage",
-        },
-      ],
-    },
-    {
-      title: "角色管理",
-      url: "/dashboard/rolesmanage",
-      icon: Shield,
-      items: [
-        {
-          title: "角色列表",
-          url: "/dashboard/rolesmanage",
-        },
-      ],
-    },
-    {
-      title: "权限管理",
-      url: "/dashboard/permissionsmanage",
-      icon: Shield,
-      items: [
-        {
-          title: "权限列表",
-          url: "/dashboard/permissionsmanage",
-        },
-      ],
-    },
-    {
-      title: "测试权限",
-      url: "/dashboard/test-permission",
-      icon: Shield,
-      items: [
-        {
-          title: "测试权限",
-          url: "/dashboard/test-permission",
-        },
-      ],
-    },
-    {
-      title: "数据管理",
-      url: "#",
-      icon: Database,
-      items: [
-        {
-          title: "数据导入",
-          url: "/dashboard/data/import",
-        },
-        {
-          title: "数据导出",
-          url: "/dashboard/data/export",
-        },
-        {
-          title: "数据备份",
-          url: "/dashboard/data/backup",
-        },
-      ],
-    },
-    {
-      title: "系统设置",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "基本设置",
-          url: "/dashboard/settings/general",
-        },
-        {
-          title: "安全设置",
-          url: "/dashboard/settings/security",
-        },
-        {
-          title: "通知设置",
-          url: "/dashboard/settings/notifications",
-        },
-      ],
-    },
   ],
   projects: [
     {
@@ -177,10 +139,54 @@ const iconMap: Record<string, LucideIcon> = {
   LayoutDashboard,
   Users,
   Shield,
-  Database,
+  Key,
+  Settings,
   Settings2,
   FileText,
+  Database,
+  Server,
+  Activity,
+  BarChart,
   PieChart,
+  TrendingUp,
+  Calendar,
+  Mail,
+  Bell,
+  Search,
+  Filter,
+  Download,
+  Upload,
+  Trash2,
+  Edit,
+  Plus,
+  Minus,
+  Check,
+  X,
+  ChevronRight,
+  ChevronLeft,
+  ChevronUp,
+  ChevronDown,
+  Menu: MenuIcon,
+  MoreVertical,
+  MoreHorizontal,
+  Home,
+  Folder,
+  File,
+  Image,
+  Video,
+  Music,
+  Code,
+  Terminal,
+  Package,
+  Layers,
+  Grid,
+  List,
+  Table,
+  Columns,
+  Layout,
+  Sidebar: SidebarIcon,
+  PanelLeft,
+  PanelRight,
   Frame,
   Map,
   Bot,
@@ -197,6 +203,7 @@ interface NavItem {
   items: Array<{
     title: string;
     url: string;
+    icon?: LucideIcon;
   }>;
 }
 
@@ -214,6 +221,7 @@ function convertMenuToNavItem(menu: Menu): NavItem {
         .map((child) => ({
           title: child.title,
           url: child.path,
+          icon: child.icon ? iconMap[child.icon] : undefined,
         })) || [],
   };
 }

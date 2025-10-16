@@ -22,7 +22,7 @@ const commonIcons = [
   "Users",
   "Shield",
   "Key",
-  "Settings",
+  "Settings2",
   "FileText",
   "Database",
   "Server",
