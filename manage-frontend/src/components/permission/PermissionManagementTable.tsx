@@ -129,7 +129,7 @@ export const PermissionManagementTable: React.FC<
               <TableHead>路径/方法</TableHead>
               <TableHead>状态</TableHead>
               <TableHead>创建时间</TableHead>
-              <TableHead className="text-right">操作</TableHead>
+              <TableHead>操作</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -206,7 +206,9 @@ export const PermissionManagementTable: React.FC<
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>操作</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleEdit(permission)}>
+                        <DropdownMenuItem
+                          onClick={() => handleEdit(permission)}
+                        >
                           <Edit className="mr-2 h-4 w-4" />
                           编辑
                         </DropdownMenuItem>

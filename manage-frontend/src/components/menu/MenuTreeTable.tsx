@@ -71,7 +71,9 @@ export function MenuTreeTable({
 
   // 获取图标组件
   const getIconComponent = (iconName: string) => {
-    const Icon = LucideIcons[iconName as keyof typeof LucideIcons] as React.ComponentType<{ className?: string }>;
+    const Icon = LucideIcons[
+      iconName as keyof typeof LucideIcons
+    ] as React.ComponentType<{ className?: string }>;
     return Icon ? <Icon className="h-4 w-4" /> : null;
   };
 
@@ -105,7 +107,10 @@ export function MenuTreeTable({
     if (!draggedItem || draggedItem.id === targetMenu.id) return;
 
     // 不允许拖到自己的子菜单
-    if (draggedItem.parent_id === null && targetMenu.parent_id === draggedItem.id) {
+    if (
+      draggedItem.parent_id === null &&
+      targetMenu.parent_id === draggedItem.id
+    ) {
       return;
     }
 
@@ -209,9 +214,7 @@ export function MenuTreeTable({
 
           {/* 状态 */}
           <TableCell>
-            <Badge
-              variant={menu.status === "active" ? "default" : "secondary"}
-            >
+            <Badge variant={menu.status === "active" ? "default" : "secondary"}>
               {menu.status === "active" ? "启用" : "禁用"}
             </Badge>
           </TableCell>
@@ -283,7 +286,10 @@ export function MenuTreeTable({
           <TableBody>
             {menus.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground">
+                <TableCell
+                  colSpan={8}
+                  className="text-center text-muted-foreground"
+                >
                   暂无菜单数据
                 </TableCell>
               </TableRow>
@@ -300,7 +306,8 @@ export function MenuTreeTable({
           <AlertDialogHeader>
             <AlertDialogTitle>确认删除</AlertDialogTitle>
             <AlertDialogDescription>
-              确定要删除菜单 &quot;{menuToDelete?.title}&quot; 吗？此操作无法撤销。
+              确定要删除菜单 &quot;{menuToDelete?.title}&quot;
+              吗？此操作无法撤销。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
