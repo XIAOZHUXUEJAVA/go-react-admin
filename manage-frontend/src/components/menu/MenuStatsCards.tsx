@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Menu, Eye, CheckCircle, Layers } from "lucide-react";
-import { Menu as MenuType } from "@/services/menuApi";
+import { Menu as MenuType } from "@/types/menu";
 
 interface MenuStatsCardsProps {
   menus: MenuType[];

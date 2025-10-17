@@ -39,6 +39,7 @@ export interface UpdateMenuRequest {
   component?: string;
   icon?: string;
   order_num?: number;
+  type?: string;
   permission_code?: string;
   visible?: boolean;
   status?: string;

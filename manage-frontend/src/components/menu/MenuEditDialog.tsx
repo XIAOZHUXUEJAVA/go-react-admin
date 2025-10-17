@@ -22,12 +22,12 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { menuApi } from "@/api/menu";
 import {
-  menuApi,
   type Menu,
   type CreateMenuRequest,
   type UpdateMenuRequest,
-} from "@/services/menuApi";
+} from "@/types/menu";
 import { permissionApi } from "@/api/permission";
 import type { Permission } from "@/types/permission";
 import { IconPicker } from "./IconPicker";

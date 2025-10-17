@@ -13,7 +13,8 @@ import {
 import { toast } from "sonner";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { MenuTreeTable, MenuEditDialog, MenuStatsCards } from "@/components/menu";
-import { menuApi, type Menu } from "@/services/menuApi";
+import { menuApi } from "@/api/menu";
+import { type Menu } from "@/types/menu";
 import { getErrorMessage } from "@/lib/error-handler";
 import { PagePermissionGuard, PermissionButton } from "@/components/auth";
 

@@ -57,4 +57,13 @@ export const menuApi = {
   deleteMenu: async (id: number): Promise<APIResponse<void>> => {
     return ApiService.delete<void>(`/menus/${id}`);
   },
+
+  /**
+   * 批量更新菜单顺序
+   */
+  updateMenuOrder: async (
+    menus: { id: number; order_num: number; parent_id: number | null }[]
+  ): Promise<APIResponse<void>> => {
+    return ApiService.put<void>("/menus/order", { menus });
+  },
 };

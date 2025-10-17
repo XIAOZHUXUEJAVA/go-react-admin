@@ -31,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { type Menu } from "@/services/menuApi";
+import { type Menu } from "@/types/menu";
 import * as LucideIcons from "lucide-react";
 
 interface MenuTreeTableProps {
