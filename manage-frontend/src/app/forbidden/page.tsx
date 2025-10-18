@@ -27,17 +27,15 @@ export default function ForbiddenPage() {
         </CardHeader>
         <CardContent className="text-center space-y-6">
           <div className="space-y-2">
-            <p className="text-gray-700 font-medium">
-              您没有权限访问此页面
-            </p>
+            <p className="text-gray-700 font-medium">您没有权限访问此页面</p>
             <p className="text-sm text-gray-500">
               如需访问此功能，请联系系统管理员申请相应权限
             </p>
           </div>
-          
+
           <div className="flex flex-col space-y-3 pt-2">
-            <Button 
-              onClick={() => router.back()} 
+            <Button
+              onClick={() => router.back()}
               variant="outline"
               className="w-full"
             >
