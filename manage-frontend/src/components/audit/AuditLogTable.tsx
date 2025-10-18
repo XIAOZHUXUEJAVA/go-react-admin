@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { MethodBadge, StatusCodeBadge } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
 import { AuditLog } from "@/types/audit";
@@ -24,33 +24,6 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({
   loading,
   onView,
 }) => {
-  // 获取状态码对应的颜色
-  const getStatusColor = (status: number) => {
-    if (status >= 200 && status < 300) return "bg-green-100 text-green-800";
-    if (status >= 300 && status < 400) return "bg-blue-100 text-blue-800";
-    if (status >= 400 && status < 500) return "bg-yellow-100 text-yellow-800";
-    if (status >= 500) return "bg-red-100 text-red-800";
-    return "bg-gray-100 text-gray-800";
-  };
-
-  // 获取 HTTP 方法对应的颜色
-  const getMethodColor = (method: string) => {
-    switch (method) {
-      case "GET":
-        return "bg-blue-100 text-blue-800";
-      case "POST":
-        return "bg-green-100 text-green-800";
-      case "PUT":
-        return "bg-yellow-100 text-yellow-800";
-      case "DELETE":
-        return "bg-red-100 text-red-800";
-      case "PATCH":
-        return "bg-purple-100 text-purple-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   // 格式化时间
   const formatDate = (dateString: string) => {
     try {
@@ -112,9 +85,7 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({
                   <span className="text-sm">{log.resource || "-"}</span>
                 </TableCell>
                 <TableCell>
-                  <Badge className={getMethodColor(log.method)} variant="outline">
-                    {log.method}
-                  </Badge>
+                  <MethodBadge method={log.method as "GET" | "POST" | "PUT" | "DELETE" | "PATCH"} />
                 </TableCell>
                 <TableCell>
                   <span className="text-xs text-muted-foreground max-w-[200px] truncate block">
@@ -122,9 +93,7 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({
                   </span>
                 </TableCell>
                 <TableCell>
-                  <Badge className={getStatusColor(log.status)} variant="outline">
-                    {log.status}
-                  </Badge>
+                  <StatusCodeBadge statusCode={log.status} />
                 </TableCell>
                 <TableCell>
                   <span className="text-sm">{log.ip}</span>

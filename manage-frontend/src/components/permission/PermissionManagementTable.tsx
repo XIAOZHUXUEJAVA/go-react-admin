@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Permission } from "@/types/permission";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge, PermissionTypeBadge } from "@/components/ui";
 import {
   Table,
   TableBody,
@@ -49,32 +49,6 @@ export const PermissionManagementTable: React.FC<
   const [selectedPermission, setSelectedPermission] =
     useState<Permission | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
-  // 获取状态颜色
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "active":
-        return "bg-green-100 text-green-800 hover:bg-green-200";
-      case "inactive":
-        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
-      default:
-        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
-    }
-  };
-
-  // 获取类型颜色
-  const getTypeColor = (type: string) => {
-    switch (type.toLowerCase()) {
-      case "api":
-        return "bg-purple-100 text-purple-800 hover:bg-purple-200";
-      case "menu":
-        return "bg-green-100 text-green-800 hover:bg-green-200";
-      case "button":
-        return "bg-orange-100 text-orange-800 hover:bg-orange-200";
-      default:
-        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
-    }
-  };
 
   // 获取类型标签
   const getTypeLabel = (type: string) => {
@@ -163,9 +137,9 @@ export const PermissionManagementTable: React.FC<
                     <span className="capitalize">{permission.action}</span>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getTypeColor(permission.type)}>
+                    <PermissionTypeBadge type={permission.type as "api" | "menu" | "button"}>
                       {getTypeLabel(permission.type)}
-                    </Badge>
+                    </PermissionTypeBadge>
                   </TableCell>
                   <TableCell className="max-w-xs">
                     <div className="text-xs space-y-1">
@@ -180,17 +154,17 @@ export const PermissionManagementTable: React.FC<
                       {permission.method && (
                         <div>
                           <span className="text-muted-foreground">方法: </span>
-                          <Badge variant="outline" className="text-xs">
+                          <span className="inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium">
                             {permission.method}
-                          </Badge>
+                          </span>
                         </div>
                       )}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(permission.status)}>
+                    <StatusBadge status={permission.status as "active" | "inactive"}>
                       {permission.status === "active" ? "启用" : "禁用"}
-                    </Badge>
+                    </StatusBadge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {formatDateTable(permission.created_at)}

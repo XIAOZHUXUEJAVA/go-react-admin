@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Role } from "@/types/role";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui";
 import {
   Table,
   TableBody,
@@ -53,18 +54,6 @@ export const RoleManagementTable: React.FC<RoleManagementTableProps> = ({
 }) => {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
-  // 获取状态颜色
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "active":
-        return "bg-green-100 text-green-800 hover:bg-green-200";
-      case "inactive":
-        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
-      default:
-        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
-    }
-  };
 
   // 处理编辑
   const handleEdit = (role: Role) => {
@@ -143,9 +132,9 @@ export const RoleManagementTable: React.FC<RoleManagementTableProps> = ({
                     {role.description || "-"}
                   </TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(role.status)}>
+                    <StatusBadge status={role.status as "active" | "inactive"}>
                       {role.status === "active" ? "启用" : "禁用"}
-                    </Badge>
+                    </StatusBadge>
                   </TableCell>
                   <TableCell>
                     {role.is_system ? (
