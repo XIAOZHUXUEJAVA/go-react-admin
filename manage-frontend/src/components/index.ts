@@ -18,5 +18,8 @@ export * from "./forms";
 // 认证权限模块
 export * from "./auth";
 
+// 审计日志模块
+export * from "./audit";
+
 // UI基础组件
 export * from "./ui";
