@@ -1,14 +1,5 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DictType, CreateDictTypeRequest } from "@/types/dict";
+import { FormDialog } from "@/components/common";
 
 interface DictTypeModalProps {
   open: boolean;
@@ -44,14 +36,7 @@ export const DictTypeModal: React.FC<DictTypeModalProps> = ({
   loading,
   dictType,
 }) => {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<FormData>({
+  const form = useForm<FormData>({
     defaultValues: {
       code: "",
       name: "",
@@ -60,6 +45,14 @@ export const DictTypeModal: React.FC<DictTypeModalProps> = ({
       sort_order: 0,
     },
   });
+
+  const {
+    register,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = form;
 
   const status = watch("status");
 
@@ -86,20 +79,23 @@ export const DictTypeModal: React.FC<DictTypeModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>
-            {dictType ? "编辑字典类型" : "添加字典类型"}
-          </DialogTitle>
-          <DialogDescription>
-            {dictType
-              ? "修改字典类型信息"
-              : "填写以下信息创建新的字典类型"}
-          </DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
+    <FormDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={dictType ? "编辑字典类型" : "添加字典类型"}
+      description={
+        dictType
+          ? "修改字典类型信息"
+          : "填写以下信息创建新的字典类型"
+      }
+      form={form}
+      onSubmit={onFormSubmit}
+      loading={loading}
+      submitText={dictType ? "更新" : "创建"}
+      maxWidth="sm:max-w-[500px]"
+      resetOnClose={false}
+    >
+      <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="code">
               代码 <span className="text-red-500">*</span>
@@ -194,21 +190,7 @@ export const DictTypeModal: React.FC<DictTypeModalProps> = ({
             </div>
           </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={loading}
-            >
-              取消
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "提交中..." : dictType ? "更新" : "创建"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </FormDialog>
   );
 };

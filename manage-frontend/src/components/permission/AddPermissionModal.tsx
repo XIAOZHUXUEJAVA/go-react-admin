@@ -5,14 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Form,
   FormControl,
   FormDescription,
@@ -30,9 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 import { CreatePermissionRequest } from "@/types/permission";
+import { FormDialog } from "@/components/common";
 
 // 表单验证 Schema
 const permissionFormSchema = z.object({
@@ -101,35 +92,28 @@ export const AddPermissionModal: React.FC<AddPermissionModalProps> = ({
 
   // 处理表单提交
   const handleSubmit = async (values: PermissionFormValues) => {
-    try {
-      await onSubmit(values);
-      form.reset();
-      onOpenChange(false);
-    } catch (error) {
-    }
-  };
-
-  // 处理对话框关闭
-  const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen && !loading) {
-      form.reset();
-    }
-    onOpenChange(newOpen);
+    await onSubmit({
+      ...values,
+      path: values.path || "",
+      method: values.method || "",
+      description: values.description || "",
+    });
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>添加权限</DialogTitle>
-          <DialogDescription>创建一个新的系统权限</DialogDescription>
-        </DialogHeader>
-
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
+    <FormDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="添加权限"
+      description="创建一个新的系统权限"
+      form={form}
+      onSubmit={handleSubmit}
+      loading={loading}
+      submitText="创建权限"
+      maxWidth="sm:max-w-[600px]"
+    >
+      <Form {...form}>
+        <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
             {/* 权限名称 */}
             <FormField
               control={form.control}
@@ -353,23 +337,8 @@ export const AddPermissionModal: React.FC<AddPermissionModalProps> = ({
               )}
             />
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-                disabled={loading}
-              >
-                取消
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {loading ? "创建中..." : "创建权限"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </Form>
+    </FormDialog>
   );
 };

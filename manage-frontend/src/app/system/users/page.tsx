@@ -15,9 +15,9 @@ import {
 import { Users, Plus, RefreshCw } from "lucide-react";
 import {
   UserManagementTable,
-  AddUserModal,
   UserStatsCards,
   UserSearchFilter,
+  AddUserModal,
 } from "@/components/user";
 import { userApi } from "@/api";
 import { CreateUserRequest, UpdateUserRequest } from "@/types/api";
@@ -152,9 +152,9 @@ export default function UsersManagePage() {
         <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
         刷新
       </Button>
-      <PermissionButton 
+      <PermissionButton
         permission="user:create"
-        size="sm" 
+        size="sm"
         onClick={() => setIsAddModalOpen(true)}
         noPermissionTooltip="您没有创建用户的权限"
       >

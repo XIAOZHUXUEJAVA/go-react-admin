@@ -24,8 +24,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Eye, Edit, Trash2, Mail } from "lucide-react";
 import { UserDetailModal } from "./UserDetailModal";
-import { EditUserModal } from "./EditUserModal";
 import { formatDateTable } from "@/lib/date";
+import { EditUserModal } from "./EditUserModal";
 
 interface UserManagementTableProps {
   users: User[];
@@ -173,10 +173,14 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                   </div>
                 </TableCell>
                 <TableCell>
-                  <RoleBadge role={user.role as "admin" | "moderator" | "user"}>{user.role}</RoleBadge>
+                  <RoleBadge role={user.role as "admin" | "moderator" | "user"}>
+                    {user.role}
+                  </RoleBadge>
                 </TableCell>
                 <TableCell>
-                  <StatusBadge status={user.status as "active" | "inactive" | "pending"}>
+                  <StatusBadge
+                    status={user.status as "active" | "inactive" | "pending"}
+                  >
                     {user.status}
                   </StatusBadge>
                 </TableCell>

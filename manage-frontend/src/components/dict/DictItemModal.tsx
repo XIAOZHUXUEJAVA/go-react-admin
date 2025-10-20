@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DictItem, CreateDictItemRequest } from "@/types/dict";
+import { FormDialog } from "@/components/common";
 
 interface DictItemModalProps {
   open: boolean;
@@ -52,14 +44,7 @@ export const DictItemModal: React.FC<DictItemModalProps> = ({
 }) => {
   const [isDefault, setIsDefault] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<FormData>({
+  const form = useForm<FormData>({
     defaultValues: {
       dict_type_code: dictTypeCode,
       label: "",
@@ -71,6 +56,14 @@ export const DictItemModal: React.FC<DictItemModalProps> = ({
       is_default: false,
     },
   });
+
+  const {
+    register,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = form;
 
   const status = watch("status");
 
@@ -129,18 +122,21 @@ export const DictItemModal: React.FC<DictItemModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {dictItem ? "编辑字典项" : "添加字典项"}
-          </DialogTitle>
-          <DialogDescription>
-            {dictItem ? "修改字典项信息" : "填写以下信息创建新的字典项"}
-          </DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
+    <FormDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={dictItem ? "编辑字典项" : "添加字典项"}
+      description={
+        dictItem ? "修改字典项信息" : "填写以下信息创建新的字典项"
+      }
+      form={form}
+      onSubmit={onFormSubmit}
+      loading={loading}
+      submitText={dictItem ? "更新" : "创建"}
+      maxWidth="sm:max-w-[600px]"
+      resetOnClose={false}
+    >
+      <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
           <div className="space-y-2">
             <Label htmlFor="label">
               显示值 <span className="text-red-500">*</span>
@@ -275,21 +271,7 @@ export const DictItemModal: React.FC<DictItemModalProps> = ({
             </Label>
           </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={loading}
-            >
-              取消
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "提交中..." : dictItem ? "更新" : "创建"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </FormDialog>
   );
 };

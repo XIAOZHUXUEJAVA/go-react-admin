@@ -5,14 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Form,
   FormControl,
   FormDescription,
@@ -30,9 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 import { Permission, UpdatePermissionRequest } from "@/types/permission";
+import { FormDialog } from "@/components/common";
 
 // 表单验证 Schema
 const editPermissionFormSchema = z.object({
@@ -96,19 +87,12 @@ export const EditPermissionModal: React.FC<EditPermissionModalProps> = ({
   // 处理表单提交
   const handleSubmit = async (values: EditPermissionFormValues) => {
     if (!permission) return;
-
-    try {
-      await onSubmit(permission.id, values);
-      onOpenChange(false);
-    } catch (error) {}
-  };
-
-  // 处理对话框关闭
-  const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen && !loading) {
-      form.reset();
-    }
-    onOpenChange(newOpen);
+    await onSubmit(permission.id, {
+      ...values,
+      path: values.path || "",
+      method: values.method || "",
+      description: values.description || "",
+    });
   };
 
   // 获取类型标签
@@ -122,20 +106,20 @@ export const EditPermissionModal: React.FC<EditPermissionModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>编辑权限</DialogTitle>
-          <DialogDescription>
-            修改权限 &quot;{permission?.name}&quot; 的信息
-          </DialogDescription>
-        </DialogHeader>
-
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
+    <FormDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="编辑权限"
+      description={`修改权限 "${permission?.name}" 的信息`}
+      form={form}
+      onSubmit={handleSubmit}
+      loading={loading}
+      submitText="保存更改"
+      maxWidth="sm:max-w-[600px]"
+      resetOnClose={false}
+    >
+      <Form {...form}>
+        <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
             {/* 权限代码（只读） */}
             <div className="space-y-2">
               <label className="text-sm font-medium">权限代码</label>
@@ -323,23 +307,8 @@ export const EditPermissionModal: React.FC<EditPermissionModalProps> = ({
               )}
             />
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-                disabled={loading}
-              >
-                取消
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {loading ? "保存中..." : "保存更改"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </Form>
+    </FormDialog>
   );
 };

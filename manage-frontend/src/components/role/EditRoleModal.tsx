@@ -5,14 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Form,
   FormControl,
   FormDescription,
@@ -30,9 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 import { Role, UpdateRoleRequest } from "@/types/role";
+import { FormDialog } from "@/components/common";
 
 // 表单验证 Schema
 const editRoleFormSchema = z.object({
@@ -90,144 +81,119 @@ export const EditRoleModal: React.FC<EditRoleModalProps> = ({
   // 处理表单提交
   const handleSubmit = async (values: EditRoleFormValues) => {
     if (!role) return;
-
-    try {
-      await onSubmit(role.id, values);
-      onOpenChange(false);
-    } catch (error) {}
-  };
-
-  // 处理对话框关闭
-  const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen && !loading) {
-      form.reset();
-    }
-    onOpenChange(newOpen);
+    await onSubmit(role.id, {
+      ...values,
+      description: values.description || "",
+    });
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>编辑角色</DialogTitle>
-          <DialogDescription>
-            修改角色 &quot;{role?.name}&quot; 的信息
-          </DialogDescription>
-        </DialogHeader>
-
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
-            {/* 角色代码（只读） */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">角色代码</label>
-              <div className="flex items-center gap-2">
-                <code className="text-sm bg-muted px-3 py-2 rounded-md flex-1">
-                  {role?.code}
-                </code>
-                <span className="text-xs text-muted-foreground">
-                  (不可修改)
-                </span>
-              </div>
+    <FormDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="编辑角色"
+      description={`修改角色 "${role?.name}" 的信息`}
+      form={form}
+      onSubmit={handleSubmit}
+      loading={loading}
+      submitText="保存更改"
+      maxWidth="sm:max-w-[500px]"
+      resetOnClose={false}
+    >
+      <Form {...form}>
+        <div className="space-y-4">
+          {/* 角色代码（只读） */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">角色代码</label>
+            <div className="flex items-center gap-2">
+              <code className="text-sm bg-muted px-3 py-2 rounded-md flex-1">
+                {role?.code}
+              </code>
+              <span className="text-xs text-muted-foreground">
+                (不可修改)
+              </span>
             </div>
+          </div>
 
-            {/* 角色名称 */}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    角色名称 <span className="text-red-500">*</span>
-                  </FormLabel>
+          {/* 角色名称 */}
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  角色名称 <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="例如：管理员"
+                    {...field}
+                    disabled={loading}
+                  />
+                </FormControl>
+                <FormDescription>角色的显示名称</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* 描述 */}
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>描述</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="角色的详细描述..."
+                    className="resize-none"
+                    rows={3}
+                    {...field}
+                    disabled={loading}
+                  />
+                </FormControl>
+                <FormDescription>角色的功能说明（可选）</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* 状态 */}
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  状态 <span className="text-red-500">*</span>
+                </FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  disabled={loading || role?.is_system}
+                >
                   <FormControl>
-                    <Input
-                      placeholder="例如：管理员"
-                      {...field}
-                      disabled={loading}
-                    />
+                    <SelectTrigger>
+                      <SelectValue placeholder="选择状态" />
+                    </SelectTrigger>
                   </FormControl>
-                  <FormDescription>角色的显示名称</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* 描述 */}
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>描述</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="角色的详细描述..."
-                      className="resize-none"
-                      rows={3}
-                      {...field}
-                      disabled={loading}
-                    />
-                  </FormControl>
-                  <FormDescription>角色的功能说明（可选）</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* 状态 */}
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    状态 <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    disabled={loading || role?.is_system}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="选择状态" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="active">启用</SelectItem>
-                      <SelectItem value="inactive">禁用</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    {role?.is_system
-                      ? "系统角色状态不可修改"
-                      : "角色的启用状态"}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-                disabled={loading}
-              >
-                取消
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {loading ? "保存中..." : "保存更改"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+                  <SelectContent>
+                    <SelectItem value="active">启用</SelectItem>
+                    <SelectItem value="inactive">禁用</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  {role?.is_system
+                    ? "系统角色状态不可修改"
+                    : "角色的启用状态"}
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      </Form>
+    </FormDialog>
   );
 };
