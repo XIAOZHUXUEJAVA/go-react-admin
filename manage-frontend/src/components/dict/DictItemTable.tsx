@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { DictItem } from "@/types/dict";
 import {
   Table,
@@ -9,19 +9,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, Star } from "lucide-react";
+import { Edit, Trash2, Star, BookOpen } from "lucide-react";
 import { PermissionButton } from "@/components/auth";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { DeleteConfirmDialog, TableEmptyState } from "@/components/common";
 
 interface DictItemTableProps {
   dictItems: DictItem[];
@@ -36,6 +26,21 @@ export const DictItemTable: React.FC<DictItemTableProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const [selectedItem, setSelectedItem] = useState<DictItem | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const handleDeleteClick = (item: DictItem) => {
+    setSelectedItem(item);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedItem) {
+      onDelete(selectedItem);
+      setIsDeleteDialogOpen(false);
+      setSelectedItem(null);
+    }
+  };
   if (loading) {
     return (
       <div className="text-center py-8">
@@ -80,11 +85,12 @@ export const DictItemTable: React.FC<DictItemTableProps> = ({
         </TableHeader>
         <TableBody>
           {dictItems.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={9} className="text-center py-8">
-                暂无数据
-              </TableCell>
-            </TableRow>
+            <TableEmptyState
+              colSpan={9}
+              icon={BookOpen}
+              title="暂无字典项数据"
+              description="请先选择一个字典类型，然后添加字典项"
+            />
           ) : (
             dictItems.map((dictItem) => (
               <TableRow key={dictItem.id}>
@@ -130,36 +136,15 @@ export const DictItemTable: React.FC<DictItemTableProps> = ({
                       <Edit className="h-4 w-4" />
                     </PermissionButton>
                     {!dictItem.is_system && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <PermissionButton
-                            permission="dict_item:delete"
-                            variant="ghost"
-                            size="sm"
-                            noPermissionTooltip="您没有删除字典项的权限"
-                          >
-                            <Trash2 className="h-4 w-4 text-red-500" />
-                          </PermissionButton>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>确认删除</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              确定要删除字典项 &quot;{dictItem.label}&quot;
-                              吗？此操作不可恢复。
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>取消</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => onDelete(dictItem)}
-                              className="bg-red-500 hover:bg-red-600"
-                            >
-                              删除
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                      <PermissionButton
+                        permission="dict_item:delete"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteClick(dictItem)}
+                        noPermissionTooltip="您没有删除字典项的权限"
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </PermissionButton>
                     )}
                   </div>
                 </TableCell>
@@ -168,6 +153,16 @@ export const DictItemTable: React.FC<DictItemTableProps> = ({
           )}
         </TableBody>
       </Table>
+
+      {/* 删除确认对话框 */}
+      <DeleteConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        resourceName={selectedItem?.label}
+        resourceType="字典项"
+        description={`确定要删除字典项 "${selectedItem?.label}" 吗？此操作不可恢复。`}
+      />
     </div>
   );
 };

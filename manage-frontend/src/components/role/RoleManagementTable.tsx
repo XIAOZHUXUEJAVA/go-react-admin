@@ -13,16 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DeleteConfirmDialog, TableEmptyState } from "@/components/common";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -106,14 +97,12 @@ export const RoleManagementTable: React.FC<RoleManagementTableProps> = ({
           </TableHeader>
           <TableBody>
             {roles.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
-                  <div className="flex flex-col items-center justify-center text-muted-foreground">
-                    <Shield className="h-12 w-12 mb-2 opacity-50" />
-                    <p>暂无角色数据</p>
-                  </div>
-                </TableCell>
-              </TableRow>
+              <TableEmptyState
+                colSpan={7}
+                icon={Shield}
+                title="暂无角色数据"
+                description="还没有创建任何角色，点击上方按钮添加新角色"
+              />
             ) : (
               roles.map((role) => (
                 <TableRow key={role.id}>
@@ -192,29 +181,16 @@ export const RoleManagementTable: React.FC<RoleManagementTableProps> = ({
       </div>
 
       {/* 删除确认对话框 */}
-      <AlertDialog
+      <DeleteConfirmDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>确认删除角色</AlertDialogTitle>
-            <AlertDialogDescription>
-              您确定要删除角色 &quot;{selectedRole?.name}&quot; 吗？
-              此操作无法撤销，该角色下的所有权限关联也将被移除。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              确认删除
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={handleDeleteConfirm}
+        resourceName={selectedRole?.name}
+        resourceType="角色"
+        title="确认删除角色"
+        description={`您确定要删除角色 "${selectedRole?.name}" 吗？此操作无法撤销，该角色下的所有权限关联也将被移除。`}
+        confirmText="确认删除"
+      />
     </>
   );
 };

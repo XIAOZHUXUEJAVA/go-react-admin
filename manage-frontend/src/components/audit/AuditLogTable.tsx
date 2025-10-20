@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/table";
 import { MethodBadge, StatusCodeBadge } from "@/components/ui";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, FileText } from "lucide-react";
+import { TableEmptyState } from "@/components/common";
 import { AuditLog } from "@/types/audit";
 import dayjs from "dayjs";
 
@@ -61,11 +62,12 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({
         </TableHeader>
         <TableBody>
           {logs.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={11} className="text-center py-8">
-                暂无日志数据
-              </TableCell>
-            </TableRow>
+            <TableEmptyState
+              colSpan={11}
+              icon={FileText}
+              title="暂无日志数据"
+              description="还没有任何操作日志记录"
+            />
           ) : (
             logs.map((log) => (
               <TableRow key={log.id}>

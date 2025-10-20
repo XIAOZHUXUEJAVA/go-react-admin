@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { User } from "@/types/api";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge, RoleBadge } from "@/components/ui";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Table,
@@ -13,16 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DeleteConfirmDialog } from "@/components/common";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,34 +49,6 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
-  // 获取状态颜色
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "active":
-        return "bg-green-100 text-green-800 hover:bg-green-200";
-      case "inactive":
-        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
-      default:
-        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
-    }
-  };
-
-  // 获取角色颜色
-  const getRoleColor = (role: string) => {
-    switch (role.toLowerCase()) {
-      case "admin":
-        return "bg-red-100 text-red-800 hover:bg-red-200";
-      case "moderator":
-        return "bg-blue-100 text-blue-800 hover:bg-blue-200";
-      case "user":
-        return "bg-green-100 text-green-800 hover:bg-green-200";
-      default:
-        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
-    }
-  };
 
   // 处理查看用户详情
   const handleViewUser = (user: User) => {
@@ -210,12 +173,12 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge className={getRoleColor(user.role)}>{user.role}</Badge>
+                  <RoleBadge role={user.role as "admin" | "moderator" | "user"}>{user.role}</RoleBadge>
                 </TableCell>
                 <TableCell>
-                  <Badge className={getStatusColor(user.status)}>
+                  <StatusBadge status={user.status as "active" | "inactive" | "pending"}>
                     {user.status}
-                  </Badge>
+                  </StatusBadge>
                 </TableCell>
                 <TableCell>
                   <div className="text-sm">
@@ -272,29 +235,14 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       />
 
       {/* 删除确认对话框 */}
-      <AlertDialog
+      <DeleteConfirmDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>确认删除用户</AlertDialogTitle>
-            <AlertDialogDescription>
-              您确定要删除用户 &ldquo;{selectedUser?.username}&rdquo;
-              吗？此操作无法撤销。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteUser}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              删除
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={confirmDeleteUser}
+        resourceName={selectedUser?.username}
+        resourceType="用户"
+        title="确认删除用户"
+      />
     </>
   );
 };

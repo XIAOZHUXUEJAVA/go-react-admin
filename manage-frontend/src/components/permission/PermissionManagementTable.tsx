@@ -12,16 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DeleteConfirmDialog, TableEmptyState } from "@/components/common";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -108,14 +99,12 @@ export const PermissionManagementTable: React.FC<
           </TableHeader>
           <TableBody>
             {permissions.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={9} className="text-center py-8">
-                  <div className="flex flex-col items-center justify-center text-muted-foreground">
-                    <Key className="h-12 w-12 mb-2 opacity-50" />
-                    <p>暂无权限数据</p>
-                  </div>
-                </TableCell>
-              </TableRow>
+              <TableEmptyState
+                colSpan={9}
+                icon={Key}
+                title="暂无权限数据"
+                description="还没有创建任何权限，点击上方按钮添加新权限"
+              />
             ) : (
               permissions.map((permission) => (
                 <TableRow key={permission.id}>
@@ -205,29 +194,16 @@ export const PermissionManagementTable: React.FC<
       </div>
 
       {/* 删除确认对话框 */}
-      <AlertDialog
+      <DeleteConfirmDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>确认删除权限</AlertDialogTitle>
-            <AlertDialogDescription>
-              您确定要删除权限 &quot;{selectedPermission?.name}&quot; 吗？
-              此操作无法撤销，该权限的所有关联也将被移除。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              确认删除
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={handleDeleteConfirm}
+        resourceName={selectedPermission?.name}
+        resourceType="权限"
+        title="确认删除权限"
+        description={`您确定要删除权限 "${selectedPermission?.name}" 吗？此操作无法撤销，该权限的所有关联也将被移除。`}
+        confirmText="确认删除"
+      />
     </>
   );
 };

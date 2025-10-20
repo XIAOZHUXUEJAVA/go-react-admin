@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { DictType } from "@/types/dict";
 import {
   Table,
@@ -10,19 +10,9 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, List } from "lucide-react";
+import { Edit, Trash2, List, BookType } from "lucide-react";
 import { PermissionButton } from "@/components/auth";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { DeleteConfirmDialog, TableEmptyState } from "@/components/common";
 
 interface DictTypeTableProps {
   dictTypes: DictType[];
@@ -39,6 +29,21 @@ export const DictTypeTable: React.FC<DictTypeTableProps> = ({
   onDelete,
   onManageItems,
 }) => {
+  const [selectedType, setSelectedType] = useState<DictType | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const handleDeleteClick = (dictType: DictType) => {
+    setSelectedType(dictType);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedType) {
+      onDelete(selectedType);
+      setIsDeleteDialogOpen(false);
+      setSelectedType(null);
+    }
+  };
   if (loading) {
     return (
       <div className="text-center py-8">
@@ -65,11 +70,12 @@ export const DictTypeTable: React.FC<DictTypeTableProps> = ({
         </TableHeader>
         <TableBody>
           {dictTypes.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={8} className="text-center py-8">
-                暂无数据
-              </TableCell>
-            </TableRow>
+            <TableEmptyState
+              colSpan={8}
+              icon={BookType}
+              title="暂无字典类型"
+              description="还没有创建任何字典类型，点击上方按钮添加新类型"
+            />
           ) : (
             dictTypes.map((dictType) => (
               <TableRow key={dictType.id}>
@@ -117,36 +123,15 @@ export const DictTypeTable: React.FC<DictTypeTableProps> = ({
                       <Edit className="h-4 w-4" />
                     </PermissionButton>
                     {!dictType.is_system && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <PermissionButton
-                            permission="dict_type:delete"
-                            variant="ghost"
-                            size="sm"
-                            noPermissionTooltip="您没有删除字典类型的权限"
-                          >
-                            <Trash2 className="h-4 w-4 text-red-500" />
-                          </PermissionButton>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>确认删除</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              确定要删除字典类型 &quot;{dictType.name}&quot;
-                              吗？此操作不可恢复。
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>取消</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => onDelete(dictType)}
-                              className="bg-red-500 hover:bg-red-600"
-                            >
-                              删除
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                      <PermissionButton
+                        permission="dict_type:delete"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteClick(dictType)}
+                        noPermissionTooltip="您没有删除字典类型的权限"
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </PermissionButton>
                     )}
                   </div>
                 </TableCell>
@@ -155,6 +140,16 @@ export const DictTypeTable: React.FC<DictTypeTableProps> = ({
           )}
         </TableBody>
       </Table>
+
+      {/* 删除确认对话框 */}
+      <DeleteConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        resourceName={selectedType?.name}
+        resourceType="字典类型"
+        description={`确定要删除字典类型 "${selectedType?.name}" 吗？此操作不可恢复。`}
+      />
     </div>
   );
 };

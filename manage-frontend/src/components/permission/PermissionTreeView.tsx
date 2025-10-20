@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronRight, Folder, Key } from "lucide-react";
 import { formatDateTable } from "@/lib/date";
+import { DeleteConfirmDialog, EmptyState } from "@/components/common";
 
 interface PermissionTreeViewProps {
   permissionTree: PermissionTree[];
@@ -29,6 +30,23 @@ export const PermissionTreeView: React.FC<PermissionTreeViewProps> = ({
   const [expandedResources, setExpandedResources] = useState<Set<string>>(
     new Set(permissionTree.map((tree) => tree.resource))
   );
+  const [selectedPermission, setSelectedPermission] = useState<Permission | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // 处理删除点击
+  const handleDeleteClick = (permission: Permission) => {
+    setSelectedPermission(permission);
+    setIsDeleteDialogOpen(true);
+  };
+
+  // 确认删除
+  const handleDeleteConfirm = () => {
+    if (selectedPermission) {
+      onDelete?.(selectedPermission);
+      setIsDeleteDialogOpen(false);
+      setSelectedPermission(null);
+    }
+  };
 
   // 切换资源展开/折叠
   const toggleResource = (resource: string) => {
@@ -76,10 +94,12 @@ export const PermissionTreeView: React.FC<PermissionTreeViewProps> = ({
 
   if (permissionTree.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-        <Key className="h-12 w-12 mb-2 opacity-50" />
-        <p>暂无权限数据</p>
-      </div>
+      <EmptyState
+        icon={Key}
+        title="暂无权限数据"
+        description="还没有创建任何权限，点击上方按钮添加新权限"
+        className="py-12"
+      />
     );
   }
 
@@ -207,7 +227,7 @@ export const PermissionTreeView: React.FC<PermissionTreeViewProps> = ({
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => onDelete?.(permission)}
+                            onClick={() => handleDeleteClick(permission)}
                             className="text-red-600 hover:text-red-700"
                           >
                             删除
@@ -222,6 +242,18 @@ export const PermissionTreeView: React.FC<PermissionTreeViewProps> = ({
           </Collapsible>
         );
       })}
+
+      {/* 删除确认对话框 */}
+      <DeleteConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        resourceName={selectedPermission?.name}
+        resourceType="权限"
+        title="确认删除权限"
+        description={`您确定要删除权限 "${selectedPermission?.name}" 吗？此操作无法撤销，该权限的所有关联也将被移除。`}
+        confirmText="确认删除"
+      />
     </div>
   );
 };
