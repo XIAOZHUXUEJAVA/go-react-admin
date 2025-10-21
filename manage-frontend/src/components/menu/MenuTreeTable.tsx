@@ -34,6 +34,7 @@ import {
 import { type Menu } from "@/types/menu";
 import * as LucideIcons from "lucide-react";
 import { LoadingState } from "@/components/common";
+import { PermissionButton } from "@/components/auth";
 
 interface MenuTreeTableProps {
   menus: Menu[];
@@ -223,31 +224,35 @@ export function MenuTreeTable({
           {/* 操作 */}
           <TableCell>
             <div className="flex items-center gap-1">
-              <Button
+              <PermissionButton
+                permission="menu:create"
                 variant="ghost"
                 size="sm"
                 onClick={() => onCreate(menu)}
                 title="添加子菜单"
               >
                 <Plus className="h-4 w-4" />
-              </Button>
-              <Button
+              </PermissionButton>
+              <PermissionButton
+                permission="menu:update"
                 variant="ghost"
                 size="sm"
                 onClick={() => onEdit(menu)}
                 title="编辑"
               >
                 <Edit className="h-4 w-4" />
-              </Button>
-              <Button
+              </PermissionButton>
+              <PermissionButton
+                permission="menu:delete"
                 variant="ghost"
                 size="sm"
                 onClick={() => handleDeleteClick(menu)}
                 title="删除"
                 disabled={hasChildren}
+                hideWhenNoPermission
               >
                 <Trash2 className="h-4 w-4" />
-              </Button>
+              </PermissionButton>
             </div>
           </TableCell>
         </TableRow>

@@ -14,10 +14,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DeleteConfirmDialog, TableEmptyState, LoadingState } from "@/components/common";
+import { PermissionDropdownMenuItem } from "@/components/auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -144,26 +144,32 @@ export const RoleManagementTable: React.FC<RoleManagementTableProps> = ({
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>操作</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem
+                        <PermissionDropdownMenuItem
+                          permission="role:assign_permissions"
                           onClick={() => handleAssignPermissions(role)}
                         >
                           <Key className="mr-2 h-4 w-4" />
                           分配权限
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleEdit(role)}>
+                        </PermissionDropdownMenuItem>
+                        <PermissionDropdownMenuItem 
+                          permission="role:update"
+                          onClick={() => handleEdit(role)}
+                        >
                           <Edit className="mr-2 h-4 w-4" />
                           编辑
-                        </DropdownMenuItem>
+                        </PermissionDropdownMenuItem>
                         {!role.is_system && (
                           <>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem
+                            <PermissionDropdownMenuItem
+                              permission="role:delete"
                               onClick={() => handleDeleteClick(role)}
                               className="text-red-600"
+                              hideWhenNoPermission
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
                               删除
-                            </DropdownMenuItem>
+                            </PermissionDropdownMenuItem>
                           </>
                         )}
                       </DropdownMenuContent>

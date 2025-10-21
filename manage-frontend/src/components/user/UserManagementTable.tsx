@@ -17,7 +17,6 @@ import { DeleteConfirmDialog, TableLoadingSkeleton } from "@/components/common";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -26,6 +25,7 @@ import { MoreHorizontal, Eye, Edit, Trash2, Mail } from "lucide-react";
 import { UserDetailModal } from "./UserDetailModal";
 import { formatDateTable } from "@/lib/date";
 import { EditUserModal } from "./EditUserModal";
+import { PermissionDropdownMenuItem } from "@/components/auth";
 
 interface UserManagementTableProps {
   users: User[];
@@ -108,7 +108,9 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           { header: "创建时间", skeleton: "w-24" },
           {
             header: "操作",
-            skeleton: <div className="h-8 w-8 bg-gray-200 rounded animate-pulse ml-auto" />,
+            skeleton: (
+              <div className="h-8 w-8 bg-gray-200 rounded animate-pulse ml-auto" />
+            ),
           },
         ]}
       />
@@ -180,22 +182,30 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>操作</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => handleViewUser(user)}>
+                      <PermissionDropdownMenuItem
+                        permission="user:read"
+                        onClick={() => handleViewUser(user)}
+                      >
                         <Eye className="mr-2 h-4 w-4" />
                         查看详情
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleEditUser(user)}>
+                      </PermissionDropdownMenuItem>
+                      <PermissionDropdownMenuItem
+                        permission="user:update"
+                        onClick={() => handleEditUser(user)}
+                      >
                         <Edit className="mr-2 h-4 w-4" />
                         编辑用户
-                      </DropdownMenuItem>
+                      </PermissionDropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem
+                      <PermissionDropdownMenuItem
+                        permission="user:delete"
                         className="text-red-600"
                         onClick={() => handleDeleteUser(user)}
+                        hideWhenNoPermission
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
                         删除用户
-                      </DropdownMenuItem>
+                      </PermissionDropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

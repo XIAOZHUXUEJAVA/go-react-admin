@@ -13,10 +13,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DeleteConfirmDialog, TableEmptyState, LoadingState } from "@/components/common";
+import { PermissionDropdownMenuItem } from "@/components/auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -165,20 +165,23 @@ export const PermissionManagementTable: React.FC<
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>操作</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem
+                        <PermissionDropdownMenuItem
+                          permission="permission:update"
                           onClick={() => handleEdit(permission)}
                         >
                           <Edit className="mr-2 h-4 w-4" />
                           编辑
-                        </DropdownMenuItem>
+                        </PermissionDropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem
+                        <PermissionDropdownMenuItem
+                          permission="permission:delete"
                           onClick={() => handleDeleteClick(permission)}
                           className="text-red-600"
+                          hideWhenNoPermission
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           删除
-                        </DropdownMenuItem>
+                        </PermissionDropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
