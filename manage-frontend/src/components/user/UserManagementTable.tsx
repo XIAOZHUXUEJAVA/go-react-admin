@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DeleteConfirmDialog } from "@/components/common";
+import { DeleteConfirmDialog, TableLoadingSkeleton } from "@/components/common";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -87,50 +87,31 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   // 加载状态
   if (loading) {
     return (
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>用户</TableHead>
-              <TableHead>邮箱</TableHead>
-              <TableHead>角色</TableHead>
-              <TableHead>状态</TableHead>
-              <TableHead>创建时间</TableHead>
-              <TableHead className="text-right">操作</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {Array.from({ length: 5 }).map((_, index) => (
-              <TableRow key={index}>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
-                    <div className="space-y-2">
-                      <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-                      <div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
-                </TableCell>
-                <TableCell>
-                  <div className="h-6 w-16 bg-gray-200 rounded animate-pulse" />
-                </TableCell>
-                <TableCell>
-                  <div className="h-6 w-16 bg-gray-200 rounded animate-pulse" />
-                </TableCell>
-                <TableCell>
+      <TableLoadingSkeleton
+        rows={5}
+        columns={[
+          {
+            header: "用户",
+            skeleton: (
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
+                <div className="space-y-2">
                   <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-                </TableCell>
-                <TableCell>
-                  <div className="h-8 w-8 bg-gray-200 rounded animate-pulse ml-auto" />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+                  <div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
+                </div>
+              </div>
+            ),
+          },
+          { header: "邮箱", skeleton: "w-32" },
+          { header: "角色", skeleton: "w-16" },
+          { header: "状态", skeleton: "w-16" },
+          { header: "创建时间", skeleton: "w-24" },
+          {
+            header: "操作",
+            skeleton: <div className="h-8 w-8 bg-gray-200 rounded animate-pulse ml-auto" />,
+          },
+        ]}
+      />
     );
   }
 

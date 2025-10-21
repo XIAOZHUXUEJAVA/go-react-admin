@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { type Menu } from "@/types/menu";
 import * as LucideIcons from "lucide-react";
+import { LoadingState } from "@/components/common";
 
 interface MenuTreeTableProps {
   menus: Menu[];
@@ -260,11 +261,7 @@ export function MenuTreeTable({
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground">加载中...</div>
-      </div>
-    );
+    return <LoadingState mode="text" text="加载菜单数据..." padding="py-16" />;
   }
 
   return (

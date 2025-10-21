@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, Star, BookOpen } from "lucide-react";
 import { PermissionButton } from "@/components/auth";
-import { DeleteConfirmDialog, TableEmptyState } from "@/components/common";
+import { DeleteConfirmDialog, TableEmptyState, LoadingState } from "@/components/common";
 
 interface DictItemTableProps {
   dictItems: DictItem[];
@@ -42,12 +42,7 @@ export const DictItemTable: React.FC<DictItemTableProps> = ({
     }
   };
   if (loading) {
-    return (
-      <div className="text-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-        <p className="mt-2 text-sm text-gray-500">加载中...</p>
-      </div>
-    );
+    return <LoadingState mode="text" text="加载字典项..." />;
   }
 
   const renderExtra = (extra?: Record<string, unknown>) => {

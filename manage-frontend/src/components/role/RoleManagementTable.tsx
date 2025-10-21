@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DeleteConfirmDialog, TableEmptyState } from "@/components/common";
+import { DeleteConfirmDialog, TableEmptyState, LoadingState } from "@/components/common";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -73,11 +73,7 @@ export const RoleManagementTable: React.FC<RoleManagementTableProps> = ({
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-      </div>
-    );
+    return <LoadingState mode="spinner" />;
   }
 
   return (
