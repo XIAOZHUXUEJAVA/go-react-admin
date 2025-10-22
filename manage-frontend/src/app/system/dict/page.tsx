@@ -26,7 +26,7 @@ import {
 } from "@/components/features/system/dict";
 import { dictApi } from "@/api/dict";
 import { toast } from "sonner";
-import { getErrorMessage } from "@/lib/error-handler";
+import { getErrorMessage } from "@/lib/errorHandler";
 import { PagePermissionGuard, PermissionButton } from "@/components/auth";
 import { Input } from "@/components/ui/input";
 import {

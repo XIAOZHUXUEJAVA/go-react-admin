@@ -27,7 +27,7 @@ import {
 } from "@/components/features/system/permission";
 import { permissionApi } from "@/api";
 import { toast } from "sonner";
-import { getErrorMessage } from "@/lib/error-handler";
+import { getErrorMessage } from "@/lib/errorHandler";
 import { PagePermissionGuard, PermissionButton } from "@/components/auth";
 
 /**

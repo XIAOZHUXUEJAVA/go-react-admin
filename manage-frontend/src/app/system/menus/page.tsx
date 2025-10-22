@@ -19,7 +19,7 @@ import {
 } from "@/components/features/system/menu";
 import { menuApi } from "@/api/menu";
 import { type Menu } from "@/types/menu";
-import { getErrorMessage } from "@/lib/error-handler";
+import { getErrorMessage } from "@/lib/errorHandler";
 import { PagePermissionGuard, PermissionButton } from "@/components/auth";
 
 export default function MenusManagePage() {

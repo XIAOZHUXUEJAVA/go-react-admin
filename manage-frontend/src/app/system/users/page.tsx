@@ -22,7 +22,7 @@ import {
 import { userApi } from "@/api";
 import { CreateUserRequest, UpdateUserRequest } from "@/types/api";
 import { toast } from "sonner";
-import { getErrorMessage } from "@/lib/error-handler";
+import { getErrorMessage } from "@/lib/errorHandler";
 import { PagePermissionGuard, PermissionButton } from "@/components/auth";
 
 /**

@@ -18,7 +18,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuthStore } from "@/stores/authStore";
 import { cn } from "@/lib/utils";
-import { getErrorMessage } from "@/lib/error-handler";
+import { getErrorMessage } from "@/lib/errorHandler";
 import {
   Eye,
   EyeOff,

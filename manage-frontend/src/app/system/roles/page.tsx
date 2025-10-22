@@ -22,7 +22,7 @@ import {
 } from "@/components/features/system/role";
 import { roleApi } from "@/api";
 import { toast } from "sonner";
-import { getErrorMessage } from "@/lib/error-handler";
+import { getErrorMessage } from "@/lib/errorHandler";
 import { PagePermissionGuard, PermissionButton } from "@/components/auth";
 
 /**

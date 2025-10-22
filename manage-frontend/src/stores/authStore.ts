@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { AuthStore, LoginRequest, RegisterRequest } from "@/types/auth";
 import { authApi, userApi } from "@/api";
 import { toast } from "sonner";
-import { ErrorHandler, parseError } from "@/lib/error-handler";
+import { ErrorHandler, parseError } from "@/lib/errorHandler";
 import {
   getAccessToken,
   getRefreshToken,

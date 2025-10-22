@@ -19,7 +19,7 @@ import { Permission } from "@/types/permission";
 import { useAllPermissions } from "@/hooks/usePermissions";
 import { roleApi } from "@/api";
 import { toast } from "sonner";
-import { getErrorMessage } from "@/lib/error-handler";
+import { getErrorMessage } from "@/lib/errorHandler";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 

@@ -1,14 +1,19 @@
 /**
  * 错误处理工具使用示例
  * 这个文件展示了如何在不同场景下使用 error-handler
- * 
+ *
  * 注意：这是示例文件，包含未使用的函数和变量，这是正常的
  * eslint-disable 用于忽略示例代码的 lint 警告
  */
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { ErrorHandler, getErrorMessage, parseError, withRetry } from "./error-handler";
+import {
+  ErrorHandler,
+  getErrorMessage,
+  parseError,
+  withRetry,
+} from "./errorHandler";
 import { toast } from "sonner";
 import { CreateUserRequest, UpdateUserRequest, User } from "@/types/api";
 
@@ -78,7 +83,10 @@ function Example3_ReactComponent() {
     }
   };
 
-  const handleUpdateUser = async (userId: number, userData: UpdateUserRequest) => {
+  const handleUpdateUser = async (
+    userId: number,
+    userData: UpdateUserRequest
+  ) => {
     try {
       const response = await userApi.updateUser(userId, userData);
       toast.success("用户更新成功");
@@ -178,10 +186,10 @@ async function example6_BatchOperations() {
 // ============================================
 async function example7_CustomMessages() {
   try {
-    await userApi.createUser({ 
-      username: "test", 
-      email: "test@example.com", 
-      password: "password123" 
+    await userApi.createUser({
+      username: "test",
+      email: "test@example.com",
+      password: "password123",
     });
   } catch (error) {
     const standardError = parseError(error, {
@@ -220,8 +228,20 @@ async function example8_ReusableHandler() {
   const handleUpdate = handleUserOperation("更新用户");
   const handleDelete = handleUserOperation("删除用户");
 
-  await handleCreate(() => userApi.createUser({ username: "test", email: "test@example.com", password: "password" }));
-  await handleUpdate(() => userApi.updateUser(1, { id: 1, username: "test2", email: "test2@example.com" }));
+  await handleCreate(() =>
+    userApi.createUser({
+      username: "test",
+      email: "test@example.com",
+      password: "password",
+    })
+  );
+  await handleUpdate(() =>
+    userApi.updateUser(1, {
+      id: 1,
+      username: "test2",
+      email: "test2@example.com",
+    })
+  );
   await handleDelete(() => userApi.deleteUser(1));
 }
 
@@ -266,7 +286,7 @@ function GlobalErrorHandler(error: Error, errorInfo: React.ErrorInfo) {
 
   // 显示用户友好的错误消息
   toast.error(standardError.message);
-  
+
   // 可以记录 errorInfo 用于调试
   console.error("Component stack:", errorInfo.componentStack);
 }
@@ -280,9 +300,15 @@ const someApiCall = async (): Promise<void> => {
 
 const userApi = {
   createUser: async (data: CreateUserRequest) => ({ code: 201, data }),
-  updateUser: async (id: number, data: UpdateUserRequest) => ({ code: 200, data }),
+  updateUser: async (id: number, data: UpdateUserRequest) => ({
+    code: 200,
+    data,
+  }),
   deleteUser: async (id: number) => ({ code: 200, data: null }),
-  getUsers: async (params: { page: number; pageSize: number }) => ({ code: 200, data: [] as User[] }),
+  getUsers: async (params: { page: number; pageSize: number }) => ({
+    code: 200,
+    data: [] as User[],
+  }),
 };
 
 export {
