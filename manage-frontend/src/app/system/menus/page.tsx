@@ -12,7 +12,11 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
-import { MenuTreeTable, MenuEditDialog, MenuStatsCards } from "@/components/menu";
+import {
+  MenuTreeTable,
+  MenuEditDialog,
+  MenuStatsCards,
+} from "@/components/features/system/menu";
 import { menuApi } from "@/api/menu";
 import { type Menu } from "@/types/menu";
 import { getErrorMessage } from "@/lib/error-handler";

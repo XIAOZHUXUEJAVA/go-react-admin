@@ -1,7 +1,7 @@
 // 组件库总入口文件
 
 // 用户管理模块
-export * from "./user";
+export * from "./features/system/user";
 
 // 布局模块
 export * from "./layout";
@@ -19,7 +19,7 @@ export * from "./forms";
 export * from "./auth";
 
 // 审计日志模块
-export * from "./audit";
+export * from "./features/audit";
 
 // UI基础组件
 export * from "./ui";

@@ -18,7 +18,7 @@ import {
   UserStatsCards,
   UserSearchFilter,
   AddUserModal,
-} from "@/components/user";
+} from "@/components/features/system/user";
 import { userApi } from "@/api";
 import { CreateUserRequest, UpdateUserRequest } from "@/types/api";
 import { toast } from "sonner";

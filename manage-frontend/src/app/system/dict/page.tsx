@@ -2,7 +2,12 @@
 
 import React, { useState } from "react";
 import { useDictTypes, useDictItems } from "@/hooks/useDict";
-import { DictType, DictItem, CreateDictTypeRequest, CreateDictItemRequest } from "@/types/dict";
+import {
+  DictType,
+  DictItem,
+  CreateDictTypeRequest,
+  CreateDictItemRequest,
+} from "@/types/dict";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +23,7 @@ import {
   DictTypeModal,
   DictItemTable,
   DictItemModal,
-} from "@/components/dict";
+} from "@/components/features/system/dict";
 import { dictApi } from "@/api/dict";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/error-handler";
@@ -45,7 +50,9 @@ export default function DictManagePage() {
     page_size: 10,
   });
 
-  const [selectedDictType, setSelectedDictType] = useState<DictType | null>(null);
+  const [selectedDictType, setSelectedDictType] = useState<DictType | null>(
+    null
+  );
   const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [editingType, setEditingType] = useState<DictType | null>(null);
@@ -355,7 +362,9 @@ export default function DictManagePage() {
               <>
                 {typeError ? (
                   <div className="text-center py-8">
-                    <p className="text-red-500">加载失败: {typeError.message}</p>
+                    <p className="text-red-500">
+                      加载失败: {typeError.message}
+                    </p>
                     <Button onClick={refetchTypes} className="mt-2">
                       重试
                     </Button>
@@ -397,18 +406,29 @@ export default function DictManagePage() {
           </CardContent>
         </Card>
 
-        {((viewMode === "types" && typePagination && filteredDictTypes.length > 0) ||
-          (viewMode === "items" && itemPagination && dictItems && dictItems.length > 0)) && (
+        {((viewMode === "types" &&
+          typePagination &&
+          filteredDictTypes.length > 0) ||
+          (viewMode === "items" &&
+            itemPagination &&
+            dictItems &&
+            dictItems.length > 0)) && (
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
                   {viewMode === "types"
-                    ? `显示第 ${(typePagination!.page - 1) * typePagination!.page_size + 1} - ${Math.min(
+                    ? `显示第 ${
+                        (typePagination!.page - 1) * typePagination!.page_size +
+                        1
+                      } - ${Math.min(
                         typePagination!.page * typePagination!.page_size,
                         typePagination!.total
                       )} 条，共 ${typePagination!.total} 条记录`
-                    : `显示第 ${(itemPagination!.page - 1) * itemPagination!.page_size + 1} - ${Math.min(
+                    : `显示第 ${
+                        (itemPagination!.page - 1) * itemPagination!.page_size +
+                        1
+                      } - ${Math.min(
                         itemPagination!.page * itemPagination!.page_size,
                         itemPagination!.total
                       )} 条，共 ${itemPagination!.total} 条记录`}
@@ -419,11 +439,14 @@ export default function DictManagePage() {
                     size="sm"
                     onClick={() =>
                       handlePageChange(
-                        (viewMode === "types" ? typePagination : itemPagination)!.page - 1
+                        (viewMode === "types"
+                          ? typePagination
+                          : itemPagination)!.page - 1
                       )
                     }
                     disabled={
-                      (viewMode === "types" ? typePagination : itemPagination)!.page <= 1
+                      (viewMode === "types" ? typePagination : itemPagination)!
+                        .page <= 1
                     }
                   >
                     上一页
@@ -433,8 +456,9 @@ export default function DictManagePage() {
                       {
                         length: Math.min(
                           5,
-                          (viewMode === "types" ? typePagination : itemPagination)!
-                            .total_pages
+                          (viewMode === "types"
+                            ? typePagination
+                            : itemPagination)!.total_pages
                         ),
                       },
                       (_, i) => {
@@ -443,8 +467,9 @@ export default function DictManagePage() {
                           <Button
                             key={pageNum}
                             variant={
-                              (viewMode === "types" ? typePagination : itemPagination)!
-                                .page === pageNum
+                              (viewMode === "types"
+                                ? typePagination
+                                : itemPagination)!.page === pageNum
                                 ? "default"
                                 : "outline"
                             }
@@ -462,12 +487,16 @@ export default function DictManagePage() {
                     size="sm"
                     onClick={() =>
                       handlePageChange(
-                        (viewMode === "types" ? typePagination : itemPagination)!.page + 1
+                        (viewMode === "types"
+                          ? typePagination
+                          : itemPagination)!.page + 1
                       )
                     }
                     disabled={
-                      (viewMode === "types" ? typePagination : itemPagination)!.page >=
-                      (viewMode === "types" ? typePagination : itemPagination)!.total_pages
+                      (viewMode === "types" ? typePagination : itemPagination)!
+                        .page >=
+                      (viewMode === "types" ? typePagination : itemPagination)!
+                        .total_pages
                     }
                   >
                     下一页

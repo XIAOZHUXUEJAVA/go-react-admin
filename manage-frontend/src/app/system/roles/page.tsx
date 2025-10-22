@@ -19,7 +19,7 @@ import {
   EditRoleModal,
   RoleStatsCards,
   AssignPermissionsModal,
-} from "@/components/role";
+} from "@/components/features/system/role";
 import { roleApi } from "@/api";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/error-handler";

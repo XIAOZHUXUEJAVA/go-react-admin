@@ -24,7 +24,7 @@ import {
   AddPermissionModal,
   EditPermissionModal,
   PermissionStatsCards,
-} from "@/components/permission";
+} from "@/components/features/system/permission";
 import { permissionApi } from "@/api";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/error-handler";

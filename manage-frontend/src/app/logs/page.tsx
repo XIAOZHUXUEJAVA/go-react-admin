@@ -19,7 +19,7 @@ import {
   AuditLogTable,
   AuditLogDetailModal,
   CleanLogsModal,
-} from "@/components/audit";
+} from "@/components/features/audit";
 import { auditApi } from "@/api";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/error-handler";
@@ -29,11 +29,12 @@ import { PagePermissionGuard, PermissionButton } from "@/components/auth";
  * 日志管理页面
  */
 export default function LogsManagePage() {
-  const { logs, pagination, loading, error, fetchLogs, refetch } =
-    useAuditLogs({
+  const { logs, pagination, loading, error, fetchLogs, refetch } = useAuditLogs(
+    {
       page: 1,
       page_size: 10,
-    });
+    }
+  );
 
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -136,9 +137,7 @@ export default function LogsManagePage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">日志管理</h1>
-            <p className="text-muted-foreground">
-              查看和管理系统审计日志记录
-            </p>
+            <p className="text-muted-foreground">查看和管理系统审计日志记录</p>
           </div>
         </div>
 
@@ -158,7 +157,12 @@ export default function LogsManagePage() {
             <CardTitle>审计日志列表</CardTitle>
             <CardDescription>
               {pagination
-                ? `显示第 ${(pagination.page - 1) * pagination.page_size + 1} - ${Math.min(pagination.page * pagination.page_size, pagination.total)} 条，共 ${pagination.total} 条记录`
+                ? `显示第 ${
+                    (pagination.page - 1) * pagination.page_size + 1
+                  } - ${Math.min(
+                    pagination.page * pagination.page_size,
+                    pagination.total
+                  )} 条，共 ${pagination.total} 条记录`
                 : `显示 ${logs.length} 条记录`}
             </CardDescription>
           </CardHeader>
