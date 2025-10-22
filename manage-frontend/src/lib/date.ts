@@ -31,6 +31,15 @@ export const formatDateShort = (date: string | Date): string => {
 };
 
 /**
+ * 格式化日期为标准格式（带秒）
+ * @param date 日期字符串或 Date 对象
+ * @returns 格式化后的日期字符串 (YYYY-MM-DD HH:mm:ss)
+ */
+export const formatDateWithSeconds = (date: string | Date): string => {
+  return dayjs(date).format("YYYY-MM-DD HH:mm:ss");
+};
+
+/**
  * 格式化日期为表格显示格式
  * @param date 日期字符串或 Date 对象
  * @returns 格式化后的日期字符串 (MM/DD HH:mm)

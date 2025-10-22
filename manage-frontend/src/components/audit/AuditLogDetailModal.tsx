@@ -9,7 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { AuditLog } from "@/types/audit";
-import dayjs from "dayjs";
+import { formatDateWithSeconds } from "@/lib/date";
 
 interface AuditLogDetailModalProps {
   open: boolean;
@@ -51,15 +51,6 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
     }
   };
 
-  // 格式化时间
-  const formatDate = (dateString: string) => {
-    try {
-      return dayjs(dateString).format("YYYY-MM-DD HH:mm:ss");
-    } catch {
-      return dateString;
-    }
-  };
-
   // 格式化 JSON
   const formatJSON = (jsonString: string) => {
     try {
@@ -98,7 +89,7 @@ export const AuditLogDetailModal: React.FC<AuditLogDetailModalProps> = ({
               <div>
                 <span className="text-muted-foreground">创建时间:</span>
                 <span className="ml-2 font-medium">
-                  {formatDate(log.created_at)}
+                  {formatDateWithSeconds(log.created_at)}
                 </span>
               </div>
             </div>

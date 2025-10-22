@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Eye, FileText } from "lucide-react";
 import { TableEmptyState } from "@/components/common";
 import { AuditLog } from "@/types/audit";
-import dayjs from "dayjs";
+import { formatDateWithSeconds } from "@/lib/date";
 
 interface AuditLogTableProps {
   logs: AuditLog[];
@@ -25,15 +25,6 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({
   loading,
   onView,
 }) => {
-  // 格式化时间
-  const formatDate = (dateString: string) => {
-    try {
-      return dayjs(dateString).format("YYYY-MM-DD HH:mm:ss");
-    } catch {
-      return dateString;
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -104,7 +95,7 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({
                   <span className="text-sm">{log.duration}ms</span>
                 </TableCell>
                 <TableCell>
-                  <span className="text-sm">{formatDate(log.created_at)}</span>
+                  <span className="text-sm">{formatDateWithSeconds(log.created_at)}</span>
                 </TableCell>
                 <TableCell className="text-right">
                   <Button
