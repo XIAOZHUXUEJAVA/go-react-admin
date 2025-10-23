@@ -43,6 +43,7 @@ func SetupRoutes(router *gin.RouterGroup, db *gorm.DB, enforcer *casbin.Enforcer
 	auditLogRepo := repository.NewAuditLogRepository(db)
 	dictTypeRepo := repository.NewDictTypeRepository(db)
 	dictItemRepo := repository.NewDictItemRepository(db)
+	passwordResetRepo := repository.NewPasswordResetRepository(db)
 
 	// 初始化服务层
 	sessionService := service.NewSessionService(redisClient, jwtManager)
@@ -53,6 +54,8 @@ func SetupRoutes(router *gin.RouterGroup, db *gorm.DB, enforcer *casbin.Enforcer
 	auditLogService := service.NewAuditLogService(auditLogRepo)
 	dictTypeService := service.NewDictTypeService(dictTypeRepo, dictItemRepo)
 	dictItemService := service.NewDictItemService(dictTypeRepo, dictItemRepo)
+	emailService := service.NewEmailService(cfg)
+	passwordResetService := service.NewPasswordResetService(cfg, userRepo, passwordResetRepo, emailService, auditLogService)
 	
 	// 验证码配置
 	captchaConfig := service.CaptchaConfig{
@@ -93,6 +96,7 @@ func SetupRoutes(router *gin.RouterGroup, db *gorm.DB, enforcer *casbin.Enforcer
 	auditLogHandler := NewAuditLogHandler(auditLogService)
 	dictTypeHandler := NewDictTypeHandler(dictTypeService)
 	dictItemHandler := NewDictItemHandler(dictItemService)
+	passwordResetHandler := NewPasswordResetHandler(passwordResetService)
 
 	// 审计日志中间件配置
 	auditConfig := middleware.DefaultAuditLogConfig()
@@ -114,6 +118,9 @@ func SetupRoutes(router *gin.RouterGroup, db *gorm.DB, enforcer *casbin.Enforcer
 		authRoutes.POST("/register", userHandler.Register)
 		authRoutes.POST("/login", userHandler.Login)
 		authRoutes.POST("/refresh", userHandler.RefreshToken)
+		authRoutes.POST("/forgot-password", passwordResetHandler.ForgotPassword)
+		authRoutes.POST("/verify-reset-token", passwordResetHandler.VerifyResetToken)
+		authRoutes.POST("/reset-password", passwordResetHandler.ResetPassword)
 	}
 
 	// 受保护的路由（需要认证）

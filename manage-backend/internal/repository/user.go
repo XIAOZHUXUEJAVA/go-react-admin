@@ -126,3 +126,12 @@ func (r *UserRepository) CheckEmailExistsExcludeID(email string, excludeID uint)
 	err := r.db.Model(&model.User{}).Where("email = ? AND id != ?", email, excludeID).Count(&count).Error
 	return count > 0, err
 }
+
+// UpdatePassword 更新用户密码
+// 参数: userID - 用户ID, hashedPassword - 加密后的密码
+// 返回: error - 操作是否成功
+func (r *UserRepository) UpdatePassword(userID uint, hashedPassword string) error {
+	return r.db.Model(&model.User{}).
+		Where("id = ?", userID).
+		Update("password", hashedPassword).Error
+}

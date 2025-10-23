@@ -3,13 +3,13 @@ log_level: info
 
 # 日志配置
 log:
-  level: info              # 日志级别: debug, info, warn, error
-  format: console          # 日志格式: json, console (开发环境推荐 console)
-  output_path: stdout      # 日志输出路径: stdout 或文件路径如 logs/app.log
-  max_size: 100            # 单个日志文件最大大小(MB)
-  max_backups: 3           # 保留的旧日志文件最大数量
-  max_age: 7               # 保留旧日志文件的最大天数
-  compress: false          # 是否压缩旧日志文件
+  level: info # 日志级别: debug, info, warn, error
+  format: console # 日志格式: json, console (开发环境推荐 console)
+  output_path: stdout # 日志输出路径: stdout 或文件路径如 logs/app.log
+  max_size: 100 # 单个日志文件最大大小(MB)
+  max_backups: 3 # 保留的旧日志文件最大数量
+  max_age: 7 # 保留旧日志文件的最大天数
+  compress: false # 是否压缩旧日志文件
 
 database:
   host: localhost
@@ -56,3 +56,17 @@ captcha:
 
   # 是否启用验证码
   enabled: true
+
+# 邮件配置
+email:
+  smtp_host: "smtp.163.com" # SMTP服务器地址
+  smtp_port: 465 # SMTP端口 (465=SSL, 587=TLS)
+  username: "xiaozhuzhulzq@163.com" # 邮箱账号
+  password: "ZHRHuSbdktXpsyeG" # 邮箱授权码（不是登录密码）
+  from_name: "Go Manage System" # 发件人名称
+  from_address: "xiaozhuzhulzq@163.com" # 发件人邮箱
+
+# 密码重置配置
+password_reset:
+  token_expire_minutes: 60 # Token有效期（分钟）
+  frontend_url: "http://localhost:3000" # 前端地址

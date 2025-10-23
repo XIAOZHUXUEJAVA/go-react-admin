@@ -8,14 +8,16 @@ import (
 )
 
 type Config struct {
-	Environment string        `mapstructure:"environment"`
-	Port        string        `mapstructure:"port"`
-	LogLevel    string        `mapstructure:"log_level"`
-	Log         LogConfig     `mapstructure:"log"`
-	Database    Database      `mapstructure:"database"`
-	Redis       Redis         `mapstructure:"redis"`
-	JWT         JWT           `mapstructure:"jwt"`
-	Captcha     CaptchaConfig `mapstructure:"captcha"`
+	Environment   string                `mapstructure:"environment"`
+	Port          string                `mapstructure:"port"`
+	LogLevel      string                `mapstructure:"log_level"`
+	Log           LogConfig             `mapstructure:"log"`
+	Database      Database              `mapstructure:"database"`
+	Redis         Redis                 `mapstructure:"redis"`
+	JWT           JWT                   `mapstructure:"jwt"`
+	Captcha       CaptchaConfig         `mapstructure:"captcha"`
+	Email         EmailConfig           `mapstructure:"email"`
+	PasswordReset PasswordResetConfig   `mapstructure:"password_reset"`
 }
 
 type Database struct {
@@ -50,6 +52,22 @@ type LogConfig struct {
 	MaxBackups int    `mapstructure:"max_backups"` // 保留的旧日志文件最大数量
 	MaxAge     int    `mapstructure:"max_age"`     // 保留旧日志文件的最大天数
 	Compress   bool   `mapstructure:"compress"`    // 是否压缩旧日志文件
+}
+
+// EmailConfig 邮件配置
+type EmailConfig struct {
+	SMTPHost    string `mapstructure:"smtp_host"`
+	SMTPPort    int    `mapstructure:"smtp_port"`
+	Username    string `mapstructure:"username"`
+	Password    string `mapstructure:"password"`
+	FromName    string `mapstructure:"from_name"`
+	FromAddress string `mapstructure:"from_address"`
+}
+
+// PasswordResetConfig 密码重置配置
+type PasswordResetConfig struct {
+	TokenExpireMinutes int    `mapstructure:"token_expire_minutes"`
+	FrontendURL        string `mapstructure:"frontend_url"`
 }
 
 func Load() *Config {

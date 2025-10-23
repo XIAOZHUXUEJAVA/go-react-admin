@@ -70,6 +70,18 @@ export const authApi = {
   },
 
   /**
+   * 验证重置Token
+   */
+  verifyResetToken: async (
+    token: string
+  ): Promise<APIResponse<{ valid: boolean; email: string }>> => {
+    return ApiService.post<{ valid: boolean; email: string }>(
+      "/auth/verify-reset-token",
+      { token }
+    );
+  },
+
+  /**
    * 重置密码
    */
   resetPassword: async (

@@ -112,7 +112,6 @@ _一个基于 Go + React + Next.js 构建的前后端分离管理系统模板，
 - `@tanstack/react-table` - 强大的表格组件
 - `@tabler/icons-react` - 图标库
 - `lucide-react` - 现代图标库
-- `next-themes` - 主题切换（暗黑模式）
 - `@dnd-kit` - 拖拽功能
 - `dayjs` - 日期处理
 

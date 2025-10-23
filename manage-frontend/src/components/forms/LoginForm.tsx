@@ -198,12 +198,8 @@ export function LoginForm({
                       <div className="flex items-center justify-between">
                         <FormLabel>密码</FormLabel>
                         <a
-                          href="#"
+                          href="/forgot-password"
                           className="text-sm underline-offset-4 hover:underline text-muted-foreground"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            toast.info("忘记密码功能即将推出");
-                          }}
                         >
                           忘记密码？
                         </a>
