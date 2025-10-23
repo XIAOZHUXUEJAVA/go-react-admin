@@ -62,7 +62,7 @@ email:
   smtp_host: "smtp.163.com" # SMTP服务器地址
   smtp_port: 465 # SMTP端口 (465=SSL, 587=TLS)
   username: "xiaozhuzhulzq@163.com" # 邮箱账号
-  password: "ZHRHuSbdktXpsyeG" # 邮箱授权码（不是登录密码）
+  password: "" # 邮箱授权码（不是登录密码）
   from_name: "Go Manage System" # 发件人名称
   from_address: "xiaozhuzhulzq@163.com" # 发件人邮箱
 
