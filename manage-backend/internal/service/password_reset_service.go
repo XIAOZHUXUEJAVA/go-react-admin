@@ -11,6 +11,7 @@ import (
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/repository"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/utils"
+	apperrors "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/errors"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/logger"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -68,7 +69,7 @@ func (s *passwordResetService) RequestPasswordReset(ctx context.Context, email, 
 			logger.Warn("IP请求频率超限，拒绝请求",
 				zap.String("ip", ipAddress),
 				zap.Int("remaining", remaining))
-			return fmt.Errorf("请求过于频繁，请1小时后再试（剩余次数：%d）", remaining)
+			return apperrors.NewRateLimitError(fmt.Sprintf("请求过于频繁，请1小时后再试（剩余次数：%d）", remaining))
 		} else {
 			logger.Debug("IP限流检查通过",
 				zap.String("ip", ipAddress),
@@ -85,7 +86,7 @@ func (s *passwordResetService) RequestPasswordReset(ctx context.Context, email, 
 			logger.Warn("邮箱请求频率超限，拒绝请求",
 				zap.String("email", email),
 				zap.Int("remaining", remaining))
-			return fmt.Errorf("该邮箱请求过于频繁，请1小时后再试（剩余次数：%d）", remaining)
+			return apperrors.NewRateLimitError(fmt.Sprintf("该邮箱请求过于频繁，请1小时后再试（剩余次数：%d）", remaining))
 		} else {
 			logger.Debug("邮箱限流检查通过",
 				zap.String("email", email),

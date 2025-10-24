@@ -2,12 +2,12 @@ package handler
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/service"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/utils"
+	apperrors "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/errors"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/logger"
 	"go.uber.org/zap"
 )
@@ -57,19 +57,17 @@ func (h *PasswordResetHandler) ForgotPassword(c *gin.Context) {
 			zap.Error(err),
 			zap.String("operation", "forgot_password"))
 		
-		// 检查是否是限流错误
-		errMsg := err.Error()
-		if strings.Contains(errMsg, "请求过于频繁") || strings.Contains(errMsg, "1小时后再试") {
-			// 限流错误 - 返回429状态码和具体错误信息
-			c.JSON(http.StatusTooManyRequests, gin.H{
-				"code":    http.StatusTooManyRequests,
-				"message": errMsg,
+		// 使用自定义错误类型处理
+		if appErr, ok := apperrors.GetAppError(err); ok {
+			c.JSON(appErr.Code, gin.H{
+				"code":    appErr.Code,
+				"message": appErr.Message,
 				"data":    nil,
 			})
 			return
 		}
 		
-		// 其他错误
+		// 未知错误
 		utils.InternalServerError(c, "处理失败，请稍后重试")
 		return
 	}

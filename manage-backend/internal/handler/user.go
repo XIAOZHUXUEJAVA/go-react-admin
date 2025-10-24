@@ -3,12 +3,12 @@ package handler
 import (
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/service"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/utils"
+	apperrors "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/errors"
 )
 
 type UserHandler struct {
@@ -88,42 +88,18 @@ func (h *UserHandler) Login(c *gin.Context) {
 
 	response, err := h.userService.LoginWithContext(c.Request.Context(), &req, deviceInfo, ipAddress, userAgent)
 	if err != nil {
-		errMsg := err.Error()
-		
-		// 检查是否是限流错误
-		if strings.Contains(errMsg, "请求过于频繁") || strings.Contains(errMsg, "1小时后再试") {
-			// IP限流 - 返回429
-			c.JSON(http.StatusTooManyRequests, gin.H{
-				"code":    http.StatusTooManyRequests,
-				"message": errMsg,
+		// 使用自定义错误类型处理
+		if appErr, ok := apperrors.GetAppError(err); ok {
+			// 使用错误对象的HTTP状态码和消息
+			c.JSON(appErr.Code, gin.H{
+				"code":    appErr.Code,
+				"message": appErr.Message,
 				"data":    nil,
 			})
 			return
 		}
 		
-		// 检查是否是账户锁定错误
-		if strings.Contains(errMsg, "账户已被锁定") || strings.Contains(errMsg, "连续登录失败") {
-			// 账户锁定 - 返回423 Locked
-			c.JSON(http.StatusLocked, gin.H{
-				"code":    http.StatusLocked,
-				"message": errMsg,
-				"data":    nil,
-			})
-			return
-		}
-		
-		// 检查是否是密码错误（包含剩余次数）
-		if strings.Contains(errMsg, "剩余") && strings.Contains(errMsg, "次机会") {
-			// 密码错误但有剩余次数 - 返回401但带详细信息
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"code":    http.StatusUnauthorized,
-				"message": errMsg,
-				"data":    nil,
-			})
-			return
-		}
-		
-		// 其他认证错误
+		// 未知错误，默认401
 		utils.Unauthorized(c, err.Error())
 		return
 	}

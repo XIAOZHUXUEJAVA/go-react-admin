@@ -9,6 +9,7 @@ import (
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/utils"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/auth"
+	apperrors "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/errors"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/logger"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -179,7 +180,7 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 			logger.Warn("IP登录请求频率超限",
 				zap.String("ip", ipAddress),
 				zap.Int("remaining", remaining))
-			return nil, errors.New("登录请求过于频繁，请1小时后再试")
+			return nil, apperrors.NewRateLimitError("登录请求过于频繁，请1小时后再试")
 		}
 	}
 
@@ -196,7 +197,7 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 			logger.Warn("账户处于锁定状态",
 				zap.String("username", req.Username),
 				zap.Duration("remaining", ttl))
-			return nil, fmt.Errorf("账户已被锁定，请%d分钟后再试", minutes)
+			return nil, apperrors.NewAccountLockedError(fmt.Sprintf("账户已被锁定，请%d分钟后再试", minutes))
 		}
 	}
 
@@ -208,7 +209,7 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 				zap.String("captcha_id", req.CaptchaID),
 				zap.String("ip_address", ipAddress),
 				zap.String("operation", "login"))
-			return nil, errors.New("invalid captcha")
+			return nil, apperrors.NewInvalidCaptchaError("验证码错误")
 		}
 		logger.Debug("验证码验证通过", 
 			zap.String("username", req.Username),
@@ -222,7 +223,7 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 				zap.String("username", req.Username),
 				zap.String("ip_address", ipAddress),
 				zap.String("operation", "login"))
-			return nil, errors.New("invalid credentials")
+			return nil, apperrors.NewInvalidCredentialsError("用户名或密码错误")
 		}
 		logger.Error("登录失败：查询用户时发生错误", 
 			zap.String("username", req.Username),
@@ -245,7 +246,7 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 				logger.Error("记录登录失败次数失败", zap.Error(err))
 			} else if shouldLock {
 				// 账户已被锁定
-				return nil, errors.New("连续登录失败5次，账户已被锁定15分钟")
+				return nil, apperrors.NewAccountLockedError("连续登录失败5次，账户已被锁定15分钟")
 			} else {
 				// 返回剩余尝试次数
 				remaining := MaxLoginFailsPerAccount - failCount
@@ -253,11 +254,11 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 					zap.String("username", req.Username),
 					zap.Int("fail_count", failCount),
 					zap.Int("remaining", remaining))
-				return nil, fmt.Errorf("用户名或密码错误（剩余%d次机会）", remaining)
+				return nil, apperrors.NewInvalidCredentialsError(fmt.Sprintf("用户名或密码错误（剩余%d次机会）", remaining))
 			}
 		}
 		
-		return nil, errors.New("invalid credentials")
+		return nil, apperrors.NewInvalidCredentialsError("用户名或密码错误")
 	}
 
 	logger.Debug("用户认证成功", 
