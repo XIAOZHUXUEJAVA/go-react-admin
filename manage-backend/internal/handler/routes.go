@@ -55,7 +55,8 @@ func SetupRoutes(router *gin.RouterGroup, db *gorm.DB, enforcer *casbin.Enforcer
 	dictTypeService := service.NewDictTypeService(dictTypeRepo, dictItemRepo)
 	dictItemService := service.NewDictItemService(dictTypeRepo, dictItemRepo)
 	emailService := service.NewEmailService(cfg)
-	passwordResetService := service.NewPasswordResetService(cfg, userRepo, passwordResetRepo, emailService, auditLogService)
+	passwordResetRedisService := service.NewPasswordResetRedisService(redisClient)
+	passwordResetService := service.NewPasswordResetService(cfg, userRepo, passwordResetRepo, emailService, auditLogService, passwordResetRedisService)
 	
 	// 验证码配置
 	captchaConfig := service.CaptchaConfig{

@@ -58,9 +58,21 @@ export default function ForgotPasswordPage() {
       }
     } catch (error: any) {
       console.error("Forgot password error:", error);
-      toast.error("发送失败", {
-        description: error.message || "请稍后重试",
-      });
+      
+      // 检查是否是限流错误
+      const isRateLimited = error.message?.includes("请求过于频繁") || 
+                           error.message?.includes("1小时后再试");
+      
+      if (isRateLimited) {
+        toast.error("请求过于频繁", {
+          description: error.message || "请1小时后再试",
+          duration: 5000, // 显示5秒
+        });
+      } else {
+        toast.error("发送失败", {
+          description: error.message || "请稍后重试",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

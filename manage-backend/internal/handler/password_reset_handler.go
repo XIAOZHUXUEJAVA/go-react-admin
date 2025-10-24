@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
@@ -55,6 +56,20 @@ func (h *PasswordResetHandler) ForgotPassword(c *gin.Context) {
 			zap.String("email", req.Email),
 			zap.Error(err),
 			zap.String("operation", "forgot_password"))
+		
+		// 检查是否是限流错误
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "请求过于频繁") || strings.Contains(errMsg, "1小时后再试") {
+			// 限流错误 - 返回429状态码和具体错误信息
+			c.JSON(http.StatusTooManyRequests, gin.H{
+				"code":    http.StatusTooManyRequests,
+				"message": errMsg,
+				"data":    nil,
+			})
+			return
+		}
+		
+		// 其他错误
 		utils.InternalServerError(c, "处理失败，请稍后重试")
 		return
 	}
