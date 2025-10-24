@@ -86,7 +86,8 @@ func SetupRoutes(router *gin.RouterGroup, db *gorm.DB, enforcer *casbin.Enforcer
 	}
 	
 	captchaService := service.NewCaptchaService(redisClient.GetClient(), captchaConfig)
-	userService := service.NewUserService(userRepo, jwtManager, sessionService, captchaService, roleRepo, permissionService)
+	loginRateLimitService := service.NewLoginRateLimitService(redisClient)
+	userService := service.NewUserService(userRepo, jwtManager, sessionService, captchaService, roleRepo, permissionService, loginRateLimitService)
 
 	// 初始化处理器
 	userHandler := NewUserHandler(userService)

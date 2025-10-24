@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
@@ -51,12 +52,13 @@ type SessionServiceInterface interface {
 }
 
 type UserService struct {
-	userRepo          UserRepositoryInterface
-	jwtManager        JWTManagerInterface
-	sessionService    SessionServiceInterface
-	captchaService    CaptchaServiceInterface
-	roleRepo          RoleRepositoryInterface
-	permissionService *PermissionService
+	userRepo             UserRepositoryInterface
+	jwtManager           JWTManagerInterface
+	sessionService       SessionServiceInterface
+	captchaService       CaptchaServiceInterface
+	roleRepo             RoleRepositoryInterface
+	permissionService    *PermissionService
+	loginRateLimitService *LoginRateLimitService
 }
 
 func NewUserService(
@@ -66,14 +68,16 @@ func NewUserService(
 	captchaService CaptchaServiceInterface,
 	roleRepo RoleRepositoryInterface,
 	permissionService *PermissionService,
+	loginRateLimitService *LoginRateLimitService,
 ) *UserService {
 	return &UserService{
-		userRepo:          userRepo,
-		jwtManager:        jwtManager,
-		sessionService:    sessionService,
-		captchaService:    captchaService,
-		roleRepo:          roleRepo,
-		permissionService: permissionService,
+		userRepo:             userRepo,
+		jwtManager:           jwtManager,
+		sessionService:       sessionService,
+		captchaService:       captchaService,
+		roleRepo:             roleRepo,
+		permissionService:    permissionService,
+		loginRateLimitService: loginRateLimitService,
 	}
 }
 
@@ -166,7 +170,37 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 		zap.String("user_agent", userAgent),
 		zap.String("device_info", deviceInfo))
 
-	// 验证验证码
+	// 1. IP限流检查
+	if s.loginRateLimitService != nil {
+		allowed, remaining, err := s.loginRateLimitService.CheckIPRateLimit(ctx, ipAddress)
+		if err != nil {
+			logger.Warn("IP限流检查失败，继续处理", zap.Error(err))
+		} else if !allowed {
+			logger.Warn("IP登录请求频率超限",
+				zap.String("ip", ipAddress),
+				zap.Int("remaining", remaining))
+			return nil, errors.New("登录请求过于频繁，请1小时后再试")
+		}
+	}
+
+	// 2. 检查账户是否被锁定
+	if s.loginRateLimitService != nil {
+		locked, ttl, err := s.loginRateLimitService.CheckAccountLocked(ctx, req.Username)
+		if err != nil {
+			logger.Warn("账户锁定检查失败，继续处理", zap.Error(err))
+		} else if locked {
+			minutes := int(ttl.Minutes())
+			if minutes < 1 {
+				minutes = 1
+			}
+			logger.Warn("账户处于锁定状态",
+				zap.String("username", req.Username),
+				zap.Duration("remaining", ttl))
+			return nil, fmt.Errorf("账户已被锁定，请%d分钟后再试", minutes)
+		}
+	}
+
+	// 3. 验证验证码
 	if s.captchaService != nil {
 		if !s.captchaService.VerifyCaptcha(req.CaptchaID, req.CaptchaCode) {
 			logger.Warn("登录失败：验证码错误", 
@@ -203,6 +237,26 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 			zap.Uint("user_id", user.ID),
 			zap.String("ip_address", ipAddress),
 			zap.String("operation", "login"))
+		
+		// 记录登录失败
+		if s.loginRateLimitService != nil {
+			failCount, shouldLock, err := s.loginRateLimitService.RecordLoginFailure(ctx, req.Username)
+			if err != nil {
+				logger.Error("记录登录失败次数失败", zap.Error(err))
+			} else if shouldLock {
+				// 账户已被锁定
+				return nil, errors.New("连续登录失败5次，账户已被锁定15分钟")
+			} else {
+				// 返回剩余尝试次数
+				remaining := MaxLoginFailsPerAccount - failCount
+				logger.Info("记录登录失败",
+					zap.String("username", req.Username),
+					zap.Int("fail_count", failCount),
+					zap.Int("remaining", remaining))
+				return nil, fmt.Errorf("用户名或密码错误（剩余%d次机会）", remaining)
+			}
+		}
+		
 		return nil, errors.New("invalid credentials")
 	}
 
@@ -210,6 +264,13 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 		zap.String("username", user.Username),
 		zap.Uint("user_id", user.ID),
 		zap.String("role", user.Role))
+
+	// 清除登录失败记录（登录成功）
+	if s.loginRateLimitService != nil {
+		if err := s.loginRateLimitService.ClearLoginFailures(ctx, req.Username); err != nil {
+			logger.Warn("清除登录失败记录失败", zap.Error(err))
+		}
+	}
 
 	// 生成令牌对
 	tokenPair, err := s.jwtManager.GenerateTokenPair(user.ID, user.Username, user.Role)
