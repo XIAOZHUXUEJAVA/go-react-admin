@@ -1,0 +1,112 @@
+version: "3.8"
+
+services:
+  # PostgreSQL 数据库
+  postgres:
+    image: postgres:16-alpine
+    container_name: go-manage-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-xiaozhu}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-12345679}
+      POSTGRES_DB: ${DB_NAME:-go_manage_starter}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./manage-backend/scripts:/docker-entrypoint-initdb.d
+    networks:
+      - go-manage-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-xiaozhu} -d ${DB_NAME:-go_manage_starter}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis 缓存
+  redis:
+    image: redis:7-alpine
+    container_name: go-manage-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-123456}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - go-manage-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Go 后端服务
+  backend:
+    build:
+      context: ./manage-backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: go-manage-backend
+    restart: unless-stopped
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER:-xiaozhu}
+      - DB_PASSWORD=${DB_PASSWORD:-12345679}
+      - DB_NAME=${DB_NAME:-go_manage_starter}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - JWT_SECRET=${JWT_SECRET:-dev-jwt-secret-key-change-this-in-production}
+    ports:
+      - "${BACKEND_PORT:-9000}:9000"
+    volumes:
+      - ./manage-backend:/app
+      - /app/bin
+      - backend_logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - go-manage-network
+    command: ["air", "-c", ".air.toml"]
+
+  # Next.js 前端服务
+  frontend:
+    build:
+      context: ./manage-frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: go-manage-frontend
+    restart: unless-stopped
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:9000/api/v1}
+      - NODE_ENV=development
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    volumes:
+      - ./manage-frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    networks:
+      - go-manage-network
+    command: ["npm", "run", "dev"]
+
+networks:
+  go-manage-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  backend_logs:
+    driver: local

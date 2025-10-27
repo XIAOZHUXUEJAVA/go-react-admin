@@ -1,13 +1,13 @@
 package main
 
 import (
+	_ "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/docs" // 导入生成的 docs
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/config"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/handler"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/middleware"
 	casbinpkg "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/casbin"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/database"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/logger"
-	_ "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/docs" // 导入生成的 docs
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -55,10 +55,10 @@ func main() {
 		logger.Fatal("数据库初始化失败", zap.Error(err))
 	}
 
-	// 运行数据库迁移
-	if err := database.RunMigrations(db, cfg); err != nil {
-		logger.Fatal("数据库迁移失败", zap.Error(err))
-	}
+	// // 运行数据库迁移
+	// if err := database.RunMigrations(db, cfg); err != nil {
+	// 	logger.Fatal("数据库迁移失败", zap.Error(err))
+	// }
 
 	// 如需种子数据，可以手动调用: database.SeedDatabase(db, cfg.Environment)
 	logger.Info("✅ 数据库连接成功")
