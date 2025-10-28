@@ -19,7 +19,7 @@
 -- ----------------------------
 -- Sequence structure for audit_logs_id_seq
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "manage_dev"."audit_logs_id_seq";
+DROP SEQUENCE IF EXISTS "manage_dev"."audit_logs_id_seq" CASCADE;
 CREATE SEQUENCE "manage_dev"."audit_logs_id_seq" 
 INCREMENT 1
 MINVALUE  1
@@ -30,7 +30,7 @@ CACHE 1;
 -- ----------------------------
 -- Sequence structure for casbin_rule_id_seq
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "manage_dev"."casbin_rule_id_seq";
+DROP SEQUENCE IF EXISTS "manage_dev"."casbin_rule_id_seq" CASCADE;
 CREATE SEQUENCE "manage_dev"."casbin_rule_id_seq" 
 INCREMENT 1
 MINVALUE  1
@@ -41,7 +41,7 @@ CACHE 1;
 -- ----------------------------
 -- Sequence structure for dict_items_id_seq
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "manage_dev"."dict_items_id_seq";
+DROP SEQUENCE IF EXISTS "manage_dev"."dict_items_id_seq" CASCADE;
 CREATE SEQUENCE "manage_dev"."dict_items_id_seq" 
 INCREMENT 1
 MINVALUE  1
@@ -52,7 +52,7 @@ CACHE 1;
 -- ----------------------------
 -- Sequence structure for dict_types_id_seq
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "manage_dev"."dict_types_id_seq";
+DROP SEQUENCE IF EXISTS "manage_dev"."dict_types_id_seq" CASCADE;
 CREATE SEQUENCE "manage_dev"."dict_types_id_seq" 
 INCREMENT 1
 MINVALUE  1
@@ -63,7 +63,7 @@ CACHE 1;
 -- ----------------------------
 -- Sequence structure for menus_id_seq
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "manage_dev"."menus_id_seq";
+DROP SEQUENCE IF EXISTS "manage_dev"."menus_id_seq" CASCADE;
 CREATE SEQUENCE "manage_dev"."menus_id_seq" 
 INCREMENT 1
 MINVALUE  1
@@ -74,7 +74,7 @@ CACHE 1;
 -- ----------------------------
 -- Sequence structure for migration_records_id_seq
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "manage_dev"."migration_records_id_seq";
+DROP SEQUENCE IF EXISTS "manage_dev"."migration_records_id_seq" CASCADE;
 CREATE SEQUENCE "manage_dev"."migration_records_id_seq" 
 INCREMENT 1
 MINVALUE  1
@@ -85,7 +85,7 @@ CACHE 1;
 -- ----------------------------
 -- Sequence structure for password_reset_tokens_id_seq
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "manage_dev"."password_reset_tokens_id_seq";
+DROP SEQUENCE IF EXISTS "manage_dev"."password_reset_tokens_id_seq" CASCADE;
 CREATE SEQUENCE "manage_dev"."password_reset_tokens_id_seq" 
 INCREMENT 1
 MINVALUE  1
@@ -96,7 +96,7 @@ CACHE 1;
 -- ----------------------------
 -- Sequence structure for permissions_id_seq
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "manage_dev"."permissions_id_seq";
+DROP SEQUENCE IF EXISTS "manage_dev"."permissions_id_seq" CASCADE;
 CREATE SEQUENCE "manage_dev"."permissions_id_seq" 
 INCREMENT 1
 MINVALUE  1
@@ -107,7 +107,7 @@ CACHE 1;
 -- ----------------------------
 -- Sequence structure for role_permissions_id_seq
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "manage_dev"."role_permissions_id_seq";
+DROP SEQUENCE IF EXISTS "manage_dev"."role_permissions_id_seq" CASCADE;
 CREATE SEQUENCE "manage_dev"."role_permissions_id_seq" 
 INCREMENT 1
 MINVALUE  1
@@ -118,7 +118,7 @@ CACHE 1;
 -- ----------------------------
 -- Sequence structure for roles_id_seq
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "manage_dev"."roles_id_seq";
+DROP SEQUENCE IF EXISTS "manage_dev"."roles_id_seq" CASCADE;
 CREATE SEQUENCE "manage_dev"."roles_id_seq" 
 INCREMENT 1
 MINVALUE  1
@@ -129,7 +129,7 @@ CACHE 1;
 -- ----------------------------
 -- Sequence structure for user_roles_id_seq
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "manage_dev"."user_roles_id_seq";
+DROP SEQUENCE IF EXISTS "manage_dev"."user_roles_id_seq" CASCADE;
 CREATE SEQUENCE "manage_dev"."user_roles_id_seq" 
 INCREMENT 1
 MINVALUE  1
@@ -140,7 +140,7 @@ CACHE 1;
 -- ----------------------------
 -- Sequence structure for users_id_seq
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "manage_dev"."users_id_seq";
+DROP SEQUENCE IF EXISTS "manage_dev"."users_id_seq" CASCADE;
 CREATE SEQUENCE "manage_dev"."users_id_seq" 
 INCREMENT 1
 MINVALUE  1
@@ -151,7 +151,7 @@ CACHE 1;
 -- ----------------------------
 -- Table structure for audit_logs
 -- ----------------------------
-DROP TABLE IF EXISTS "manage_dev"."audit_logs";
+DROP TABLE IF EXISTS "manage_dev"."audit_logs" CASCADE;
 CREATE TABLE "manage_dev"."audit_logs" (
   "id" int8 NOT NULL DEFAULT nextval('"manage_dev".audit_logs_id_seq'::regclass),
   "user_id" int8,
@@ -171,6 +171,20 @@ CREATE TABLE "manage_dev"."audit_logs" (
   "deleted_at" timestamptz(6)
 )
 ;
+COMMENT ON COLUMN "manage_dev"."audit_logs"."user_id" IS '用户ID';
+COMMENT ON COLUMN "manage_dev"."audit_logs"."username" IS '用户名';
+COMMENT ON COLUMN "manage_dev"."audit_logs"."action" IS '操作动作';
+COMMENT ON COLUMN "manage_dev"."audit_logs"."resource" IS '资源类型';
+COMMENT ON COLUMN "manage_dev"."audit_logs"."resource_id" IS '资源ID';
+COMMENT ON COLUMN "manage_dev"."audit_logs"."method" IS 'HTTP方法';
+COMMENT ON COLUMN "manage_dev"."audit_logs"."path" IS '请求路径';
+COMMENT ON COLUMN "manage_dev"."audit_logs"."ip" IS 'IP地址';
+COMMENT ON COLUMN "manage_dev"."audit_logs"."user_agent" IS '用户代理';
+COMMENT ON COLUMN "manage_dev"."audit_logs"."status" IS 'HTTP状态码';
+COMMENT ON COLUMN "manage_dev"."audit_logs"."error_msg" IS '错误信息';
+COMMENT ON COLUMN "manage_dev"."audit_logs"."request_body" IS '请求体';
+COMMENT ON COLUMN "manage_dev"."audit_logs"."duration" IS '请求耗时（毫秒）';
+COMMENT ON TABLE "manage_dev"."audit_logs" IS '审计日志表';
 
 -- ----------------------------
 -- Records of audit_logs
@@ -224,7 +238,7 @@ INSERT INTO "manage_dev"."audit_logs" VALUES (56, 4, 'manager', '查询资源: /
 -- ----------------------------
 -- Table structure for casbin_rule
 -- ----------------------------
-DROP TABLE IF EXISTS "manage_dev"."casbin_rule";
+DROP TABLE IF EXISTS "manage_dev"."casbin_rule" CASCADE;
 CREATE TABLE "manage_dev"."casbin_rule" (
   "id" int8 NOT NULL DEFAULT nextval('"manage_dev".casbin_rule_id_seq'::regclass),
   "ptype" varchar(100) COLLATE "pg_catalog"."default",
@@ -236,6 +250,11 @@ CREATE TABLE "manage_dev"."casbin_rule" (
   "v5" varchar(100) COLLATE "pg_catalog"."default"
 )
 ;
+COMMENT ON COLUMN "manage_dev"."casbin_rule"."ptype" IS '策略类型（p=策略, g=角色继承）';
+COMMENT ON COLUMN "manage_dev"."casbin_rule"."v0" IS '主体（角色或用户）';
+COMMENT ON COLUMN "manage_dev"."casbin_rule"."v1" IS '资源路径';
+COMMENT ON COLUMN "manage_dev"."casbin_rule"."v2" IS '操作方法';
+COMMENT ON TABLE "manage_dev"."casbin_rule" IS 'Casbin权限规则表';
 
 -- ----------------------------
 -- Records of casbin_rule
@@ -287,7 +306,7 @@ INSERT INTO "manage_dev"."casbin_rule" VALUES (71, 'p', 'role:admin', '/audit-lo
 -- ----------------------------
 -- Table structure for dict_items
 -- ----------------------------
-DROP TABLE IF EXISTS "manage_dev"."dict_items";
+DROP TABLE IF EXISTS "manage_dev"."dict_items" CASCADE;
 CREATE TABLE "manage_dev"."dict_items" (
   "id" int8 NOT NULL DEFAULT nextval('"manage_dev".dict_items_id_seq'::regclass),
   "dict_type_code" varchar(50) COLLATE "pg_catalog"."default" NOT NULL,
@@ -332,7 +351,7 @@ INSERT INTO "manage_dev"."dict_items" VALUES (11, 'yes_no', '否', 'no', '{"colo
 -- ----------------------------
 -- Table structure for dict_types
 -- ----------------------------
-DROP TABLE IF EXISTS "manage_dev"."dict_types";
+DROP TABLE IF EXISTS "manage_dev"."dict_types" CASCADE;
 CREATE TABLE "manage_dev"."dict_types" (
   "id" int8 NOT NULL DEFAULT nextval('"manage_dev".dict_types_id_seq'::regclass),
   "code" varchar(50) COLLATE "pg_catalog"."default" NOT NULL,
@@ -365,7 +384,7 @@ INSERT INTO "manage_dev"."dict_types" VALUES (4, 'yes_no', '是否标识', '通�
 -- ----------------------------
 -- Table structure for menus
 -- ----------------------------
-DROP TABLE IF EXISTS "manage_dev"."menus";
+DROP TABLE IF EXISTS "manage_dev"."menus" CASCADE;
 CREATE TABLE "manage_dev"."menus" (
   "id" int8 NOT NULL DEFAULT nextval('"manage_dev".menus_id_seq'::regclass),
   "parent_id" int8,
@@ -384,6 +403,18 @@ CREATE TABLE "manage_dev"."menus" (
   "deleted_at" timestamptz(6)
 )
 ;
+COMMENT ON COLUMN "manage_dev"."menus"."parent_id" IS '父菜单ID';
+COMMENT ON COLUMN "manage_dev"."menus"."name" IS '菜单名称（路由名）';
+COMMENT ON COLUMN "manage_dev"."menus"."title" IS '菜单标题';
+COMMENT ON COLUMN "manage_dev"."menus"."path" IS '菜单路径';
+COMMENT ON COLUMN "manage_dev"."menus"."component" IS '组件路径';
+COMMENT ON COLUMN "manage_dev"."menus"."icon" IS '菜单图标';
+COMMENT ON COLUMN "manage_dev"."menus"."order_num" IS '排序号';
+COMMENT ON COLUMN "manage_dev"."menus"."type" IS '菜单类型';
+COMMENT ON COLUMN "manage_dev"."menus"."permission_code" IS '权限代码';
+COMMENT ON COLUMN "manage_dev"."menus"."visible" IS '是否可见';
+COMMENT ON COLUMN "manage_dev"."menus"."status" IS '状态';
+COMMENT ON TABLE "manage_dev"."menus" IS '菜单表';
 
 -- ----------------------------
 -- Records of menus
@@ -403,13 +434,16 @@ INSERT INTO "manage_dev"."menus" VALUES (8, NULL, 'logs', '日志管理', '/logs
 -- ----------------------------
 -- Table structure for migration_records
 -- ----------------------------
-DROP TABLE IF EXISTS "manage_dev"."migration_records";
+DROP TABLE IF EXISTS "manage_dev"."migration_records" CASCADE;
 CREATE TABLE "manage_dev"."migration_records" (
   "id" int8 NOT NULL DEFAULT nextval('"manage_dev".migration_records_id_seq'::regclass),
   "migration_id" text COLLATE "pg_catalog"."default" NOT NULL,
   "executed_at" timestamptz(6) NOT NULL
 )
 ;
+COMMENT ON COLUMN "manage_dev"."migration_records"."migration_id" IS '迁移ID';
+COMMENT ON COLUMN "manage_dev"."migration_records"."executed_at" IS '执行时间';
+COMMENT ON TABLE "manage_dev"."migration_records" IS '数据库迁移记录表';
 
 -- ----------------------------
 -- Records of migration_records
@@ -422,7 +456,7 @@ INSERT INTO "manage_dev"."migration_records" VALUES (4, '004_create_dict_tables'
 -- ----------------------------
 -- Table structure for password_reset_tokens
 -- ----------------------------
-DROP TABLE IF EXISTS "manage_dev"."password_reset_tokens";
+DROP TABLE IF EXISTS "manage_dev"."password_reset_tokens" CASCADE;
 CREATE TABLE "manage_dev"."password_reset_tokens" (
   "id" int8 NOT NULL DEFAULT nextval('"manage_dev".password_reset_tokens_id_seq'::regclass),
   "user_id" int8 NOT NULL,
@@ -449,7 +483,7 @@ INSERT INTO "manage_dev"."password_reset_tokens" VALUES (7, 2, 'xiaozhulzq@2925.
 -- ----------------------------
 -- Table structure for permissions
 -- ----------------------------
-DROP TABLE IF EXISTS "manage_dev"."permissions";
+DROP TABLE IF EXISTS "manage_dev"."permissions" CASCADE;
 CREATE TABLE "manage_dev"."permissions" (
   "id" int8 NOT NULL DEFAULT nextval('"manage_dev".permissions_id_seq'::regclass),
   "name" text COLLATE "pg_catalog"."default" NOT NULL,
@@ -466,6 +500,15 @@ CREATE TABLE "manage_dev"."permissions" (
   "deleted_at" timestamptz(6)
 )
 ;
+COMMENT ON COLUMN "manage_dev"."permissions"."name" IS '权限名称';
+COMMENT ON COLUMN "manage_dev"."permissions"."code" IS '权限代码';
+COMMENT ON COLUMN "manage_dev"."permissions"."resource" IS '资源类型';
+COMMENT ON COLUMN "manage_dev"."permissions"."action" IS '操作动作';
+COMMENT ON COLUMN "manage_dev"."permissions"."path" IS 'API路径';
+COMMENT ON COLUMN "manage_dev"."permissions"."method" IS 'HTTP方法';
+COMMENT ON COLUMN "manage_dev"."permissions"."type" IS '权限类型';
+COMMENT ON COLUMN "manage_dev"."permissions"."status" IS '状态';
+COMMENT ON TABLE "manage_dev"."permissions" IS '权限表';
 
 -- ----------------------------
 -- Records of permissions
@@ -507,7 +550,7 @@ INSERT INTO "manage_dev"."permissions" VALUES (33, '测试测试测试1', 'test:
 -- ----------------------------
 -- Table structure for role_permissions
 -- ----------------------------
-DROP TABLE IF EXISTS "manage_dev"."role_permissions";
+DROP TABLE IF EXISTS "manage_dev"."role_permissions" CASCADE;
 CREATE TABLE "manage_dev"."role_permissions" (
   "id" int8 NOT NULL DEFAULT nextval('"manage_dev".role_permissions_id_seq'::regclass),
   "role_id" int8 NOT NULL,
@@ -515,6 +558,10 @@ CREATE TABLE "manage_dev"."role_permissions" (
   "assigned_at" timestamptz(6)
 )
 ;
+COMMENT ON COLUMN "manage_dev"."role_permissions"."role_id" IS '角色ID';
+COMMENT ON COLUMN "manage_dev"."role_permissions"."permission_id" IS '权限ID';
+COMMENT ON COLUMN "manage_dev"."role_permissions"."assigned_at" IS '分配时间';
+COMMENT ON TABLE "manage_dev"."role_permissions" IS '角色权限关联表';
 
 -- ----------------------------
 -- Records of role_permissions
@@ -559,7 +606,7 @@ INSERT INTO "manage_dev"."role_permissions" VALUES (88, 1, 30, '2025-10-18 11:21
 -- ----------------------------
 -- Table structure for roles
 -- ----------------------------
-DROP TABLE IF EXISTS "manage_dev"."roles";
+DROP TABLE IF EXISTS "manage_dev"."roles" CASCADE;
 CREATE TABLE "manage_dev"."roles" (
   "id" int8 NOT NULL DEFAULT nextval('"manage_dev".roles_id_seq'::regclass),
   "name" text COLLATE "pg_catalog"."default" NOT NULL,
@@ -572,6 +619,12 @@ CREATE TABLE "manage_dev"."roles" (
   "deleted_at" timestamptz(6)
 )
 ;
+COMMENT ON COLUMN "manage_dev"."roles"."name" IS '角色名称';
+COMMENT ON COLUMN "manage_dev"."roles"."code" IS '角色代码';
+COMMENT ON COLUMN "manage_dev"."roles"."description" IS '角色描述';
+COMMENT ON COLUMN "manage_dev"."roles"."status" IS '状态';
+COMMENT ON COLUMN "manage_dev"."roles"."is_system" IS '是否系统角色';
+COMMENT ON TABLE "manage_dev"."roles" IS '角色表';
 
 -- ----------------------------
 -- Records of roles
@@ -585,7 +638,7 @@ INSERT INTO "manage_dev"."roles" VALUES (6, '测试角色1', 'testrole', '', 'ac
 -- ----------------------------
 -- Table structure for user_roles
 -- ----------------------------
-DROP TABLE IF EXISTS "manage_dev"."user_roles";
+DROP TABLE IF EXISTS "manage_dev"."user_roles" CASCADE;
 CREATE TABLE "manage_dev"."user_roles" (
   "id" int8 NOT NULL DEFAULT nextval('"manage_dev".user_roles_id_seq'::regclass),
   "user_id" int8 NOT NULL,
@@ -594,6 +647,11 @@ CREATE TABLE "manage_dev"."user_roles" (
   "assigned_by" int8
 )
 ;
+COMMENT ON COLUMN "manage_dev"."user_roles"."user_id" IS '用户ID';
+COMMENT ON COLUMN "manage_dev"."user_roles"."role_id" IS '角色ID';
+COMMENT ON COLUMN "manage_dev"."user_roles"."assigned_at" IS '分配时间';
+COMMENT ON COLUMN "manage_dev"."user_roles"."assigned_by" IS '分配人';
+COMMENT ON TABLE "manage_dev"."user_roles" IS '用户角色关联表';
 
 -- ----------------------------
 -- Records of user_roles
@@ -611,7 +669,7 @@ INSERT INTO "manage_dev"."user_roles" VALUES (9, 12, 3, '2025-10-20 15:10:15.775
 -- ----------------------------
 -- Table structure for users
 -- ----------------------------
-DROP TABLE IF EXISTS "manage_dev"."users";
+DROP TABLE IF EXISTS "manage_dev"."users" CASCADE;
 CREATE TABLE "manage_dev"."users" (
   "id" int8 NOT NULL DEFAULT nextval('"manage_dev".users_id_seq'::regclass),
   "username" text COLLATE "pg_catalog"."default" NOT NULL,
@@ -624,6 +682,12 @@ CREATE TABLE "manage_dev"."users" (
   "deleted_at" timestamptz(6)
 )
 ;
+COMMENT ON COLUMN "manage_dev"."users"."username" IS '用户名';
+COMMENT ON COLUMN "manage_dev"."users"."email" IS '邮箱';
+COMMENT ON COLUMN "manage_dev"."users"."password" IS '密码（加密）';
+COMMENT ON COLUMN "manage_dev"."users"."role" IS '角色';
+COMMENT ON COLUMN "manage_dev"."users"."status" IS '状态';
+COMMENT ON TABLE "manage_dev"."users" IS '用户表';
 
 -- ----------------------------
 -- Records of users
