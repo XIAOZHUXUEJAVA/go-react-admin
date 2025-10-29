@@ -55,7 +55,18 @@ func main() {
 		logger.Fatal("数据库初始化失败", zap.Error(err))
 	}
 
-	// // 运行数据库迁移
+	// 数据库迁移说明：
+	// 
+	// 方式一：Docker Compose 启动（推荐）
+	//   - 使用 Docker 启动时，会自动执行 scripts/01-init-db.sh
+	//   - 该脚本会创建 database 以及 schema 并执行 manage_dev.sql 初始化数据
+	//   - 此时无需手动运行迁移，可以保持下面代码注释状态
+	// 
+	// 方式二：本地开发环境
+	//   1. 手动创建数据库：CREATE DATABASE go_manage_starter;
+	//   2. 取消下面代码注释，运行迁移程序
+	//   3. 或使用 Makefile: make migrate
+	// 
 	// if err := database.RunMigrations(db, cfg); err != nil {
 	// 	logger.Fatal("数据库迁移失败", zap.Error(err))
 	// }

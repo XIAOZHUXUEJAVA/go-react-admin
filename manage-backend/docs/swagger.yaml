@@ -1,5 +1,55 @@
-basePath: /api/v1
 definitions:
+  model.AssignRolePermissionsRequest:
+    properties:
+      permission_ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - permission_ids
+    type: object
+  model.AssignUserRolesRequest:
+    properties:
+      role_ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - role_ids
+    type: object
+  model.AuditLogResponse:
+    properties:
+      action:
+        type: string
+      created_at:
+        type: string
+      duration:
+        type: integer
+      error_msg:
+        type: string
+      id:
+        type: integer
+      ip:
+        type: string
+      method:
+        type: string
+      path:
+        type: string
+      request_body:
+        type: string
+      resource:
+        type: string
+      resource_id:
+        type: string
+      status:
+        type: integer
+      user_agent:
+        type: string
+      user_id:
+        type: integer
+      username:
+        type: string
+    type: object
   model.AvailabilityResult:
     properties:
       available:
@@ -23,6 +73,168 @@ definitions:
       username:
         $ref: '#/definitions/model.AvailabilityResult'
     type: object
+  model.CreateDictItemRequest:
+    properties:
+      description:
+        maxLength: 255
+        type: string
+      dict_type_code:
+        maxLength: 50
+        minLength: 2
+        type: string
+      extra:
+        additionalProperties: true
+        type: object
+      is_default:
+        type: boolean
+      label:
+        maxLength: 100
+        minLength: 1
+        type: string
+      sort_order:
+        minimum: 0
+        type: integer
+      status:
+        enum:
+        - active
+        - inactive
+        type: string
+      value:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+    - dict_type_code
+    - label
+    - value
+    type: object
+  model.CreateDictTypeRequest:
+    properties:
+      code:
+        maxLength: 50
+        minLength: 2
+        type: string
+      description:
+        maxLength: 255
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      sort_order:
+        minimum: 0
+        type: integer
+      status:
+        enum:
+        - active
+        - inactive
+        type: string
+    required:
+    - code
+    - name
+    type: object
+  model.CreateMenuRequest:
+    properties:
+      component:
+        maxLength: 255
+        type: string
+      icon:
+        maxLength: 50
+        type: string
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      order_num:
+        type: integer
+      parent_id:
+        type: integer
+      path:
+        maxLength: 255
+        type: string
+      permission_code:
+        maxLength: 100
+        type: string
+      title:
+        maxLength: 100
+        minLength: 2
+        type: string
+      type:
+        enum:
+        - menu
+        - button
+        type: string
+      visible:
+        type: boolean
+    required:
+    - name
+    - title
+    - type
+    type: object
+  model.CreatePermissionRequest:
+    properties:
+      action:
+        maxLength: 50
+        type: string
+      code:
+        maxLength: 100
+        minLength: 2
+        type: string
+      description:
+        maxLength: 255
+        type: string
+      method:
+        enum:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - PATCH
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      path:
+        maxLength: 255
+        type: string
+      resource:
+        maxLength: 50
+        type: string
+      type:
+        enum:
+        - api
+        - menu
+        - button
+        type: string
+    required:
+    - action
+    - code
+    - name
+    - resource
+    type: object
+  model.CreateRoleRequest:
+    properties:
+      code:
+        maxLength: 50
+        minLength: 2
+        type: string
+      description:
+        maxLength: 255
+        type: string
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      status:
+        enum:
+        - active
+        - inactive
+        type: string
+    required:
+    - code
+    - name
+    type: object
   model.CreateUserRequest:
     properties:
       email:
@@ -40,6 +252,62 @@ definitions:
     - email
     - password
     - username
+    type: object
+  model.DictItemResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      dict_type_code:
+        type: string
+      extra:
+        additionalProperties: true
+        type: object
+      id:
+        type: integer
+      is_default:
+        type: boolean
+      is_system:
+        type: boolean
+      label:
+        type: string
+      sort_order:
+        type: integer
+      status:
+        type: string
+      updated_at:
+        type: string
+      value:
+        type: string
+    type: object
+  model.DictTypeResponse:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      is_system:
+        type: boolean
+      name:
+        type: string
+      sort_order:
+        type: integer
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.ForgotPasswordRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
     type: object
   model.LoginRequest:
     properties:
@@ -80,6 +348,89 @@ definitions:
       refresh_token:
         type: string
     type: object
+  model.MenuOrderUpdate:
+    properties:
+      id:
+        type: integer
+      order_num:
+        type: integer
+      parent_id:
+        type: integer
+    required:
+    - id
+    - order_num
+    type: object
+  model.MenuResponse:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/model.MenuResponse'
+        type: array
+      component:
+        type: string
+      created_at:
+        type: string
+      icon:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      order_num:
+        type: integer
+      parent_id:
+        type: integer
+      path:
+        type: string
+      permission_code:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+      visible:
+        type: boolean
+    type: object
+  model.PermissionResponse:
+    properties:
+      action:
+        type: string
+      code:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      method:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+      resource:
+        type: string
+      status:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.PermissionTree:
+    properties:
+      permissions:
+        items:
+          $ref: '#/definitions/model.PermissionResponse'
+        type: array
+      resource:
+        type: string
+    type: object
   model.RefreshTokenRequest:
     properties:
       refresh_token:
@@ -96,10 +447,165 @@ definitions:
       token_type:
         type: string
     type: object
+  model.ResetPasswordRequest:
+    properties:
+      new_password:
+        minLength: 6
+        type: string
+      token:
+        type: string
+    required:
+    - new_password
+    - token
+    type: object
+  model.RoleResponse:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      is_system:
+        type: boolean
+      name:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.RoleWithPermissions:
+    properties:
+      permissions:
+        items:
+          $ref: '#/definitions/model.PermissionResponse'
+        type: array
+      role:
+        $ref: '#/definitions/model.RoleResponse'
+    type: object
   model.SimpleAvailabilityResponse:
     properties:
       available:
         type: boolean
+    type: object
+  model.UpdateDictItemRequest:
+    properties:
+      description:
+        maxLength: 255
+        type: string
+      extra:
+        additionalProperties: true
+        type: object
+      is_default:
+        type: boolean
+      label:
+        maxLength: 100
+        minLength: 1
+        type: string
+      sort_order:
+        minimum: 0
+        type: integer
+      status:
+        enum:
+        - active
+        - inactive
+        type: string
+    type: object
+  model.UpdateDictTypeRequest:
+    properties:
+      description:
+        maxLength: 255
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      sort_order:
+        minimum: 0
+        type: integer
+      status:
+        enum:
+        - active
+        - inactive
+        type: string
+    type: object
+  model.UpdateMenuRequest:
+    properties:
+      component:
+        maxLength: 255
+        type: string
+      icon:
+        maxLength: 50
+        type: string
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      order_num:
+        type: integer
+      parent_id:
+        type: integer
+      path:
+        maxLength: 255
+        type: string
+      permission_code:
+        maxLength: 100
+        type: string
+      status:
+        enum:
+        - active
+        - inactive
+        type: string
+      title:
+        maxLength: 100
+        minLength: 2
+        type: string
+      visible:
+        type: boolean
+    type: object
+  model.UpdatePermissionRequest:
+    properties:
+      description:
+        maxLength: 255
+        type: string
+      method:
+        enum:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - PATCH
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      path:
+        maxLength: 255
+        type: string
+      status:
+        enum:
+        - active
+        - inactive
+        type: string
+    type: object
+  model.UpdateRoleRequest:
+    properties:
+      description:
+        maxLength: 255
+        type: string
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      status:
+        enum:
+        - active
+        - inactive
+        type: string
     type: object
   model.UpdateUserRequest:
     properties:
@@ -131,6 +637,21 @@ definitions:
       username:
         type: string
     type: object
+  model.UserPermissionsResponse:
+    properties:
+      menus:
+        items:
+          $ref: '#/definitions/model.MenuResponse'
+        type: array
+      permissions:
+        items:
+          type: string
+        type: array
+      roles:
+        items:
+          type: string
+        type: array
+    type: object
   model.UserResponse:
     properties:
       created_at:
@@ -147,6 +668,20 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  model.VerifyResetTokenRequest:
+    properties:
+      token:
+        type: string
+    required:
+    - token
+    type: object
+  model.VerifyResetTokenResponse:
+    properties:
+      email:
+        type: string
+      valid:
+        type: boolean
     type: object
   service.CaptchaResponse:
     properties:
@@ -202,6 +737,136 @@ info:
   title: Go 管理系统启动器 API
   version: "1.0"
 paths:
+  /audit-logs:
+    get:
+      description: 根据条件查询审计日志列表
+      parameters:
+      - description: 用户ID
+        in: query
+        name: user_id
+        type: integer
+      - description: 用户名
+        in: query
+        name: username
+        type: string
+      - description: 操作
+        in: query
+        name: action
+        type: string
+      - description: 资源
+        in: query
+        name: resource
+        type: string
+      - description: HTTP方法
+        in: query
+        name: method
+        type: string
+      - description: 状态码
+        in: query
+        name: status
+        type: integer
+      - description: 开始时间
+        format: date-time
+        in: query
+        name: start_time
+        type: string
+      - description: 结束时间
+        format: date-time
+        in: query
+        name: end_time
+        type: string
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.AuditLogResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 查询审计日志
+      tags:
+      - audit-logs
+  /audit-logs/{id}:
+    get:
+      description: 根据ID获取审计日志详情
+      parameters:
+      - description: 审计日志ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AuditLogResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取审计日志详情
+      tags:
+      - audit-logs
+  /audit-logs/clean:
+    post:
+      description: 清理指定天数之前的审计日志
+      parameters:
+      - default: 90
+        description: 保留天数
+        in: query
+        name: days
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 清理旧审计日志
+      tags:
+      - audit-logs
   /auth/captcha:
     get:
       description: Generate a new captcha image for login verification
@@ -222,6 +887,36 @@ paths:
           schema:
             $ref: '#/definitions/utils.APIResponse'
       summary: Generate captcha
+      tags:
+      - auth
+  /auth/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: 用户通过邮箱请求密码重置，系统将发送重置链接到邮箱
+      parameters:
+      - description: 邮箱
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 请求成功
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: 请求密码重置
       tags:
       - auth
   /auth/login:
@@ -369,6 +1064,1316 @@ paths:
       summary: Register a new user
       tags:
       - auth
+  /auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: 使用有效的Token重置用户密码
+      parameters:
+      - description: 重置信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 重置成功
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: 请求参数错误或Token无效
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: 重置密码
+      tags:
+      - auth
+  /auth/verify-reset-token:
+    post:
+      consumes:
+      - application/json
+      description: 验证密码重置Token的有效性
+      parameters:
+      - description: Token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.VerifyResetTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 验证成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.VerifyResetTokenResponse'
+              type: object
+        "400":
+          description: Token无效或已过期
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: 验证重置Token
+      tags:
+      - auth
+  /dict-items:
+    get:
+      description: 获取字典项列表（分页）
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 字典类型代码
+        in: query
+        name: dict_type_code
+        type: string
+      - description: 状态筛选
+        enum:
+        - active
+        - inactive
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.DictItemResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取字典项列表
+      tags:
+      - dict-items
+    post:
+      consumes:
+      - application/json
+      description: 创建新的字典项
+      parameters:
+      - description: 字典项信息
+        in: body
+        name: dict_item
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateDictItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.DictItemResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建字典项
+      tags:
+      - dict-items
+  /dict-items/{id}:
+    delete:
+      description: 删除字典项
+      parameters:
+      - description: 字典项ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除字典项
+      tags:
+      - dict-items
+    get:
+      description: 根据ID获取字典项详情
+      parameters:
+      - description: 字典项ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.DictItemResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取字典项详情
+      tags:
+      - dict-items
+    put:
+      consumes:
+      - application/json
+      description: 更新字典项信息
+      parameters:
+      - description: 字典项ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 字典项信息
+        in: body
+        name: dict_item
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateDictItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.DictItemResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新字典项
+      tags:
+      - dict-items
+  /dict-types:
+    get:
+      description: 获取字典类型列表（分页）
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 状态筛选
+        enum:
+        - active
+        - inactive
+        in: query
+        name: status
+        type: string
+      - description: 关键字搜索
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.DictTypeResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取字典类型列表
+      tags:
+      - dict-types
+    post:
+      consumes:
+      - application/json
+      description: 创建新的字典类型
+      parameters:
+      - description: 字典类型信息
+        in: body
+        name: dict_type
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateDictTypeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.DictTypeResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建字典类型
+      tags:
+      - dict-types
+  /dict-types/{code}/items:
+    get:
+      description: 根据字典类型代码获取所有字典项（不分页）
+      parameters:
+      - description: 字典类型代码
+        in: path
+        name: code
+        required: true
+        type: string
+      - default: true
+        description: 仅返回启用的
+        in: query
+        name: active_only
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.DictItemResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 根据类型获取字典项
+      tags:
+      - dict-items
+  /dict-types/{id}:
+    delete:
+      description: 删除字典类型
+      parameters:
+      - description: 字典类型ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除字典类型
+      tags:
+      - dict-types
+    get:
+      description: 根据ID获取字典类型详情
+      parameters:
+      - description: 字典类型ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.DictTypeResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取字典类型详情
+      tags:
+      - dict-types
+    put:
+      consumes:
+      - application/json
+      description: 更新字典类型信息
+      parameters:
+      - description: 字典类型ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 字典类型信息
+        in: body
+        name: dict_type
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateDictTypeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.DictTypeResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新字典类型
+      tags:
+      - dict-types
+  /dict-types/all:
+    get:
+      description: 获取所有启用的字典类型（不分页）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.DictTypeResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取所有字典类型
+      tags:
+      - dict-types
+  /menus:
+    post:
+      consumes:
+      - application/json
+      description: 创建新菜单
+      parameters:
+      - description: 菜单信息
+        in: body
+        name: menu
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateMenuRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.MenuResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建菜单
+      tags:
+      - menus
+  /menus/{id}:
+    delete:
+      description: 删除菜单
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除菜单
+      tags:
+      - menus
+    get:
+      description: 根据ID获取菜单详情
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.MenuResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取菜单详情
+      tags:
+      - menus
+    put:
+      consumes:
+      - application/json
+      description: 更新菜单信息
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 菜单信息
+        in: body
+        name: menu
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMenuRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.MenuResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新菜单
+      tags:
+      - menus
+  /menus/order:
+    put:
+      consumes:
+      - application/json
+      description: 批量更新菜单的排序和父级关系
+      parameters:
+      - description: 菜单顺序列表
+        in: body
+        name: menus
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/model.MenuOrderUpdate'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 批量更新菜单顺序
+      tags:
+      - menus
+  /menus/tree:
+    get:
+      description: 获取完整的菜单树结构
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.MenuResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取菜单树
+      tags:
+      - menus
+  /menus/tree/visible:
+    get:
+      description: 获取所有可见的菜单树
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.MenuResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取可见菜单树
+      tags:
+      - menus
+  /menus/user:
+    get:
+      description: 根据用户权限获取菜单树
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.MenuResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取用户菜单树
+      tags:
+      - menus
+  /permissions:
+    get:
+      description: 分页获取权限列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.PermissionResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取权限列表
+      tags:
+      - permissions
+    post:
+      consumes:
+      - application/json
+      description: 创建新权限
+      parameters:
+      - description: 权限信息
+        in: body
+        name: permission
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreatePermissionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.PermissionResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建权限
+      tags:
+      - permissions
+  /permissions/{id}:
+    delete:
+      description: 删除权限
+      parameters:
+      - description: 权限ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除权限
+      tags:
+      - permissions
+    get:
+      description: 根据ID获取权限详情
+      parameters:
+      - description: 权限ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.PermissionResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取权限详情
+      tags:
+      - permissions
+    put:
+      consumes:
+      - application/json
+      description: 更新权限信息
+      parameters:
+      - description: 权限ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 权限信息
+        in: body
+        name: permission
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdatePermissionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.PermissionResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新权限
+      tags:
+      - permissions
+  /permissions/all:
+    get:
+      description: 获取所有权限（不分页）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.PermissionResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取所有权限
+      tags:
+      - permissions
+  /permissions/resource/{resource}:
+    get:
+      description: 根据资源类型获取权限列表
+      parameters:
+      - description: 资源类型
+        in: path
+        name: resource
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.PermissionResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 根据资源获取权限
+      tags:
+      - permissions
+  /permissions/tree:
+    get:
+      description: 获取按资源分组的权限树
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.PermissionTree'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取权限树
+      tags:
+      - permissions
+  /permissions/type/{type}:
+    get:
+      description: 根据权限类型获取权限列表
+      parameters:
+      - description: 权限类型
+        enum:
+        - api
+        - menu
+        - button
+        in: path
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.PermissionResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 根据类型获取权限
+      tags:
+      - permissions
+  /roles:
+    get:
+      description: 分页获取角色列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.RoleResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取角色列表
+      tags:
+      - roles
+    post:
+      consumes:
+      - application/json
+      description: 创建新角色
+      parameters:
+      - description: 角色信息
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.RoleResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建角色
+      tags:
+      - roles
+  /roles/{id}:
+    delete:
+      description: 删除角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除角色
+      tags:
+      - roles
+    get:
+      description: 根据ID获取角色详情
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.RoleResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取角色详情
+      tags:
+      - roles
+    put:
+      consumes:
+      - application/json
+      description: 更新角色信息
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 角色信息
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.RoleResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新角色
+      tags:
+      - roles
+  /roles/{id}/permissions:
+    get:
+      description: 获取角色的权限列表
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.RoleWithPermissions'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取角色权限
+      tags:
+      - roles
+    put:
+      consumes:
+      - application/json
+      description: 为角色分配权限列表
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 权限ID列表
+        in: body
+        name: permissions
+        required: true
+        schema:
+          $ref: '#/definitions/model.AssignRolePermissionsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 为角色分配权限
+      tags:
+      - roles
+  /roles/all:
+    get:
+      description: 获取所有角色（不分页）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.RoleResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取所有角色
+      tags:
+      - roles
   /users:
     get:
       description: Get list of users with pagination (需要认证)
@@ -581,6 +2586,70 @@ paths:
       summary: Update user
       tags:
       - users
+  /users/{id}/roles:
+    get:
+      description: 获取用户的角色列表
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.RoleResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取用户角色
+      tags:
+      - roles
+    put:
+      consumes:
+      - application/json
+      description: 为用户分配角色列表
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 角色ID列表
+        in: body
+        name: roles
+        required: true
+        schema:
+          $ref: '#/definitions/model.AssignUserRolesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 为用户分配角色
+      tags:
+      - roles
   /users/check-availability:
     post:
       consumes:
@@ -678,6 +2747,34 @@ paths:
           schema:
             $ref: '#/definitions/utils.APIResponse'
       summary: Check username availability
+      tags:
+      - users
+  /users/permissions:
+    get:
+      description: Get current user's permissions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.UserPermissionsResponse'
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user permissions
       tags:
       - users
   /users/profile:

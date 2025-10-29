@@ -289,16 +289,14 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       // 用户登出
-      logout: () => {
+      logout: async () => {
         const { refreshToken } = get();
 
         try {
-          // 调用后端登出接口
-          authApi.logout(refreshToken ?? undefined).catch(() => {
-            // 忽略登出接口错误，继续清除本地状态
-          });
+          // 等待后端登出接口完成
+          await authApi.logout(refreshToken ?? undefined);
         } catch (error) {
-          // 忽略错误
+          // 忽略登出接口错误，继续清除本地状态
         } finally {
           // 清除本地状态
           set({

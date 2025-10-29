@@ -34,11 +34,29 @@ func executeSQLFile(db *gorm.DB, filePath string) error {
 }
 
 // migrations 迁移列表
-// 注意：数据库本身（go_manage_starter）必须在运行迁移前已经存在
-// 可以通过以下方式创建数据库：
-// 1. 手动执行：psql -U postgres -h localhost -f scripts/setup-dev-db.sql
-// 2. Docker 启动时自动执行：scripts/01-init-db.sh
-// 3. 或者手动创建：CREATE DATABASE go_manage_starter;
+// 
+// ⚠️ 重要提示：数据库本身（go_manage_starter）必须在运行迁移前已经存在
+// 
+// 数据库初始化方式：
+// 
+// 【方式一】Docker Compose 启动（推荐，自动化）
+//   - 执行: docker-start.sh 或者 docker-start.bat脚本
+//   - 自动流程:
+//     1. 创建数据库 go_manage_starter
+//     2. 执行 scripts/01-init-db.sh 创建 schema
+//     3. 执行 scripts/manage_dev.sql 初始化表和数据
+//   - 优点: 无需手动操作，一键完成所有初始化
+//   - 注意: 使用此方式时，main.go 中的 RunMigrations 应保持注释状态
+// 
+// 【方式二】本地开发环境（手动）
+//   步骤 1: 创建数据库
+//     - 方式 A: psql -U postgres -h localhost -f scripts/setup-dev-db.sql
+//     - 方式 B: 手动执行 SQL: CREATE DATABASE go_manage_starter;
+//   步骤 2: 运行迁移
+//     - 方式 A: 取消 main.go 中 RunMigrations 的注释并运行程序
+//     - 方式 B: 使用 Makefile: make migrate
+//   - 优点: 适合不使用 Docker 的本地开发
+//   - 注意: 需要确保 PostgreSQL 服务已启动
 var migrations = []Migration{
 	{
 		ID: "001_create_schemas",
