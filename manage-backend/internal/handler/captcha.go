@@ -17,8 +17,8 @@ func NewCaptchaHandler(captchaService service.CaptchaServiceInterface) *CaptchaH
 }
 
 // GenerateCaptcha godoc
-// @Summary Generate captcha
-// @Description Generate a new captcha image for login verification
+// @Summary 生成验证码
+// @Description 生成验证码图片用于登录验证
 // @Tags auth
 // @Produce json
 // @Success 200 {object} utils.APIResponse{data=service.CaptchaResponse} "验证码生成成功"

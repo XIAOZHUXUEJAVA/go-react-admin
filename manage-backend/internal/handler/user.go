@@ -20,8 +20,8 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 }
 
 // Register godoc
-// @Summary Register a new user
-// @Description Register a new user with username, email and password
+// @Summary 注册用户
+// @Description 使用用户名、密码和验证码注册新用户
 // @Tags auth
 // @Accept json
 // @Produce json
@@ -59,8 +59,8 @@ func (h *UserHandler) Register(c *gin.Context) {
 }
 
 // Login godoc
-// @Summary User login
-// @Description Login with username, password and captcha verification
+// @Summary 用户登录
+// @Description 使用用户名、密码和验证码进行登录
 // @Tags auth
 // @Accept json
 // @Produce json
@@ -108,8 +108,8 @@ func (h *UserHandler) Login(c *gin.Context) {
 }
 
 // RefreshToken godoc
-// @Summary Refresh access token
-// @Description Refresh access token using refresh token
+// @Summary 刷新访问令牌
+// @Description 使用刷新令牌刷新访问令牌
 // @Tags auth
 // @Accept json
 // @Produce json
@@ -136,8 +136,8 @@ func (h *UserHandler) RefreshToken(c *gin.Context) {
 }
 
 // Logout godoc
-// @Summary User logout
-// @Description Logout user and invalidate tokens
+// @Summary 用户登出
+// @Description 用户登出并使令牌失效
 // @Tags auth
 // @Accept json
 // @Produce json
@@ -166,8 +166,8 @@ func (h *UserHandler) Logout(c *gin.Context) {
 }
 
 // GetProfile godoc
-// @Summary Get user profile
-// @Description Get current user profile
+// @Summary 获取用户资料
+// @Description 获取当前用户的个人资料
 // @Tags users
 // @Produce json
 // @Security BearerAuth
@@ -195,8 +195,8 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 }
 
 // GetUserPermissions godoc
-// @Summary Get user permissions
-// @Description Get current user's permissions
+// @Summary 获取用户权限
+// @Description 获取当前用户的权限列表
 // @Tags users
 // @Produce json
 // @Security BearerAuth
@@ -217,8 +217,8 @@ func (h *UserHandler) GetUserPermissions(c *gin.Context) {
 }
 
 // UpdateProfile godoc
-// @Summary Update user profile
-// @Description Update current user profile
+// @Summary 更新用户资料
+// @Description 更新当前用户的个人资料
 // @Tags users
 // @Accept json
 // @Produce json
@@ -247,8 +247,8 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 }
 
 // ListUsers godoc
-// @Summary List users
-// @Description Get list of users with pagination (需要认证)
+// @Summary 获取用户列表
+// @Description 分页获取用户列表（需要认证）
 // @Tags users
 // @Produce json
 // @Security BearerAuth
@@ -297,8 +297,8 @@ func (h *UserHandler) ListUsers(c *gin.Context) {
 }
 
 // CreateUser godoc
-// @Summary Create a new user
-// @Description Create a new user (admin only)
+// @Summary 创建用户
+// @Description 创建新用户（仅管理员）
 // @Tags users
 // @Accept json
 // @Produce json
@@ -330,8 +330,8 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 }
 
 // UpdateUser godoc
-// @Summary Update user
-// @Description Update user information
+// @Summary 更新用户信息
+// @Description 更新指定用户的信息
 // @Tags users
 // @Accept json
 // @Produce json
@@ -372,8 +372,8 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 }
 
 // CheckUsernameAvailable godoc
-// @Summary Check username availability
-// @Description Check if username is available for registration
+// @Summary 检查用户名可用性
+// @Description 检查用户名是否可用于注册
 // @Tags users
 // @Produce json
 // @Param username path string true "Username to check"
@@ -402,8 +402,8 @@ func (h *UserHandler) CheckUsernameAvailable(c *gin.Context) {
 }
 
 // CheckEmailAvailable godoc
-// @Summary Check email availability
-// @Description Check if email is available for registration
+// @Summary 检查邮箱可用性
+// @Description 检查邮箱是否可用于注册
 // @Tags users
 // @Produce json
 // @Param email path string true "Email to check"
@@ -432,8 +432,8 @@ func (h *UserHandler) CheckEmailAvailable(c *gin.Context) {
 }
 
 // CheckUserDataAvailability godoc
-// @Summary Check user data availability
-// @Description Batch check username and email availability
+// @Summary 批量检查数据可用性
+// @Description 批量检查用户名和邮箱的可用性
 // @Tags users
 // @Accept json
 // @Produce json
@@ -465,8 +465,8 @@ func (h *UserHandler) CheckUserDataAvailability(c *gin.Context) {
 }
 
 // DeleteUser godoc
-// @Summary Delete user
-// @Description Delete user by ID
+// @Summary 删除用户
+// @Description 根据ID删除用户
 // @Tags users
 // @Produce json
 // @Security BearerAuth
@@ -499,8 +499,8 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 }
 
 // GetUser godoc
-// @Summary Get user by ID
-// @Description Get user information by ID
+// @Summary 根据ID获取用户
+// @Description 根据ID获取用户详细信息
 // @Tags users
 // @Produce json
 // @Security BearerAuth

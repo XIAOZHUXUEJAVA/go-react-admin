@@ -236,14 +236,14 @@ const docTemplate = `{
         },
         "/auth/captcha": {
             "get": {
-                "description": "Generate a new captcha image for login verification",
+                "description": "生成验证码图片用于登录验证",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "auth"
                 ],
-                "summary": "Generate captcha",
+                "summary": "生成验证码",
                 "responses": {
                     "200": {
                         "description": "验证码生成成功",
@@ -320,7 +320,7 @@ const docTemplate = `{
         },
         "/auth/login": {
             "post": {
-                "description": "Login with username, password and captcha verification",
+                "description": "使用用户名、密码和验证码进行登录",
                 "consumes": [
                     "application/json"
                 ],
@@ -330,7 +330,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "User login",
+                "summary": "用户登录",
                 "parameters": [
                     {
                         "description": "Login credentials with captcha",
@@ -389,7 +389,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Logout user and invalidate tokens",
+                "description": "用户登出并使令牌失效",
                 "consumes": [
                     "application/json"
                 ],
@@ -399,7 +399,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "User logout",
+                "summary": "用户登出",
                 "parameters": [
                     {
                         "description": "Logout request (refresh token optional)",
@@ -440,7 +440,7 @@ const docTemplate = `{
         },
         "/auth/refresh": {
             "post": {
-                "description": "Refresh access token using refresh token",
+                "description": "使用刷新令牌刷新访问令牌",
                 "consumes": [
                     "application/json"
                 ],
@@ -450,7 +450,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Refresh access token",
+                "summary": "刷新访问令牌",
                 "parameters": [
                     {
                         "description": "Refresh token request",
@@ -504,7 +504,7 @@ const docTemplate = `{
         },
         "/auth/register": {
             "post": {
-                "description": "Register a new user with username, email and password",
+                "description": "使用用户名、密码和验证码注册新用户",
                 "consumes": [
                     "application/json"
                 ],
@@ -514,7 +514,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Register a new user",
+                "summary": "注册用户",
                 "parameters": [
                     {
                         "description": "User registration data",
@@ -2747,14 +2747,14 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get list of users with pagination (需要认证)",
+                "description": "分页获取用户列表（需要认证）",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "List users",
+                "summary": "获取用户列表",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2819,7 +2819,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new user (admin only)",
+                "description": "创建新用户（仅管理员）",
                 "consumes": [
                     "application/json"
                 ],
@@ -2829,7 +2829,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Create a new user",
+                "summary": "创建用户",
                 "parameters": [
                     {
                         "description": "User creation data",
@@ -2883,7 +2883,7 @@ const docTemplate = `{
         },
         "/users/check-availability": {
             "post": {
-                "description": "Batch check username and email availability",
+                "description": "批量检查用户名和邮箱的可用性",
                 "consumes": [
                     "application/json"
                 ],
@@ -2893,7 +2893,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Check user data availability",
+                "summary": "批量检查数据可用性",
                 "parameters": [
                     {
                         "description": "Data to check",
@@ -2941,14 +2941,14 @@ const docTemplate = `{
         },
         "/users/check-email/{email}": {
             "get": {
-                "description": "Check if email is available for registration",
+                "description": "检查邮箱是否可用于注册",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "Check email availability",
+                "summary": "检查邮箱可用性",
                 "parameters": [
                     {
                         "type": "string",
@@ -2994,14 +2994,14 @@ const docTemplate = `{
         },
         "/users/check-username/{username}": {
             "get": {
-                "description": "Check if username is available for registration",
+                "description": "检查用户名是否可用于注册",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "Check username availability",
+                "summary": "检查用户名可用性",
                 "parameters": [
                     {
                         "type": "string",
@@ -3052,14 +3052,14 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get current user's permissions",
+                "description": "获取当前用户的权限列表",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "Get user permissions",
+                "summary": "获取用户权限",
                 "responses": {
                     "200": {
                         "description": "获取成功",
@@ -3101,14 +3101,14 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get current user profile",
+                "description": "获取当前用户的个人资料",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "Get user profile",
+                "summary": "获取用户资料",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3138,7 +3138,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Update current user profile",
+                "description": "更新当前用户的个人资料",
                 "consumes": [
                     "application/json"
                 ],
@@ -3148,7 +3148,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Update user profile",
+                "summary": "更新用户资料",
                 "parameters": [
                     {
                         "description": "User update data",
@@ -3198,14 +3198,14 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get user information by ID",
+                "description": "根据ID获取用户详细信息",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "Get user by ID",
+                "summary": "根据ID获取用户",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3266,7 +3266,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Update user information",
+                "description": "更新指定用户的信息",
                 "consumes": [
                     "application/json"
                 ],
@@ -3276,7 +3276,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Update user",
+                "summary": "更新用户信息",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3346,14 +3346,14 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Delete user by ID",
+                "description": "根据ID删除用户",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "Delete user",
+                "summary": "删除用户",
                 "parameters": [
                     {
                         "type": "integer",
