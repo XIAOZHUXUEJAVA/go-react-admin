@@ -302,7 +302,7 @@ npm run dev
 
 2. **访问 Swagger UI**
    ```
-   http://localhost:8080/swagger/index.html
+   http://localhost:9000/swagger/index.html
    ```
 
 #### 🔄 更新 Swagger 文档
