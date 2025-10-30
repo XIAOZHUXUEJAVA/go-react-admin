@@ -156,7 +156,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                   </div>
                 </TableCell>
                 <TableCell>
-                  <RoleBadge role={user.role as "admin" | "moderator" | "user"}>
+                  <RoleBadge role={user.role as "admin" | "manager" | "user"}>
                     {user.role}
                   </RoleBadge>
                 </TableCell>

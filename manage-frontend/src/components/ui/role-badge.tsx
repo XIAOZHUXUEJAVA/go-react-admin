@@ -8,7 +8,7 @@ const roleBadgeVariants = cva(
     variants: {
       role: {
         admin: "bg-red-100 text-red-800 hover:bg-red-200",
-        moderator: "bg-blue-100 text-blue-800 hover:bg-blue-200",
+        manager: "bg-blue-100 text-blue-800 hover:bg-blue-200",
         user: "bg-green-100 text-green-800 hover:bg-green-200",
       },
     },
@@ -21,7 +21,7 @@ const roleBadgeVariants = cva(
 export interface RoleBadgeProps
   extends React.HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof roleBadgeVariants> {
-  role: "admin" | "moderator" | "user";
+  role: "admin" | "manager" | "user";
 }
 
 const RoleBadge = React.forwardRef<HTMLSpanElement, RoleBadgeProps>(

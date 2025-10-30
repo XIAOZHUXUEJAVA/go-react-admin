@@ -113,9 +113,7 @@ export default function DashboardPage() {
                 </Badge>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600 dark:text-gray-400">
-                  Redis + Swagger
-                </span>
+                <span className="text-gray-600 dark:text-gray-400">Redis</span>
                 <Badge variant="secondary" className="text-xs">
                   Cache
                 </Badge>

@@ -36,7 +36,7 @@ export const baseValidations = {
     .max(128, "密码最多128个字符"),
 
   // 角色验证
-  role: z.enum(["admin", "user", "moderator"]),
+  role: z.string().min(1, "请选择角色"),
 
   // 状态验证
   status: z.enum(["active", "inactive", "pending"]),

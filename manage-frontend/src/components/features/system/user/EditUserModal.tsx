@@ -22,7 +22,7 @@ import { FormDialog } from "@/components/common";
 const editUserSchema = z.object({
   username: z.string().min(3, "用户名至少3个字符"),
   email: z.string().email("请输入有效的邮箱地址"),
-  role: z.enum(["admin", "user", "moderator"]),
+  role: z.string().min(1, "请选择角色"),
 });
 
 type EditUserFormData = z.infer<typeof editUserSchema>;
@@ -50,7 +50,13 @@ export function EditUserModal({
     mode: "onChange",
   });
 
-  const { register, setValue, watch, reset, formState: { errors } } = form;
+  const {
+    register,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = form;
 
   const roleValue = watch("role");
 
@@ -60,7 +66,7 @@ export function EditUserModal({
       reset({
         username: user.username,
         email: user.email,
-        role: user.role as "admin" | "user" | "moderator",
+        role: user.role,
       });
     }
   }, [user, open, reset]);
@@ -125,7 +131,7 @@ export function EditUserModal({
           <Select
             value={roleValue}
             onValueChange={(value) =>
-              setValue("role", value as "admin" | "user" | "moderator", {
+              setValue("role", value, {
                 shouldValidate: true,
               })
             }

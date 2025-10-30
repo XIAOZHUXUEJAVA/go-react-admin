@@ -48,7 +48,12 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
     mode: "onChange",
   });
 
-  const { register, setValue, watch, formState: { errors } } = form;
+  const {
+    register,
+    setValue,
+    watch,
+    formState: { errors },
+  } = form;
 
   // 用户验证 hook
   const {
@@ -125,8 +130,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
               placeholder="请输入用户名"
               {...register("username")}
               className={
-                errors.username ||
-                usernameAvailability.isAvailable === false
+                errors.username || usernameAvailability.isAvailable === false
                   ? "border-red-500"
                   : usernameAvailability.isAvailable === true
                   ? "border-green-500"
@@ -140,9 +144,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
             )}
           </div>
           {errors.username && (
-            <p className="text-sm text-red-500">
-              {errors.username.message}
-            </p>
+            <p className="text-sm text-red-500">{errors.username.message}</p>
           )}
           {!errors.username && usernameAvailability.message && (
             <p
@@ -233,7 +235,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
           <Select
             value={roleValue}
             onValueChange={(value) =>
-              setValue("role", value as "admin" | "user" | "moderator", {
+              setValue("role", value, {
                 shouldValidate: true,
               })
             }
