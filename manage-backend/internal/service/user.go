@@ -24,6 +24,7 @@ type UserRepositoryInterface interface {
 	Update(user *model.User) error
 	Delete(id uint) error
 	List(offset, limit int) ([]model.User, int64, error)
+	ListByVisibility(currentUserID uint, currentUserRole string, offset, limit int) ([]model.User, int64, error)
 	CheckUsernameExists(username string) (bool, error)
 	CheckEmailExists(email string) (bool, error)
 	CheckUsernameExistsExcludeID(username string, excludeID uint) (bool, error)
@@ -83,10 +84,16 @@ func NewUserService(
 }
 
 func (s *UserService) Register(req *model.CreateUserRequest) (*model.User, error) {
+	return s.RegisterWithCreator(req, nil)
+}
+
+// RegisterWithCreator 创建用户（带创建者ID）
+func (s *UserService) RegisterWithCreator(req *model.CreateUserRequest, creatorID *uint) (*model.User, error) {
 	logger.Info("开始用户注册流程",
 		zap.String("username", req.Username),
 		zap.String("email", req.Email),
-		zap.String("role", req.Role))
+		zap.String("role", req.Role),
+		zap.Any("creator_id", creatorID))
 
 	// 检查用户名是否已存在
 	_, err := s.userRepo.GetByUsername(req.Username)
@@ -118,10 +125,11 @@ func (s *UserService) Register(req *model.CreateUserRequest) (*model.User, error
 	}
 
 	user := &model.User{
-		Username: req.Username,
-		Email:    req.Email,
-		Password: hashedPassword,
-		Role:     req.Role,
+		Username:  req.Username,
+		Email:     req.Email,
+		Password:  hashedPassword,
+		Role:      req.Role,
+		CreatedBy: creatorID,
 	}
 
 	if user.Role == "" {
@@ -154,6 +162,7 @@ func (s *UserService) Register(req *model.CreateUserRequest) (*model.User, error
 		zap.String("username", user.Username),
 		zap.Uint("user_id", user.ID),
 		zap.String("role", user.Role),
+		zap.Any("created_by", creatorID),
 		zap.String("operation", "register"))
 
 	return user, nil
@@ -652,6 +661,40 @@ func (s *UserService) List(page, pageSize int) ([]model.User, int64, error) {
 		zap.Int64("total", total),
 		zap.Int("returned_count", len(users)),
 		zap.String("operation", "list_users"))
+
+	return users, total, nil
+}
+
+// ListWithVisibility 根据用户角色和可见性规则获取用户列表
+func (s *UserService) ListWithVisibility(currentUserID uint, currentUserRole string, page, pageSize int) ([]model.User, int64, error) {
+	logger.Debug("查询用户列表（带可见性控制）", 
+		zap.Uint("current_user_id", currentUserID),
+		zap.String("current_user_role", currentUserRole),
+		zap.Int("page", page),
+		zap.Int("page_size", pageSize),
+		zap.String("operation", "list_users_with_visibility"))
+
+	offset := (page - 1) * pageSize
+	users, total, err := s.userRepo.ListByVisibility(currentUserID, currentUserRole, offset, pageSize)
+	if err != nil {
+		logger.Error("查询用户列表失败", 
+			zap.Uint("current_user_id", currentUserID),
+			zap.String("current_user_role", currentUserRole),
+			zap.Int("page", page),
+			zap.Int("page_size", pageSize),
+			zap.Error(err),
+			zap.String("operation", "list_users_with_visibility"))
+		return nil, 0, err
+	}
+
+	logger.Debug("用户列表查询成功", 
+		zap.Uint("current_user_id", currentUserID),
+		zap.String("current_user_role", currentUserRole),
+		zap.Int("page", page),
+		zap.Int("page_size", pageSize),
+		zap.Int64("total", total),
+		zap.Int("returned_count", len(users)),
+		zap.String("operation", "list_users_with_visibility"))
 
 	return users, total, nil
 }

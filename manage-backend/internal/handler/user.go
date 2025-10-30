@@ -260,6 +260,20 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 // @Failure 500 {object} utils.APIResponse "服务器内部错误"
 // @Router /users [get]
 func (h *UserHandler) ListUsers(c *gin.Context) {
+	// 获取当前用户信息
+	currentUserID := c.GetUint("user_id")
+	currentUserRole := c.GetString("role")
+
+	// 如果没有角色信息，从用户服务获取
+	if currentUserRole == "" {
+		user, err := h.userService.GetByID(currentUserID)
+		if err != nil {
+			utils.Unauthorized(c, "无法获取用户信息")
+			return
+		}
+		currentUserRole = user.Role
+	}
+
 	// 解析查询参数
 	pageStr := c.DefaultQuery("page", "1")
 	pageSizeStr := c.DefaultQuery("page_size", "10")
@@ -277,8 +291,8 @@ func (h *UserHandler) ListUsers(c *gin.Context) {
 		pageSize = 50
 	}
 
-	// 调用服务层的 List 方法
-	users, total, err := h.userService.List(page, pageSize)
+	// 调用服务层的 ListWithVisibility 方法（带可见性控制）
+	users, total, err := h.userService.ListWithVisibility(currentUserID, currentUserRole, page, pageSize)
 	if err != nil {
 		utils.InternalServerError(c, "failed to get user list")
 		return
@@ -316,7 +330,10 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := h.userService.Register(&req)
+	// 获取当前用户ID作为创建者
+	creatorID := c.GetUint("user_id")
+
+	user, err := h.userService.RegisterWithCreator(&req, &creatorID)
 	if err != nil {
 		if err.Error() == "username already exists" || err.Error() == "email already exists" {
 			utils.BadRequest(c, err.Error())

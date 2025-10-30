@@ -91,6 +91,43 @@ func (r *UserRepository) List(offset, limit int) ([]model.User, int64, error) {
 	return users, total, err
 }
 
+// ListByVisibility 根据用户角色和可见性规则分页获取用户列表
+// 参数: currentUserID - 当前用户ID, currentUserRole - 当前用户角色, offset - 偏移量, limit - 每页数量
+// 返回: []model.User - 用户列表, int64 - 总记录数, error - 查询是否成功
+func (r *UserRepository) ListByVisibility(currentUserID uint, currentUserRole string, offset, limit int) ([]model.User, int64, error) {
+	var users []model.User
+	var total int64
+
+	query := r.db.Model(&model.User{})
+
+	// 超级管理员可以看到所有用户
+	if currentUserRole == "admin" {
+		// 不添加任何过滤条件
+	} else if currentUserRole == "manager" {
+		// 管理员只能看到：
+		// 1. 自己 (id = currentUserID)
+		// 2. 自己创建的用户 (created_by = currentUserID)
+		// 3. 排除超级管理员和其他管理员（但不排除自己）
+		query = query.Where(
+			r.db.Where("id = ?", currentUserID).
+				Or(r.db.Where("created_by = ?", currentUserID).Where("role NOT IN (?)", []string{"manager", "admin"})),
+		)
+	} else {
+		// 普通用户只能看到自己
+		query = query.Where("id = ?", currentUserID)
+	}
+
+	// 获取总数
+	err := query.Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 分页查询
+	err = query.Offset(offset).Limit(limit).Order("created_at DESC").Find(&users).Error
+	return users, total, err
+}
+
 // CheckUsernameExists 检查用户名是否已存在
 // 参数: username - 用户名
 // 返回: bool - 是否存在, error - 查询是否成功

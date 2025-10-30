@@ -13,6 +13,7 @@ type User struct {
 	Password  string         `json:"-" gorm:"not null"`
 	Role      string         `json:"role" gorm:"default:user"`
 	Status    string         `json:"status" gorm:"default:active"`
+	CreatedBy *uint          `json:"created_by" gorm:"index"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
@@ -25,6 +26,7 @@ type UserResponse struct {
 	Email     string    `json:"email"`
 	Role      string    `json:"role"`
 	Status    string    `json:"status"`
+	CreatedBy *uint     `json:"created_by,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
