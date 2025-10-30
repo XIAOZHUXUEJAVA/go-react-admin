@@ -5,7 +5,7 @@ import "@/styles/nprogress.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { Toaster } from "@/components/ui/sonner";
-import { TopLoadingBar } from "@/components/common";
+import { TopLoadingBar, ThemeProvider } from "@/components/common";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,15 +28,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TopLoadingBar />
-        <AuthProvider>
-          <AuthGuard>{children}</AuthGuard>
-          <Toaster />
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TopLoadingBar />
+          <AuthProvider>
+            <AuthGuard>{children}</AuthGuard>
+            <Toaster />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

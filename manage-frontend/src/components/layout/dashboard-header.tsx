@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { ThemeToggle } from "@/components/common";
 
 interface BreadcrumbItem {
   label: string;
@@ -62,9 +63,10 @@ export function DashboardHeader({
       </div>
 
       {/* 操作按钮区域 */}
-      {actions && (
-        <div className="flex items-center space-x-4 px-4">{actions}</div>
-      )}
+      <div className="flex items-center space-x-2 px-4">
+        {actions}
+        <ThemeToggle />
+      </div>
     </header>
   );
 }

@@ -7,3 +7,5 @@ export { Pagination } from "./Pagination";
 export { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 export { EmptyState, TableEmptyState } from "./EmptyState";
 export { FormDialog } from "./FormDialog";
+export { ThemeProvider } from "./theme-provider";
+export { ThemeToggle } from "./theme-toggle";
