@@ -164,10 +164,10 @@ func (h *PasswordResetHandler) ResetPassword(c *gin.Context) {
 			zap.String("ip_address", ipAddress),
 			zap.String("operation", "reset_password"))
 		
-		// 根据错误类型返回不同的状态码
-		if err.Error() == "无效的重置链接" || 
-		   err.Error() == "重置链接已过期，请重新申请" || 
-		   err.Error() == "重置链接已使用，请重新申请" {
+		// 使用自定义错误类型判断
+		if apperrors.IsInvalidTokenError(err) || 
+		   apperrors.IsTokenExpiredError(err) || 
+		   apperrors.IsTokenUsedError(err) {
 			utils.BadRequest(c, err.Error())
 		} else {
 			utils.InternalServerError(c, "密码重置失败，请稍后重试")

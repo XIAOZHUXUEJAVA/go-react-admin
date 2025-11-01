@@ -39,7 +39,7 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 
 	role, err := h.roleService.Create(&req)
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -67,7 +67,7 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 
 	role, err := h.roleService.GetByID(uint(id))
 	if err != nil {
-		utils.NotFound(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -103,7 +103,7 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 
 	role, err := h.roleService.Update(uint(id), &req)
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -130,7 +130,7 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	}
 
 	if err := h.roleService.Delete(uint(id)); err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -228,7 +228,7 @@ func (h *RoleHandler) AssignPermissions(c *gin.Context) {
 	}
 
 	if err := h.roleService.AssignPermissions(uint(id), &req); err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -255,7 +255,7 @@ func (h *RoleHandler) GetRolePermissions(c *gin.Context) {
 
 	roleWithPerms, err := h.roleService.GetRolePermissions(uint(id))
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -292,7 +292,7 @@ func (h *RoleHandler) AssignRolesToUser(c *gin.Context) {
 	assignedBy := c.GetUint("user_id")
 
 	if err := h.roleService.AssignRolesToUser(uint(userID), &req, assignedBy); err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 

@@ -101,7 +101,7 @@ func (s *UserService) RegisterWithCreator(req *model.CreateUserRequest, creatorI
 		logger.Warn("用户注册失败：用户名已存在", 
 			zap.String("username", req.Username),
 			zap.String("operation", "register"))
-		return nil, errors.New("username already exists")
+		return nil, apperrors.NewConflictError("用户名已存在")
 	}
 
 	// 检查邮箱是否已存在
@@ -111,7 +111,7 @@ func (s *UserService) RegisterWithCreator(req *model.CreateUserRequest, creatorI
 			zap.String("username", req.Username),
 			zap.String("email", req.Email),
 			zap.String("operation", "register"))
-		return nil, errors.New("email already exists")
+		return nil, apperrors.NewConflictError("邮箱已存在")
 	}
 
 	// 加密密码
@@ -352,7 +352,7 @@ func (s *UserService) RefreshToken(ctx context.Context, req *model.RefreshTokenR
 	if s.sessionService == nil {
 		logger.Error("刷新令牌失败：会话服务不可用", 
 			zap.String("operation", "refresh_token"))
-		return nil, errors.New("session service not available")
+		return nil, apperrors.NewInternalError("会话服务不可用")
 	}
 
 	// 验证刷新令牌并获取会话
@@ -361,7 +361,7 @@ func (s *UserService) RefreshToken(ctx context.Context, req *model.RefreshTokenR
 		logger.Warn("刷新令牌失败：无效的刷新令牌", 
 			zap.Error(err),
 			zap.String("operation", "refresh_token"))
-		return nil, errors.New("invalid refresh token")
+		return nil, apperrors.NewUnauthorizedError("无效的刷新令牌")
 	}
 
 	logger.Debug("刷新令牌验证成功", 
@@ -415,7 +415,7 @@ func (s *UserService) Logout(ctx context.Context, userID uint, accessToken strin
 		logger.Error("登出失败：会话服务不可用", 
 			zap.Uint("user_id", userID),
 			zap.String("operation", "logout"))
-		return errors.New("session service not available")
+		return apperrors.NewInternalError("会话服务不可用")
 	}
 
 	// 验证并获取访问令牌声明
@@ -425,7 +425,7 @@ func (s *UserService) Logout(ctx context.Context, userID uint, accessToken strin
 			zap.Uint("user_id", userID),
 			zap.Error(err),
 			zap.String("operation", "logout"))
-		return errors.New("invalid access token")
+		return apperrors.NewUnauthorizedError("无效的访问令牌")
 	}
 
 	logger.Debug("访问令牌验证成功", 
@@ -495,12 +495,12 @@ func (s *UserService) GetByID(id uint) (*model.User, error) {
 			logger.Warn("用户不存在", 
 				zap.Uint("user_id", id),
 				zap.String("operation", "get_user"))
-		} else {
-			logger.Error("查询用户失败", 
-				zap.Uint("user_id", id),
-				zap.Error(err),
-				zap.String("operation", "get_user"))
+			return nil, apperrors.NewNotFoundError("用户不存在")
 		}
+		logger.Error("查询用户失败", 
+			zap.Uint("user_id", id),
+			zap.Error(err),
+			zap.String("operation", "get_user"))
 		return nil, err
 	}
 
@@ -523,12 +523,12 @@ func (s *UserService) Update(id uint, req *model.UpdateUserRequest) (*model.User
 			logger.Warn("更新失败：用户不存在", 
 				zap.Uint("user_id", id),
 				zap.String("operation", "update_user"))
-		} else {
-			logger.Error("查询用户失败", 
-				zap.Uint("user_id", id),
-				zap.Error(err),
-				zap.String("operation", "update_user"))
+			return nil, apperrors.NewNotFoundError("用户不存在")
 		}
+		logger.Error("查询用户失败", 
+			zap.Uint("user_id", id),
+			zap.Error(err),
+			zap.String("operation", "update_user"))
 		return nil, err
 	}
 
@@ -611,12 +611,12 @@ func (s *UserService) Delete(id uint) error {
 			logger.Warn("删除失败：用户不存在", 
 				zap.Uint("user_id", id),
 				zap.String("operation", "delete_user"))
-		} else {
-			logger.Error("查询用户失败", 
-				zap.Uint("user_id", id),
-				zap.Error(err),
-				zap.String("operation", "delete_user"))
+			return apperrors.NewNotFoundError("用户不存在")
 		}
+		logger.Error("查询用户失败", 
+			zap.Uint("user_id", id),
+			zap.Error(err),
+			zap.String("operation", "delete_user"))
 		return err
 	}
 

@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+
+		apperrors "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/errors"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/logger"
 	"go.uber.org/zap"
@@ -89,7 +91,7 @@ func (s *RoleService) Create(req *model.CreateRoleRequest) (*model.RoleResponse,
 		return nil, err
 	}
 	if exists {
-		return nil, errors.New("角色代码已存在")
+		return nil, apperrors.NewConflictError("角色代码已存在")
 	}
 
 	// 创建角色
@@ -122,7 +124,7 @@ func (s *RoleService) GetByID(id uint) (*model.RoleResponse, error) {
 	role, err := s.roleRepo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("角色不存在")
+			return nil, apperrors.NewNotFoundError("角色不存在")
 		}
 		logger.Error("获取角色失败", zap.Uint("role_id", id), zap.Error(err))
 		return nil, err
@@ -137,7 +139,7 @@ func (s *RoleService) Update(id uint, req *model.UpdateRoleRequest) (*model.Role
 	role, err := s.roleRepo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("角色不存在")
+			return nil, apperrors.NewNotFoundError("角色不存在")
 		}
 		logger.Error("获取角色失败", zap.Uint("role_id", id), zap.Error(err))
 		return nil, err
@@ -145,7 +147,7 @@ func (s *RoleService) Update(id uint, req *model.UpdateRoleRequest) (*model.Role
 
 	// 检查是否为系统角色
 	if role.IsSystem {
-		return nil, errors.New("系统角色不允许修改")
+		return nil, apperrors.NewPermissionDeniedError("系统角色不允许修改")
 	}
 
 	// 更新字段
@@ -177,7 +179,7 @@ func (s *RoleService) Delete(id uint) error {
 	role, err := s.roleRepo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("角色不存在")
+			return apperrors.NewNotFoundError("角色不存在")
 		}
 		logger.Error("获取角色失败", zap.Uint("role_id", id), zap.Error(err))
 		return err
@@ -185,7 +187,7 @@ func (s *RoleService) Delete(id uint) error {
 
 	// 检查是否为系统角色
 	if role.IsSystem {
-		return errors.New("系统角色不允许删除")
+		return apperrors.NewPermissionDeniedError("系统角色不允许删除")
 	}
 
 	// 检查是否有用户使用该角色
@@ -256,7 +258,7 @@ func (s *RoleService) AssignPermissions(roleID uint, req *model.AssignRolePermis
 	role, err := s.roleRepo.GetByID(roleID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("角色不存在")
+			return apperrors.NewNotFoundError("角色不存在")
 		}
 		logger.Error("获取角色失败", zap.Uint("role_id", roleID), zap.Error(err))
 		return err
@@ -277,7 +279,7 @@ func (s *RoleService) AssignPermissions(roleID uint, req *model.AssignRolePermis
 		logger.Warn("部分权限不存在",
 			zap.Uints("requested_ids", req.PermissionIDs),
 			zap.Int("found_count", len(permissions)))
-		return errors.New("部分权限不存在")
+		return apperrors.NewNotFoundError("部分权限不存在")
 	}
 
 	// 构建 Casbin 策略
@@ -337,7 +339,7 @@ func (s *RoleService) GetRolePermissions(roleID uint) (*model.RoleWithPermission
 	role, err := s.roleRepo.GetByID(roleID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("角色不存在")
+			return nil, apperrors.NewNotFoundError("角色不存在")
 		}
 		logger.Error("获取角色失败", zap.Uint("role_id", roleID), zap.Error(err))
 		return nil, err

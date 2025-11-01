@@ -323,8 +323,9 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 
 	user, err := h.userService.RegisterWithCreator(&req, &creatorID)
 	if err != nil {
-		if err.Error() == "username already exists" || err.Error() == "email already exists" {
-			utils.BadRequest(c, err.Error())
+		// 使用自定义错误类型判断
+		if apperrors.IsConflictError(err) {
+			utils.Conflict(c, err.Error())
 			return
 		}
 		utils.InternalServerError(c, "failed to create user")
@@ -365,8 +366,9 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 
 	user, err := h.userService.Update(uint(id), &req)
 	if err != nil {
-		if err.Error() == "user not found" {
-			utils.NotFound(c, "user not found")
+		// 使用自定义错误类型判断
+		if apperrors.IsNotFoundError(err) {
+			utils.NotFound(c, err.Error())
 			return
 		}
 		utils.InternalServerError(c, "failed to update user")
@@ -492,8 +494,9 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 
 	err = h.userService.Delete(uint(id))
 	if err != nil {
-		if err.Error() == "user not found" {
-			utils.NotFound(c, "user not found")
+		// 使用自定义错误类型判断
+		if apperrors.IsNotFoundError(err) {
+			utils.NotFound(c, err.Error())
 			return
 		}
 		utils.InternalServerError(c, "failed to delete user")
@@ -526,8 +529,9 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 
 	user, err := h.userService.GetByID(uint(id))
 	if err != nil {
-		if err.Error() == "user not found" {
-			utils.NotFound(c, "user not found")
+		// 使用自定义错误类型判断
+		if apperrors.IsNotFoundError(err) {
+			utils.NotFound(c, err.Error())
 			return
 		}
 		utils.InternalServerError(c, "failed to get user")

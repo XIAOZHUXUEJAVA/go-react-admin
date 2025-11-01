@@ -7,6 +7,7 @@ import (
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/repository"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/logger"
+	apperrors "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/errors"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -77,7 +78,7 @@ func (s *DictTypeService) Create(req *model.CreateDictTypeRequest) (*model.DictT
 		logger.Warn("字典类型代码已存在",
 			zap.String("code", req.Code),
 			zap.String("operation", "create_dict_type"))
-		return nil, errors.New("字典类型代码已存在")
+		return nil, apperrors.NewConflictError("字典类型代码已存在")
 	}
 
 	// 创建字典类型
@@ -240,7 +241,7 @@ func (s *DictTypeService) Delete(id uint) error {
 			zap.Uint("id", id),
 			zap.String("code", dictType.Code),
 			zap.String("operation", "delete_dict_type"))
-		return errors.New("系统内置字典类型不可删除")
+		return apperrors.NewPermissionDeniedError("系统内置字典类型不可删除")
 	}
 
 	// 检查是否有关联的字典项
@@ -356,7 +357,7 @@ func (s *DictItemService) Create(req *model.CreateDictItemRequest) (*model.DictI
 			logger.Warn("字典类型不存在",
 				zap.String("dict_type_code", req.DictTypeCode),
 				zap.String("operation", "create_dict_item"))
-			return nil, errors.New("字典类型不存在")
+			return nil, apperrors.NewNotFoundError("字典类型不存在")
 		}
 		logger.Error("查询字典类型失败",
 			zap.String("dict_type_code", req.DictTypeCode),
@@ -380,7 +381,7 @@ func (s *DictItemService) Create(req *model.CreateDictItemRequest) (*model.DictI
 			zap.String("dict_type_code", req.DictTypeCode),
 			zap.String("value", req.Value),
 			zap.String("operation", "create_dict_item"))
-		return nil, errors.New("字典项值已存在")
+		return nil, apperrors.NewConflictError("字典项值已存在")
 	}
 
 	// 转换 Extra
@@ -389,7 +390,7 @@ func (s *DictItemService) Create(req *model.CreateDictItemRequest) (*model.DictI
 		logger.Error("转换Extra失败",
 			zap.Error(err),
 			zap.String("operation", "create_dict_item"))
-		return nil, errors.New("Extra 格式错误")
+		return nil, apperrors.NewValidationError("Extra 格式错误")
 	}
 
 	// 如果设置为默认值，清除其他默认值
@@ -495,7 +496,7 @@ func (s *DictItemService) Update(id uint, req *model.UpdateDictItemRequest) (*mo
 			logger.Error("转换Extra失败",
 				zap.Error(err),
 				zap.String("operation", "update_dict_item"))
-			return nil, errors.New("Extra 格式错误")
+			return nil, apperrors.NewValidationError("Extra 格式错误")
 		}
 		dictItem.Extra = extraJSON
 	}
@@ -568,7 +569,7 @@ func (s *DictItemService) Delete(id uint) error {
 			zap.Uint("id", id),
 			zap.String("value", dictItem.Value),
 			zap.String("operation", "delete_dict_item"))
-		return errors.New("系统内置字典项不可删除")
+		return apperrors.NewPermissionDeniedError("系统内置字典项不可删除")
 	}
 
 	err = s.dictItemRepo.Delete(id)
@@ -632,7 +633,7 @@ func (s *DictItemService) GetByTypeCode(typeCode string, activeOnly bool) ([]mod
 			logger.Warn("字典类型不存在",
 				zap.String("dict_type_code", typeCode),
 				zap.String("operation", "get_dict_items_by_type"))
-			return nil, errors.New("字典类型不存在")
+			return nil, apperrors.NewNotFoundError("字典类型不存在")
 		}
 		logger.Error("查询字典类型失败",
 			zap.String("dict_type_code", typeCode),

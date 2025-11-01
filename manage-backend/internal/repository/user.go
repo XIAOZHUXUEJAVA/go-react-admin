@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
 	"gorm.io/gorm"
 )
@@ -20,7 +22,10 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 // 参数: user - 用户对象
 // 返回: error - 操作是否成功
 func (r *UserRepository) Create(user *model.User) error {
-	return r.db.Create(user).Error
+	if err := r.db.Create(user).Error; err != nil {
+		return fmt.Errorf("创建用户失败 [username=%s]: %w", user.Username, err)
+	}
+	return nil
 }
 
 // GetByID 根据 ID 获取用户
@@ -28,9 +33,8 @@ func (r *UserRepository) Create(user *model.User) error {
 // 返回: *model.User - 用户对象, error - 查询是否成功
 func (r *UserRepository) GetByID(id uint) (*model.User, error) {
 	var user model.User
-	err := r.db.First(&user, id).Error
-	if err != nil {
-		return nil, err
+	if err := r.db.First(&user, id).Error; err != nil {
+		return nil, fmt.Errorf("根据ID查询用户失败 [id=%d]: %w", id, err)
 	}
 	return &user, nil
 }
@@ -40,9 +44,8 @@ func (r *UserRepository) GetByID(id uint) (*model.User, error) {
 // 返回: *model.User - 用户对象, error - 查询是否成功
 func (r *UserRepository) GetByUsername(username string) (*model.User, error) {
 	var user model.User
-	err := r.db.Where("username = ?", username).First(&user).Error
-	if err != nil {
-		return nil, err
+	if err := r.db.Where("username = ?", username).First(&user).Error; err != nil {
+		return nil, fmt.Errorf("根据用户名查询用户失败 [username=%s]: %w", username, err)
 	}
 	return &user, nil
 }
@@ -52,9 +55,8 @@ func (r *UserRepository) GetByUsername(username string) (*model.User, error) {
 // 返回: *model.User - 用户对象, error - 查询是否成功
 func (r *UserRepository) GetByEmail(email string) (*model.User, error) {
 	var user model.User
-	err := r.db.Where("email = ?", email).First(&user).Error
-	if err != nil {
-		return nil, err
+	if err := r.db.Where("email = ?", email).First(&user).Error; err != nil {
+		return nil, fmt.Errorf("根据邮箱查询用户失败 [email=%s]: %w", email, err)
 	}
 	return &user, nil
 }
@@ -63,14 +65,20 @@ func (r *UserRepository) GetByEmail(email string) (*model.User, error) {
 // 参数: user - 用户对象（需包含ID）
 // 返回: error - 操作是否成功
 func (r *UserRepository) Update(user *model.User) error {
-	return r.db.Save(user).Error
+	if err := r.db.Save(user).Error; err != nil {
+		return fmt.Errorf("更新用户失败 [id=%d, username=%s]: %w", user.ID, user.Username, err)
+	}
+	return nil
 }
 
 // Delete 删除用户
 // 参数: id - 用户ID
 // 返回: error - 操作是否成功
 func (r *UserRepository) Delete(id uint) error {
-	return r.db.Delete(&model.User{}, id).Error
+	if err := r.db.Delete(&model.User{}, id).Error; err != nil {
+		return fmt.Errorf("删除用户失败 [id=%d]: %w", id, err)
+	}
+	return nil
 }
 
 // List 分页获取用户列表
@@ -81,14 +89,15 @@ func (r *UserRepository) List(offset, limit int) ([]model.User, int64, error) {
 	var total int64
 
 	// 获取总数
-	err := r.db.Model(&model.User{}).Count(&total).Error
-	if err != nil {
-		return nil, 0, err
+	if err := r.db.Model(&model.User{}).Count(&total).Error; err != nil {
+		return nil, 0, fmt.Errorf("统计用户总数失败: %w", err)
 	}
 
 	// 分页查询
-	err = r.db.Offset(offset).Limit(limit).Find(&users).Error
-	return users, total, err
+	if err := r.db.Offset(offset).Limit(limit).Find(&users).Error; err != nil {
+		return nil, 0, fmt.Errorf("分页查询用户列表失败 [offset=%d, limit=%d]: %w", offset, limit, err)
+	}
+	return users, total, nil
 }
 
 // ListByVisibility 根据用户角色和可见性规则分页获取用户列表
@@ -118,14 +127,15 @@ func (r *UserRepository) ListByVisibility(currentUserID uint, currentUserRole st
 	}
 
 	// 获取总数
-	err := query.Count(&total).Error
-	if err != nil {
-		return nil, 0, err
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, fmt.Errorf("统计可见用户总数失败 [userID=%d, role=%s]: %w", currentUserID, currentUserRole, err)
 	}
 
 	// 分页查询
-	err = query.Offset(offset).Limit(limit).Order("created_at DESC").Find(&users).Error
-	return users, total, err
+	if err := query.Offset(offset).Limit(limit).Order("created_at DESC").Find(&users).Error; err != nil {
+		return nil, 0, fmt.Errorf("分页查询可见用户列表失败 [userID=%d, role=%s, offset=%d, limit=%d]: %w", currentUserID, currentUserRole, offset, limit, err)
+	}
+	return users, total, nil
 }
 
 // CheckUsernameExists 检查用户名是否已存在
@@ -133,8 +143,10 @@ func (r *UserRepository) ListByVisibility(currentUserID uint, currentUserRole st
 // 返回: bool - 是否存在, error - 查询是否成功
 func (r *UserRepository) CheckUsernameExists(username string) (bool, error) {
 	var count int64
-	err := r.db.Model(&model.User{}).Where("username = ?", username).Count(&count).Error
-	return count > 0, err
+	if err := r.db.Model(&model.User{}).Where("username = ?", username).Count(&count).Error; err != nil {
+		return false, fmt.Errorf("检查用户名是否存在失败 [username=%s]: %w", username, err)
+	}
+	return count > 0, nil
 }
 
 // CheckEmailExists 检查邮箱是否已存在
@@ -142,8 +154,10 @@ func (r *UserRepository) CheckUsernameExists(username string) (bool, error) {
 // 返回: bool - 是否存在, error - 查询是否成功
 func (r *UserRepository) CheckEmailExists(email string) (bool, error) {
 	var count int64
-	err := r.db.Model(&model.User{}).Where("email = ?", email).Count(&count).Error
-	return count > 0, err
+	if err := r.db.Model(&model.User{}).Where("email = ?", email).Count(&count).Error; err != nil {
+		return false, fmt.Errorf("检查邮箱是否存在失败 [email=%s]: %w", email, err)
+	}
+	return count > 0, nil
 }
 
 // CheckUsernameExistsExcludeID 检查用户名是否已存在（排除指定ID）
@@ -151,8 +165,10 @@ func (r *UserRepository) CheckEmailExists(email string) (bool, error) {
 // 返回: bool - 是否存在, error - 查询是否成功
 func (r *UserRepository) CheckUsernameExistsExcludeID(username string, excludeID uint) (bool, error) {
 	var count int64
-	err := r.db.Model(&model.User{}).Where("username = ? AND id != ?", username, excludeID).Count(&count).Error
-	return count > 0, err
+	if err := r.db.Model(&model.User{}).Where("username = ? AND id != ?", username, excludeID).Count(&count).Error; err != nil {
+		return false, fmt.Errorf("检查用户名是否存在失败 [username=%s, excludeID=%d]: %w", username, excludeID, err)
+	}
+	return count > 0, nil
 }
 
 // CheckEmailExistsExcludeID 检查邮箱是否已存在（排除指定ID）
@@ -160,15 +176,20 @@ func (r *UserRepository) CheckUsernameExistsExcludeID(username string, excludeID
 // 返回: bool - 是否存在, error - 查询是否成功
 func (r *UserRepository) CheckEmailExistsExcludeID(email string, excludeID uint) (bool, error) {
 	var count int64
-	err := r.db.Model(&model.User{}).Where("email = ? AND id != ?", email, excludeID).Count(&count).Error
-	return count > 0, err
+	if err := r.db.Model(&model.User{}).Where("email = ? AND id != ?", email, excludeID).Count(&count).Error; err != nil {
+		return false, fmt.Errorf("检查邮箱是否存在失败 [email=%s, excludeID=%d]: %w", email, excludeID, err)
+	}
+	return count > 0, nil
 }
 
 // UpdatePassword 更新用户密码
 // 参数: userID - 用户ID, hashedPassword - 加密后的密码
 // 返回: error - 操作是否成功
 func (r *UserRepository) UpdatePassword(userID uint, hashedPassword string) error {
-	return r.db.Model(&model.User{}).
+	if err := r.db.Model(&model.User{}).
 		Where("id = ?", userID).
-		Update("password", hashedPassword).Error
+		Update("password", hashedPassword).Error; err != nil {
+		return fmt.Errorf("更新用户密码失败 [userID=%d]: %w", userID, err)
+	}
+	return nil
 }

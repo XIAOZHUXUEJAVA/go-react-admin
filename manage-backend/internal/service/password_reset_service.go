@@ -115,11 +115,10 @@ func (s *passwordResetService) RequestPasswordReset(ctx context.Context, email, 
 	// 2. 检查用户状态
 	if user.Status != "active" {
 		logger.Warn("密码重置请求失败：账户已被禁用",
-			zap.String("email", email),
 			zap.Uint("user_id", user.ID),
 			zap.String("status", user.Status),
 			zap.String("operation", "request_password_reset"))
-		return errors.New("账户已被禁用，无法重置密码")
+		return apperrors.NewAccountDisabledError("账户已被禁用，无法重置密码")
 	}
 
 	// 3. 删除该用户之前未使用的Token（防止重复请求）
@@ -236,7 +235,7 @@ func (s *passwordResetService) VerifyResetToken(ctx context.Context, token strin
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				logger.Warn("验证失败：Token不存在",
 					zap.String("operation", "verify_reset_token"))
-				return nil, errors.New("无效的重置链接")
+				return nil, apperrors.NewInvalidTokenError("无效的重置链接")
 			}
 			logger.Error("查询Token失败",
 				zap.Error(err),
@@ -251,14 +250,14 @@ func (s *passwordResetService) VerifyResetToken(ctx context.Context, token strin
 					zap.Uint("token_id", resetToken.ID),
 					zap.Time("expires_at", resetToken.ExpiresAt),
 					zap.String("operation", "verify_reset_token"))
-				return nil, errors.New("重置链接已过期，请重新申请")
+				return nil, apperrors.NewTokenExpiredError("重置链接已过期，请重新申请")
 			}
 			if resetToken.IsUsed() {
 				logger.Warn("验证失败：Token已使用",
 					zap.Uint("token_id", resetToken.ID),
 					zap.Time("used_at", *resetToken.UsedAt),
 					zap.String("operation", "verify_reset_token"))
-				return nil, errors.New("重置链接已使用，请重新申请")
+				return nil, apperrors.NewTokenUsedError("重置链接已使用，请重新申请")
 			}
 		}
 

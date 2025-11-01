@@ -13,6 +13,15 @@ const (
 	ErrorTypeInvalidCaptcha     // 验证码错误
 	ErrorTypeUserNotFound       // 用户不存在
 	ErrorTypeAccountDisabled    // 账户已禁用
+	ErrorTypeValidation         // 参数验证错误
+	ErrorTypeNotFound           // 资源不存在
+	ErrorTypeConflict           // 资源冲突（如用户名已存在）
+	ErrorTypePermissionDenied   // 权限不足
+	ErrorTypeInvalidToken       // Token无效
+	ErrorTypeTokenExpired       // Token已过期
+	ErrorTypeTokenUsed          // Token已使用
+	ErrorTypeUnauthorized       // 未授权
+	ErrorTypeInternal           // 内部错误
 )
 
 // AppError 应用错误
@@ -83,6 +92,87 @@ func NewAccountDisabledError(message string) *AppError {
 	}
 }
 
+// NewValidationError 创建参数验证错误
+func NewValidationError(message string) *AppError {
+	return &AppError{
+		Type:    ErrorTypeValidation,
+		Message: message,
+		Code:    400, // Bad Request
+	}
+}
+
+// NewNotFoundError 创建资源不存在错误
+func NewNotFoundError(message string) *AppError {
+	return &AppError{
+		Type:    ErrorTypeNotFound,
+		Message: message,
+		Code:    404, // Not Found
+	}
+}
+
+// NewConflictError 创建资源冲突错误
+func NewConflictError(message string) *AppError {
+	return &AppError{
+		Type:    ErrorTypeConflict,
+		Message: message,
+		Code:    409, // Conflict
+	}
+}
+
+// NewPermissionDeniedError 创建权限不足错误
+func NewPermissionDeniedError(message string) *AppError {
+	return &AppError{
+		Type:    ErrorTypePermissionDenied,
+		Message: message,
+		Code:    403, // Forbidden
+	}
+}
+
+// NewInvalidTokenError 创建Token无效错误
+func NewInvalidTokenError(message string) *AppError {
+	return &AppError{
+		Type:    ErrorTypeInvalidToken,
+		Message: message,
+		Code:    400, // Bad Request
+	}
+}
+
+// NewTokenExpiredError 创建Token过期错误
+func NewTokenExpiredError(message string) *AppError {
+	return &AppError{
+		Type:    ErrorTypeTokenExpired,
+		Message: message,
+		Code:    400, // Bad Request
+	}
+}
+
+// NewTokenUsedError 创建Token已使用错误
+func NewTokenUsedError(message string) *AppError {
+	return &AppError{
+		Type:    ErrorTypeTokenUsed,
+		Message: message,
+		Code:    400, // Bad Request
+	}
+}
+
+// NewUnauthorizedError 创建未授权错误
+func NewUnauthorizedError(message string) *AppError {
+	return &AppError{
+		Type:    ErrorTypeUnauthorized,
+		Message: message,
+		Code:    401, // Unauthorized
+	}
+}
+
+// NewInternalError 创建内部错误
+func NewInternalError(message string) *AppError {
+	return &AppError{
+		Type:    ErrorTypeInternal,
+		Message: message,
+		Code:    500, // Internal Server Error
+	}
+}
+
 // ==================== 类型判断函数 ====================
 
 // IsRateLimitError 判断是否是限流错误
@@ -119,6 +209,48 @@ func IsUserNotFoundError(err error) bool {
 func IsAccountDisabledError(err error) bool {
 	var appErr *AppError
 	return errors.As(err, &appErr) && appErr.Type == ErrorTypeAccountDisabled
+}
+
+// IsValidationError 判断是否是参数验证错误
+func IsValidationError(err error) bool {
+	var appErr *AppError
+	return errors.As(err, &appErr) && appErr.Type == ErrorTypeValidation
+}
+
+// IsNotFoundError 判断是否是资源不存在错误
+func IsNotFoundError(err error) bool {
+	var appErr *AppError
+	return errors.As(err, &appErr) && appErr.Type == ErrorTypeNotFound
+}
+
+// IsConflictError 判断是否是资源冲突错误
+func IsConflictError(err error) bool {
+	var appErr *AppError
+	return errors.As(err, &appErr) && appErr.Type == ErrorTypeConflict
+}
+
+// IsPermissionDeniedError 判断是否是权限不足错误
+func IsPermissionDeniedError(err error) bool {
+	var appErr *AppError
+	return errors.As(err, &appErr) && appErr.Type == ErrorTypePermissionDenied
+}
+
+// IsInvalidTokenError 判断是否是Token无效错误
+func IsInvalidTokenError(err error) bool {
+	var appErr *AppError
+	return errors.As(err, &appErr) && appErr.Type == ErrorTypeInvalidToken
+}
+
+// IsTokenExpiredError 判断是否是Token过期错误
+func IsTokenExpiredError(err error) bool {
+	var appErr *AppError
+	return errors.As(err, &appErr) && appErr.Type == ErrorTypeTokenExpired
+}
+
+// IsTokenUsedError 判断是否是Token已使用错误
+func IsTokenUsedError(err error) bool {
+	var appErr *AppError
+	return errors.As(err, &appErr) && appErr.Type == ErrorTypeTokenUsed
 }
 
 // ==================== 辅助函数 ====================
