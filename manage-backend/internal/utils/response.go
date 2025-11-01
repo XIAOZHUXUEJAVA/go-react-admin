@@ -150,3 +150,21 @@ func ValidationError(c *gin.Context, err error) {
 		Error:   err.Error(),
 	})
 }
+
+// Locked 423 错误响应（账户锁定）
+func Locked(c *gin.Context, message string) {
+	c.JSON(http.StatusLocked, APIResponse{
+		Code:    http.StatusLocked,
+		Message: "locked",
+		Error:   message,
+	})
+}
+
+// TooManyRequests 429 错误响应（限流）
+func TooManyRequests(c *gin.Context, message string) {
+	c.JSON(http.StatusTooManyRequests, APIResponse{
+		Code:    http.StatusTooManyRequests,
+		Message: "too many requests",
+		Error:   message,
+	})
+}

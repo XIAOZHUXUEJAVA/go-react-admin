@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/service"
@@ -59,11 +57,21 @@ func (h *PasswordResetHandler) ForgotPassword(c *gin.Context) {
 		
 		// 使用自定义错误类型处理
 		if appErr, ok := apperrors.GetAppError(err); ok {
-			c.JSON(appErr.Code, gin.H{
-				"code":    appErr.Code,
-				"message": appErr.Message,
-				"data":    nil,
-			})
+			// 根据错误类型返回相应的HTTP状态码
+			switch appErr.Code {
+			case 400:
+				utils.BadRequest(c, appErr.Message)
+			case 401:
+				utils.Unauthorized(c, appErr.Message)
+			case 403:
+				utils.Forbidden(c, appErr.Message)
+			case 423:
+				utils.Locked(c, appErr.Message)
+			case 429:
+				utils.TooManyRequests(c, appErr.Message)
+			default:
+				utils.InternalServerError(c, appErr.Message)
+			}
 			return
 		}
 		
@@ -171,9 +179,5 @@ func (h *PasswordResetHandler) ResetPassword(c *gin.Context) {
 		zap.String("ip_address", ipAddress),
 		zap.String("operation", "reset_password"))
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    http.StatusOK,
-		"message": "密码重置成功，请使用新密码登录",
-		"data":    nil,
-	})
+	utils.SuccessWithMessage(c, "密码重置成功，请使用新密码登录", nil)
 }

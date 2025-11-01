@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -33,29 +32,17 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 func (h *UserHandler) Register(c *gin.Context) {
 	var req model.CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    http.StatusBadRequest,
-			"message": "bad request",
-			"error":   err.Error(),
-		})
+		utils.BadRequest(c, "Invalid request format")
 		return
 	}
 
 	user, err := h.userService.Register(&req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    http.StatusBadRequest,
-			"message": "bad request",
-			"error":   err.Error(),
-		})
+		utils.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"code":    http.StatusCreated,
-		"message": "created successfully",
-		"data":    user,
-	})
+	utils.Created(c, user)
 }
 
 // Login godoc
@@ -90,12 +77,21 @@ func (h *UserHandler) Login(c *gin.Context) {
 	if err != nil {
 		// 使用自定义错误类型处理
 		if appErr, ok := apperrors.GetAppError(err); ok {
-			// 使用错误对象的HTTP状态码和消息
-			c.JSON(appErr.Code, gin.H{
-				"code":    appErr.Code,
-				"message": appErr.Message,
-				"data":    nil,
-			})
+			// 根据错误类型返回相应的HTTP状态码
+			switch appErr.Code {
+			case 400:
+				utils.BadRequest(c, appErr.Message)
+			case 401:
+				utils.Unauthorized(c, appErr.Message)
+			case 403:
+				utils.Forbidden(c, appErr.Message)
+			case 423:
+				utils.Locked(c, appErr.Message)
+			case 429:
+				utils.TooManyRequests(c, appErr.Message)
+			default:
+				utils.InternalServerError(c, appErr.Message)
+			}
 			return
 		}
 		
@@ -179,19 +175,11 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	user, err := h.userService.GetByID(userID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    http.StatusNotFound,
-			"message": "not found",
-			"error":   "User not found",
-		})
+		utils.NotFound(c, "User not found")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    http.StatusOK,
-		"message": "success",
-		"data":    user,
-	})
+	utils.Success(c, user)
 }
 
 // GetUserPermissions godoc
@@ -233,17 +221,17 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	var req model.UpdateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.BadRequest(c, "Invalid request format")
 		return
 	}
 
 	user, err := h.userService.Update(userID, &req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	utils.Success(c, user)
 }
 
 // ListUsers godoc
