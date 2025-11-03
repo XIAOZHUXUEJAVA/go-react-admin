@@ -38,7 +38,7 @@ func (h *PermissionHandler) CreatePermission(c *gin.Context) {
 
 	permission, err := h.permissionService.Create(&req)
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -66,7 +66,7 @@ func (h *PermissionHandler) GetPermission(c *gin.Context) {
 
 	permission, err := h.permissionService.GetByID(uint(id))
 	if err != nil {
-		utils.NotFound(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -101,7 +101,7 @@ func (h *PermissionHandler) UpdatePermission(c *gin.Context) {
 
 	permission, err := h.permissionService.Update(uint(id), &req)
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -127,7 +127,7 @@ func (h *PermissionHandler) DeletePermission(c *gin.Context) {
 	}
 
 	if err := h.permissionService.Delete(uint(id)); err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 

@@ -32,13 +32,13 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 func (h *UserHandler) Register(c *gin.Context) {
 	var req model.CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.BadRequest(c, "Invalid request format")
+		utils.BadRequest(c, "请求参数格式错误")
 		return
 	}
 
 	user, err := h.userService.Register(&req)
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -60,7 +60,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 func (h *UserHandler) Login(c *gin.Context) {
 	var req model.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.BadRequest(c, "Invalid request format")
+		utils.BadRequest(c, "请求参数格式错误")
 		return
 	}
 
@@ -118,7 +118,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 func (h *UserHandler) RefreshToken(c *gin.Context) {
 	var req model.RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.BadRequest(c, "Invalid request format")
+		utils.BadRequest(c, "请求参数格式错误")
 		return
 	}
 
@@ -154,11 +154,11 @@ func (h *UserHandler) Logout(c *gin.Context) {
 
 	err := h.userService.Logout(c.Request.Context(), userID, accessToken, &req)
 	if err != nil {
-		utils.InternalServerError(c, "Failed to logout")
+		utils.HandleError(c, err)
 		return
 	}
 
-	utils.Success(c, gin.H{"message": "Logged out successfully"})
+	utils.Success(c, gin.H{"message": "登出成功"})
 }
 
 // GetProfile godoc
@@ -175,7 +175,7 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	user, err := h.userService.GetByID(userID)
 	if err != nil {
-		utils.NotFound(c, "User not found")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -197,7 +197,7 @@ func (h *UserHandler) GetUserPermissions(c *gin.Context) {
 	
 	permissions, err := h.userService.GetUserPermissions(userID)
 	if err != nil {
-		utils.InternalServerError(c, "failed to get user permissions")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -221,13 +221,13 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	var req model.UpdateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.BadRequest(c, "Invalid request format")
+		utils.BadRequest(c, "请求参数格式错误")
 		return
 	}
 
 	user, err := h.userService.Update(userID, &req)
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -282,7 +282,7 @@ func (h *UserHandler) ListUsers(c *gin.Context) {
 	// 调用服务层的 ListWithVisibility 方法（带可见性控制）
 	users, total, err := h.userService.ListWithVisibility(currentUserID, currentUserRole, page, pageSize)
 	if err != nil {
-		utils.InternalServerError(c, "failed to get user list")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -314,7 +314,7 @@ func (h *UserHandler) ListUsers(c *gin.Context) {
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var req model.CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.BadRequest(c, "invalid request data")
+		utils.BadRequest(c, "请求参数错误")
 		return
 	}
 
@@ -328,7 +328,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 			utils.Conflict(c, err.Error())
 			return
 		}
-		utils.InternalServerError(c, "failed to create user")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -354,13 +354,13 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		utils.BadRequest(c, "invalid user id")
+		utils.BadRequest(c, "无效的用户ID")
 		return
 	}
 
 	var req model.UpdateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.BadRequest(c, "invalid request data")
+		utils.BadRequest(c, "请求参数错误")
 		return
 	}
 
@@ -371,7 +371,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 			utils.NotFound(c, err.Error())
 			return
 		}
-		utils.InternalServerError(c, "failed to update user")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -391,13 +391,13 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 func (h *UserHandler) CheckUsernameAvailable(c *gin.Context) {
 	username := c.Param("username")
 	if username == "" {
-		utils.BadRequest(c, "username is required")
+		utils.BadRequest(c, "用户名不能为空")
 		return
 	}
 
 	available, err := h.userService.CheckUsernameAvailable(username)
 	if err != nil {
-		utils.InternalServerError(c, "failed to check username availability")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -421,13 +421,13 @@ func (h *UserHandler) CheckUsernameAvailable(c *gin.Context) {
 func (h *UserHandler) CheckEmailAvailable(c *gin.Context) {
 	email := c.Param("email")
 	if email == "" {
-		utils.BadRequest(c, "email is required")
+		utils.BadRequest(c, "邮箱不能为空")
 		return
 	}
 
 	available, err := h.userService.CheckEmailAvailable(email)
 	if err != nil {
-		utils.InternalServerError(c, "failed to check email availability")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -452,19 +452,19 @@ func (h *UserHandler) CheckEmailAvailable(c *gin.Context) {
 func (h *UserHandler) CheckUserDataAvailability(c *gin.Context) {
 	var req model.CheckAvailabilityRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.BadRequest(c, "invalid request data")
+		utils.BadRequest(c, "请求参数错误")
 		return
 	}
 
 	// 至少需要检查一个字段
 	if req.Username == "" && req.Email == "" {
-		utils.BadRequest(c, "username or email is required")
+		utils.BadRequest(c, "用户名或邮箱至少需要提供一个")
 		return
 	}
 
 	response, err := h.userService.CheckUserDataAvailability(&req)
 	if err != nil {
-		utils.InternalServerError(c, "failed to check data availability")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -488,7 +488,7 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		utils.BadRequest(c, "invalid user id")
+		utils.BadRequest(c, "无效的用户ID")
 		return
 	}
 
@@ -523,7 +523,7 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		utils.BadRequest(c, "invalid user id")
+		utils.BadRequest(c, "无效的用户ID")
 		return
 	}
 

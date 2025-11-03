@@ -41,7 +41,7 @@ func (h *MenuHandler) CreateMenu(c *gin.Context) {
 
 	menu, err := h.menuService.Create(&req)
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -69,7 +69,7 @@ func (h *MenuHandler) GetMenu(c *gin.Context) {
 
 	menu, err := h.menuService.GetByID(uint(id))
 	if err != nil {
-		utils.NotFound(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -104,7 +104,7 @@ func (h *MenuHandler) UpdateMenu(c *gin.Context) {
 
 	menu, err := h.menuService.Update(uint(id), &req)
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -130,7 +130,7 @@ func (h *MenuHandler) DeleteMenu(c *gin.Context) {
 	}
 
 	if err := h.menuService.Delete(uint(id)); err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -223,7 +223,7 @@ func (h *MenuHandler) UpdateMenuOrder(c *gin.Context) {
 	}
 
 	if err := h.menuService.UpdateMenuOrder(req.Menus); err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 

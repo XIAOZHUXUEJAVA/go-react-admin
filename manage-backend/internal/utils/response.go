@@ -63,8 +63,8 @@ func Created(c *gin.Context, data interface{}) {
 func BadRequest(c *gin.Context, message string) {
 	c.JSON(http.StatusBadRequest, APIResponse{
 		Code:    http.StatusBadRequest,
-		Message: "bad request",
-		Error:   message,
+		Message: message,
+		Error:   "bad request",
 	})
 }
 
@@ -72,8 +72,8 @@ func BadRequest(c *gin.Context, message string) {
 func Unauthorized(c *gin.Context, message string) {
 	c.JSON(http.StatusUnauthorized, APIResponse{
 		Code:    http.StatusUnauthorized,
-		Message: "unauthorized",
-		Error:   message,
+		Message: message,
+		Error:   "unauthorized",
 	})
 }
 
@@ -81,8 +81,8 @@ func Unauthorized(c *gin.Context, message string) {
 func Forbidden(c *gin.Context, message string) {
 	c.JSON(http.StatusForbidden, APIResponse{
 		Code:    http.StatusForbidden,
-		Message: "forbidden",
-		Error:   message,
+		Message: message,
+		Error:   "forbidden",
 	})
 }
 
@@ -90,8 +90,8 @@ func Forbidden(c *gin.Context, message string) {
 func NotFound(c *gin.Context, message string) {
 	c.JSON(http.StatusNotFound, APIResponse{
 		Code:    http.StatusNotFound,
-		Message: "not found",
-		Error:   message,
+		Message: message,
+		Error:   "not found",
 	})
 }
 
@@ -99,8 +99,8 @@ func NotFound(c *gin.Context, message string) {
 func Conflict(c *gin.Context, message string) {
 	c.JSON(http.StatusConflict, APIResponse{
 		Code:    http.StatusConflict,
-		Message: "conflict",
-		Error:   message,
+		Message: message,
+		Error:   "conflict",
 	})
 }
 
@@ -108,8 +108,8 @@ func Conflict(c *gin.Context, message string) {
 func InternalServerError(c *gin.Context, message string) {
 	c.JSON(http.StatusInternalServerError, APIResponse{
 		Code:    http.StatusInternalServerError,
-		Message: "internal server error",
-		Error:   message,
+		Message: message,
+		Error:   "internal server error",
 	})
 }
 
@@ -156,8 +156,8 @@ func ValidationError(c *gin.Context, err error) {
 func Locked(c *gin.Context, message string) {
 	c.JSON(http.StatusLocked, APIResponse{
 		Code:    http.StatusLocked,
-		Message: "locked",
-		Error:   message,
+		Message: message,
+		Error:   "locked",
 	})
 }
 
@@ -165,8 +165,8 @@ func Locked(c *gin.Context, message string) {
 func TooManyRequests(c *gin.Context, message string) {
 	c.JSON(http.StatusTooManyRequests, APIResponse{
 		Code:    http.StatusTooManyRequests,
-		Message: "too many requests",
-		Error:   message,
+		Message: message,
+		Error:   "too many requests",
 	})
 }
 

@@ -42,7 +42,7 @@ func (h *DictTypeHandler) CreateDictType(c *gin.Context) {
 
 	dictType, err := h.dictTypeService.Create(&req)
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -70,7 +70,7 @@ func (h *DictTypeHandler) GetDictType(c *gin.Context) {
 
 	dictType, err := h.dictTypeService.GetByID(uint(id))
 	if err != nil {
-		utils.NotFound(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -106,7 +106,7 @@ func (h *DictTypeHandler) UpdateDictType(c *gin.Context) {
 
 	dictType, err := h.dictTypeService.Update(uint(id), &req)
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -134,7 +134,7 @@ func (h *DictTypeHandler) DeleteDictType(c *gin.Context) {
 
 	err = h.dictTypeService.Delete(uint(id))
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -231,7 +231,7 @@ func (h *DictItemHandler) CreateDictItem(c *gin.Context) {
 
 	dictItem, err := h.dictItemService.Create(&req)
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -261,7 +261,7 @@ func (h *DictItemHandler) GetDictItem(c *gin.Context) {
 
 	dictItem, err := h.dictItemService.GetByID(uint(id))
 	if err != nil {
-		utils.NotFound(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -299,7 +299,7 @@ func (h *DictItemHandler) UpdateDictItem(c *gin.Context) {
 
 	dictItem, err := h.dictItemService.Update(uint(id), &req)
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -329,7 +329,7 @@ func (h *DictItemHandler) DeleteDictItem(c *gin.Context) {
 
 	err = h.dictItemService.Delete(uint(id))
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -406,7 +406,7 @@ func (h *DictItemHandler) GetDictItemsByType(c *gin.Context) {
 
 	dictItems, err := h.dictItemService.GetByTypeCode(code, activeOnly)
 	if err != nil {
-		utils.BadRequest(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
