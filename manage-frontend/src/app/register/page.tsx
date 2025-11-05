@@ -15,10 +15,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuthStore } from "@/stores/authStore";
 import { cn } from "@/lib/utils";
-import { getErrorMessage } from "@/lib/errorHandler";
 import {
   Eye,
   EyeOff,
@@ -40,7 +38,6 @@ interface RegisterFormProps {
 export default function RegisterPage({ className }: RegisterFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState<string>("");
   const [usernameValidation, setUsernameValidation] = useState<{
     isValidating: boolean;
     isValid: boolean;
@@ -121,20 +118,17 @@ export default function RegisterPage({ className }: RegisterFormProps) {
   }, [hookEmailAvailability]);
 
   const onSubmit = async (data: RegisterFormData) => {
-    try {
-      setError("");
-      await registerUser({
-        username: data.username,
-        email: data.email,
-        password: data.password,
-      });
-      // 注册成功后重定向到登录页面
+    const success = await registerUser({
+      username: data.username,
+      email: data.email,
+      password: data.password,
+    });
+    
+    // 注册成功后重定向到登录页面
+    if (success) {
       router.push("/login");
-    } catch (error) {
-      // 使用错误处理工具获取错误消息
-      const errorMessage = getErrorMessage(error, "注册失败，请稍后重试");
-      setError(errorMessage);
     }
+    // 错误提示已在store中通过toast显示
   };
 
   return (
@@ -161,13 +155,6 @@ export default function RegisterPage({ className }: RegisterFormProps) {
             <CardDescription>请填写以下信息来创建您的账户</CardDescription>
           </CardHeader>
           <CardContent>
-            {error && (
-              <Alert variant="destructive" className="mb-6">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="flex flex-col gap-6">
                 <div className="grid gap-2">

@@ -71,9 +71,11 @@ export const useAuthStore = create<AuthStore>()(
             } catch (permError) {}
 
             toast.success("登录成功！正在跳转...");
-            // 保持 loading 状态，直到 AuthGuard 完成重定向
+            return true;
           } else {
             set({ isLoading: false });
+            toast.error("登录失败，请稍后重试");
+            return false;
           }
         } catch (error) {
           set({ isLoading: false });
@@ -84,57 +86,12 @@ export const useAuthStore = create<AuthStore>()(
             logError: false,
           });
 
-          // 根据错误类型和错误信息提供更精确的提示
-          let errorMessage = standardError.message;
-          let errorDescription = "如果问题持续存在，请联系技术支持";
-
-          // 处理 API 错误
-          if (ErrorHandler.isAPIError(error)) {
-            // 验证码错误
-            if (
-              error.message?.includes("captcha") ||
-              error.message?.includes("验证码") ||
-              error.error === "invalid captcha"
-            ) {
-              errorMessage = "验证码错误，请重新输入";
-              errorDescription = "验证码已刷新，请查看新的验证码";
-            }
-            // 用户名或密码错误
-            else if (
-              error.code === 401 &&
-              (error.error === "invalid credentials" ||
-                error.message?.includes("credentials"))
-            ) {
-              errorMessage = "用户名或密码错误";
-              errorDescription = "请检查您的用户名和密码后重试";
-            }
-            // 其他 401 错误
-            else if (error.code === 401) {
-              errorMessage = "认证失败";
-              errorDescription = "请检查您的登录信息";
-            }
-            // 请求参数错误
-            else if (error.code === 400) {
-              errorMessage = "请求参数错误";
-              errorDescription = "请检查输入信息是否完整";
-            }
-            // 请求过于频繁
-            else if (error.code === 429) {
-              errorMessage = "登录尝试过于频繁";
-              errorDescription = "请稍后再试，或联系管理员";
-            }
-            // 服务器错误
-            else if (error.code && error.code >= 500) {
-              errorMessage = "服务器错误";
-              errorDescription = "请稍后重试或联系技术支持";
-            }
-          }
-
-          toast.error(errorMessage, {
-            description: errorDescription,
+          // 显示错误提示
+          toast.error(standardError.message, {
+            description: "如果问题持续存在，请联系技术支持",
             duration: 4000,
           });
-          throw error;
+          return false;
         }
       },
 
@@ -148,6 +105,11 @@ export const useAuthStore = create<AuthStore>()(
           if (response.data) {
             toast.success("注册成功！请登录");
             set({ isLoading: false });
+            return true;
+          } else {
+            set({ isLoading: false });
+            toast.error("注册失败，请稍后重试");
+            return false;
           }
         } catch (error) {
           set({ isLoading: false });
@@ -157,25 +119,11 @@ export const useAuthStore = create<AuthStore>()(
             defaultMessage: "注册失败，请稍后重试",
           });
 
-          let errorMessage = standardError.message;
-
-          // 处理常见注册错误
-          if (ErrorHandler.isAPIError(error)) {
-            if (
-              error.message?.includes("username already exists") ||
-              error.message?.includes("用户名已存在")
-            ) {
-              errorMessage = "用户名已被使用，请选择其他用户名";
-            } else if (
-              error.message?.includes("email already exists") ||
-              error.message?.includes("邮箱已存在")
-            ) {
-              errorMessage = "邮箱已被注册，请使用其他邮箱";
-            }
-          }
-
-          toast.error(errorMessage);
-          throw error;
+          toast.error(standardError.message, {
+            description: "如果问题持续存在，请联系技术支持",
+            duration: 4000,
+          });
+          return false;
         }
       },
 
@@ -258,7 +206,6 @@ export const useAuthStore = create<AuthStore>()(
                   permissionStore.loadPermissions(),
                   permissionStore.loadUserMenus(),
                 ]);
-                console.log("✅ CheckAuth - 权限和菜单同步成功");
               }
             } catch (permError) {
               // 权限同步失败不影响认证流程

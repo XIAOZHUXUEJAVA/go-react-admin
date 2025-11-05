@@ -86,75 +86,27 @@ export function LoginForm({
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    try {
-      // 构建登录请求数据
-      const loginData = {
-        username: data.username,
-        password: data.password,
-        ...(requireCaptcha &&
-          captchaId && {
-            captcha_id: captchaId,
-            captcha_code: data.captcha_code || captchaCode,
-          }),
-      };
+    // 构建登录请求数据
+    const loginData = {
+      username: data.username,
+      password: data.password,
+      ...(requireCaptcha &&
+        captchaId && {
+          captcha_id: captchaId,
+          captcha_code: data.captcha_code || captchaCode,
+        }),
+    };
 
-      await login(loginData);
-      // 登录成功后，AuthGuard 会自动处理重定向，不需要手动跳转
-    } catch (error) {
-      console.error("Login error:", error);
+    const success = await login(loginData);
 
-      // 登录失败后刷新验证码
-      // 注意：后端在验证验证码时就会删除它（无论后续的用户名密码验证是否成功）
-      // 所以任何登录失败都需要刷新验证码
-      if (requireCaptcha) {
-        await refreshCaptcha();
-        // 清空验证码输入
-        form.setValue("captcha_code", "");
-        setCaptchaCode("");
-
-        // 如果是验证码错误，不清空用户名和密码（保持用户输入）
-        // 注意：用户名密码的清空是浏览器的安全行为，我们无法完全阻止
-        // 但我们可以尝试恢复它们
-        const isAPIError = (
-          err: unknown
-        ): err is { message?: string; code?: number; error?: string } => {
-          return (
-            typeof err === "object" &&
-            err !== null &&
-            ("message" in err || "code" in err)
-          );
-        };
-
-        if (isAPIError(error)) {
-          const isCaptchaError =
-            error.message?.includes("验证码") ||
-            error.message?.includes("captcha") ||
-            error.error === "invalid captcha";
-
-          if (isCaptchaError) {
-            // 验证码错误时，尝试保持用户名和密码不变
-            // 注意：这可能无法完全阻止浏览器的自动清空行为
-            const currentUsername = form.getValues("username");
-            const currentPassword = form.getValues("password");
-
-            // 使用 setTimeout 确保在浏览器清空后再恢复
-            // 使用稍长的延迟（100ms）确保在浏览器行为之后执行
-            setTimeout(() => {
-              const usernameAfter = form.getValues("username");
-              const passwordAfter = form.getValues("password");
-
-              // 只有在被清空的情况下才恢复
-              if (!usernameAfter && currentUsername) {
-                form.setValue("username", currentUsername);
-              }
-              if (!passwordAfter && currentPassword) {
-                form.setValue("password", currentPassword);
-              }
-            }, 1);
-          }
-        }
-      }
+    // 登录失败后刷新验证码
+    if (!success && requireCaptcha) {
+      await refreshCaptcha();
+      // 清空验证码输入
+      form.setValue("captcha_code", "");
+      setCaptchaCode("");
     }
+    // 登录成功后，AuthGuard 会自动处理重定向，不需要手动跳转
   };
 
   return (

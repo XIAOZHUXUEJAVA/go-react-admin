@@ -61,9 +61,9 @@ export interface AuthState {
 }
 
 export interface AuthActions {
-  login: (credentials: LoginRequest) => Promise<void>;
+  login: (credentials: LoginRequest) => Promise<boolean>;
   logout: () => void;
-  register: (data: RegisterRequest) => Promise<void>;
+  register: (data: RegisterRequest) => Promise<boolean>;
   checkAuth: () => Promise<void>;
   setLoading: (loading: boolean) => void;
 }

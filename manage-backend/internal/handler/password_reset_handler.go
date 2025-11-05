@@ -54,29 +54,7 @@ func (h *PasswordResetHandler) ForgotPassword(c *gin.Context) {
 			zap.String("email", req.Email),
 			zap.Error(err),
 			zap.String("operation", "forgot_password"))
-		
-		// 使用自定义错误类型处理
-		if appErr, ok := apperrors.GetAppError(err); ok {
-			// 根据错误类型返回相应的HTTP状态码
-			switch appErr.Code {
-			case 400:
-				utils.BadRequest(c, appErr.Message)
-			case 401:
-				utils.Unauthorized(c, appErr.Message)
-			case 403:
-				utils.Forbidden(c, appErr.Message)
-			case 423:
-				utils.Locked(c, appErr.Message)
-			case 429:
-				utils.TooManyRequests(c, appErr.Message)
-			default:
-				utils.InternalServerError(c, appErr.Message)
-			}
-			return
-		}
-		
-		// 未知错误
-		utils.InternalServerError(c, "处理失败，请稍后重试")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -163,15 +141,7 @@ func (h *PasswordResetHandler) ResetPassword(c *gin.Context) {
 			zap.Error(err),
 			zap.String("ip_address", ipAddress),
 			zap.String("operation", "reset_password"))
-		
-		// 使用自定义错误类型判断
-		if apperrors.IsInvalidTokenError(err) || 
-		   apperrors.IsTokenExpiredError(err) || 
-		   apperrors.IsTokenUsedError(err) {
-			utils.BadRequest(c, err.Error())
-		} else {
-			utils.InternalServerError(c, "密码重置失败，请稍后重试")
-		}
+		utils.HandleError(c, err)
 		return
 	}
 

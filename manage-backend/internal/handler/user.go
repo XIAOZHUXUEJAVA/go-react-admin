@@ -75,28 +75,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 
 	response, err := h.userService.LoginWithContext(c.Request.Context(), &req, deviceInfo, ipAddress, userAgent)
 	if err != nil {
-		// 使用自定义错误类型处理
-		if appErr, ok := apperrors.GetAppError(err); ok {
-			// 根据错误类型返回相应的HTTP状态码
-			switch appErr.Code {
-			case 400:
-				utils.BadRequest(c, appErr.Message)
-			case 401:
-				utils.Unauthorized(c, appErr.Message)
-			case 403:
-				utils.Forbidden(c, appErr.Message)
-			case 423:
-				utils.Locked(c, appErr.Message)
-			case 429:
-				utils.TooManyRequests(c, appErr.Message)
-			default:
-				utils.InternalServerError(c, appErr.Message)
-			}
-			return
-		}
-		
-		// 未知错误，默认401
-		utils.Unauthorized(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
