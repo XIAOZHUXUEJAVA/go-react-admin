@@ -7,7 +7,6 @@ import (
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/service"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/utils"
-	apperrors "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/errors"
 )
 
 type UserHandler struct {
@@ -103,7 +102,7 @@ func (h *UserHandler) RefreshToken(c *gin.Context) {
 
 	response, err := h.userService.RefreshToken(c.Request.Context(), &req)
 	if err != nil {
-		utils.Unauthorized(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -235,7 +234,7 @@ func (h *UserHandler) ListUsers(c *gin.Context) {
 	if currentUserRole == "" {
 		user, err := h.userService.GetByID(currentUserID)
 		if err != nil {
-			utils.Unauthorized(c, "无法获取用户信息")
+			utils.HandleError(c, err)
 			return
 		}
 		currentUserRole = user.Role
@@ -302,11 +301,6 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 
 	user, err := h.userService.RegisterWithCreator(&req, &creatorID)
 	if err != nil {
-		// 使用自定义错误类型判断
-		if apperrors.IsConflictError(err) {
-			utils.Conflict(c, err.Error())
-			return
-		}
 		utils.HandleError(c, err)
 		return
 	}
@@ -345,11 +339,6 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 
 	user, err := h.userService.Update(uint(id), &req)
 	if err != nil {
-		// 使用自定义错误类型判断
-		if apperrors.IsNotFoundError(err) {
-			utils.NotFound(c, err.Error())
-			return
-		}
 		utils.HandleError(c, err)
 		return
 	}
@@ -473,12 +462,7 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 
 	err = h.userService.Delete(uint(id))
 	if err != nil {
-		// 使用自定义错误类型判断
-		if apperrors.IsNotFoundError(err) {
-			utils.NotFound(c, err.Error())
-			return
-		}
-		utils.InternalServerError(c, "failed to delete user")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -508,12 +492,7 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 
 	user, err := h.userService.GetByID(uint(id))
 	if err != nil {
-		// 使用自定义错误类型判断
-		if apperrors.IsNotFoundError(err) {
-			utils.NotFound(c, err.Error())
-			return
-		}
-		utils.InternalServerError(c, "failed to get user")
+		utils.HandleError(c, err)
 		return
 	}
 

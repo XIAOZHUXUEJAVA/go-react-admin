@@ -27,7 +27,7 @@ func NewCaptchaHandler(captchaService service.CaptchaServiceInterface) *CaptchaH
 func (h *CaptchaHandler) GenerateCaptcha(c *gin.Context) {
 	captcha, err := h.captchaService.GenerateCaptcha()
 	if err != nil {
-		utils.InternalServerError(c, "Failed to generate captcha")
+		utils.HandleError(c, err)
 		return
 	}
 

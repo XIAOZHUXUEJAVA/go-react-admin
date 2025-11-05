@@ -41,6 +41,8 @@ export const useAuthStore = create<AuthStore>()(
 
           const response = await authApi.login(credentials);
 
+          console.log(response);
+
           if (response.data) {
             const { access_token, refresh_token, expires_in, user } =
               response.data;
@@ -80,6 +82,7 @@ export const useAuthStore = create<AuthStore>()(
         } catch (error) {
           set({ isLoading: false });
 
+          console.log("error", error);
           // 使用错误处理工具解析错误
           const standardError = parseError(error, {
             defaultMessage: "登录失败，请稍后重试",

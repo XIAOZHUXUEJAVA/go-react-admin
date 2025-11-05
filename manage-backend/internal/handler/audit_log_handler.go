@@ -39,7 +39,7 @@ func (h *AuditLogHandler) GetAuditLog(c *gin.Context) {
 
 	log, err := h.auditLogService.GetByID(uint(id))
 	if err != nil {
-		utils.NotFound(c, "审计日志不存在")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -122,7 +122,7 @@ func (h *AuditLogHandler) QueryAuditLogs(c *gin.Context) {
 	// 查询
 	logs, total, err := h.auditLogService.Query(&query)
 	if err != nil {
-		utils.InternalServerError(c, "查询审计日志失败")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -156,7 +156,7 @@ func (h *AuditLogHandler) CleanOldAuditLogs(c *gin.Context) {
 	}
 
 	if err := h.auditLogService.CleanOldLogs(days); err != nil {
-		utils.InternalServerError(c, "清理审计日志失败")
+		utils.HandleError(c, err)
 		return
 	}
 

@@ -7,6 +7,7 @@ import (
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/service"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/utils"
+	apperrors "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/errors"
 )
 
 type MenuHandler struct {
@@ -149,7 +150,7 @@ func (h *MenuHandler) DeleteMenu(c *gin.Context) {
 func (h *MenuHandler) GetMenuTree(c *gin.Context) {
 	tree, err := h.menuService.GetMenuTree()
 	if err != nil {
-		utils.InternalServerError(c, "获取菜单树失败")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -168,7 +169,7 @@ func (h *MenuHandler) GetMenuTree(c *gin.Context) {
 func (h *MenuHandler) GetVisibleMenuTree(c *gin.Context) {
 	tree, err := h.menuService.GetVisibleMenuTree()
 	if err != nil {
-		utils.InternalServerError(c, "获取可见菜单树失败")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -188,13 +189,13 @@ func (h *MenuHandler) GetVisibleMenuTree(c *gin.Context) {
 func (h *MenuHandler) GetUserMenuTree(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	if userID == 0 {
-		utils.Unauthorized(c, "未授权访问")
+		utils.HandleError(c, apperrors.NewUnauthorizedErrorWithCode(""))
 		return
 	}
 
 	tree, err := h.menuService.GetUserMenuTree(userID, h.roleRepo)
 	if err != nil {
-		utils.InternalServerError(c, "获取用户菜单失败")
+		utils.HandleError(c, err)
 		return
 	}
 

@@ -171,7 +171,7 @@ func (h *DictTypeHandler) ListDictTypes(c *gin.Context) {
 
 	dictTypes, total, err := h.dictTypeService.List(req.Page, req.PageSize, req.Status, req.Keyword)
 	if err != nil {
-		utils.InternalServerError(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -190,7 +190,7 @@ func (h *DictTypeHandler) ListDictTypes(c *gin.Context) {
 func (h *DictTypeHandler) GetAllDictTypes(c *gin.Context) {
 	dictTypes, err := h.dictTypeService.GetAll()
 	if err != nil {
-		utils.InternalServerError(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -366,7 +366,7 @@ func (h *DictItemHandler) ListDictItems(c *gin.Context) {
 
 	dictItems, total, err := h.dictItemService.List(req.Page, req.PageSize, req.DictTypeCode, req.Status)
 	if err != nil {
-		utils.InternalServerError(c, err.Error())
+		utils.HandleError(c, err)
 		return
 	}
 

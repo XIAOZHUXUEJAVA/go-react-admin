@@ -3,6 +3,7 @@
 // API 响应类型
 export interface APIResponse<T = unknown> {
   code: number;
+  business_code?: number; // 业务错误码
   message: string;
   data?: T;
   error?: string;
@@ -26,6 +27,7 @@ export interface PaginationParams extends Record<string, unknown> {
 // API 错误类型
 export interface APIError {
   code: number;
+  business_code?: number; // 业务错误码
   message: string;
   error?: string;
 }

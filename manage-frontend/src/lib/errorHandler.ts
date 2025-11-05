@@ -23,6 +23,7 @@ export interface StandardError {
   type: ErrorType;
   message: string;
   code?: number;
+  businessCode?: number; // 业务错误码
   details?: unknown;
   originalError?: unknown;
 }
@@ -140,6 +141,7 @@ export function parseError(
       type: ErrorType.API_ERROR,
       message: error.message || codeMessage || defaultMessage,
       code: error.code,
+      businessCode: error.business_code, // 添加业务错误码
       details: error.error,
       originalError: error,
     };

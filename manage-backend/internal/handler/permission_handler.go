@@ -164,7 +164,7 @@ func (h *PermissionHandler) ListPermissions(c *gin.Context) {
 
 	permissions, total, err := h.permissionService.List(page, pageSize)
 	if err != nil {
-		utils.InternalServerError(c, "获取权限列表失败")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -191,7 +191,7 @@ func (h *PermissionHandler) ListPermissions(c *gin.Context) {
 func (h *PermissionHandler) GetAllPermissions(c *gin.Context) {
 	permissions, err := h.permissionService.GetAll()
 	if err != nil {
-		utils.InternalServerError(c, "获取权限列表失败")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -217,7 +217,7 @@ func (h *PermissionHandler) GetPermissionsByResource(c *gin.Context) {
 
 	permissions, err := h.permissionService.GetByResource(resource)
 	if err != nil {
-		utils.InternalServerError(c, "获取权限列表失败")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -243,7 +243,7 @@ func (h *PermissionHandler) GetPermissionsByType(c *gin.Context) {
 
 	permissions, err := h.permissionService.GetByType(permType)
 	if err != nil {
-		utils.InternalServerError(c, "获取权限列表失败")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -262,7 +262,7 @@ func (h *PermissionHandler) GetPermissionsByType(c *gin.Context) {
 func (h *PermissionHandler) GetPermissionTree(c *gin.Context) {
 	tree, err := h.permissionService.GetPermissionTree()
 	if err != nil {
-		utils.InternalServerError(c, "获取权限树失败")
+		utils.HandleError(c, err)
 		return
 	}
 

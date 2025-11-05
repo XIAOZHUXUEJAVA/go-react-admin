@@ -167,7 +167,7 @@ func (h *RoleHandler) ListRoles(c *gin.Context) {
 
 	roles, total, err := h.roleService.List(page, pageSize)
 	if err != nil {
-		utils.InternalServerError(c, "获取角色列表失败")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -194,7 +194,7 @@ func (h *RoleHandler) ListRoles(c *gin.Context) {
 func (h *RoleHandler) GetAllRoles(c *gin.Context) {
 	roles, err := h.roleService.GetAll()
 	if err != nil {
-		utils.InternalServerError(c, "获取角色列表失败")
+		utils.HandleError(c, err)
 		return
 	}
 
@@ -319,7 +319,7 @@ func (h *RoleHandler) GetUserRoles(c *gin.Context) {
 
 	roles, err := h.roleService.GetUserRoles(uint(userID))
 	if err != nil {
-		utils.InternalServerError(c, "获取用户角色失败")
+		utils.HandleError(c, err)
 		return
 	}
 

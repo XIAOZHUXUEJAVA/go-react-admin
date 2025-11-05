@@ -74,6 +74,7 @@ apiClient.interceptors.response.use(
         // 统一错误处理
         const apiError: APIError = {
           code: error.response?.data?.code || error.response?.status || 500,
+          business_code: error.response?.data?.business_code,
           message: error.response?.data?.message || error.message || "请求失败",
           error: error.response?.data?.error,
         };
@@ -161,6 +162,7 @@ apiClient.interceptors.response.use(
     // 统一错误处理
     const apiError: APIError = {
       code: error.response?.data?.code || error.response?.status || 500,
+      business_code: error.response?.data?.business_code,
       message: error.response?.data?.message || error.message || "请求失败",
       error: error.response?.data?.error,
     };
