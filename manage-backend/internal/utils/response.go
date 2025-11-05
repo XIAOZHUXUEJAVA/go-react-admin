@@ -9,10 +9,11 @@ import (
 
 // APIResponse 统一的 API 响应结构
 type APIResponse struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-	Error   string      `json:"error,omitempty"`
+	Code         int         `json:"code"`
+	BusinessCode int         `json:"business_code,omitempty"` // 业务错误码
+	Message      string      `json:"message"`
+	Data         interface{} `json:"data,omitempty"`
+	Error        string      `json:"error,omitempty"`
 }
 
 // PaginationMeta 分页元数据
@@ -25,11 +26,12 @@ type PaginationMeta struct {
 
 // PaginatedResponse 分页响应结构
 type PaginatedResponse struct {
-	Code       int            `json:"code"`
-	Message    string         `json:"message"`
-	Data       interface{}    `json:"data"`
-	Pagination PaginationMeta `json:"pagination"`
-	Error      string         `json:"error,omitempty"`
+	Code         int            `json:"code"`
+	BusinessCode int            `json:"business_code,omitempty"` // 业务错误码
+	Message      string         `json:"message"`
+	Data         interface{}    `json:"data"`
+	Pagination   PaginationMeta `json:"pagination"`
+	Error        string         `json:"error,omitempty"`
 }
 
 // Success 成功响应
@@ -171,35 +173,24 @@ func TooManyRequests(c *gin.Context, message string) {
 }
 
 // HandleError 根据自定义错误类型自动返回对应的HTTP响应
-// 这是一个通用的错误处理函数，会根据错误类型返回正确的HTTP状态码
+// 这是一个通用的错误处理函数，会根据错误类型返回正确的HTTP状态码和业务错误码
 func HandleError(c *gin.Context, err error) {
 	// 尝试提取自定义错误
 	if appErr, ok := apperrors.GetAppError(err); ok {
-		// 根据错误的HTTP状态码返回对应的响应
-		switch appErr.Code {
-		case 400:
-			BadRequest(c, appErr.Message)
-		case 401:
-			Unauthorized(c, appErr.Message)
-		case 403:
-			Forbidden(c, appErr.Message)
-		case 404:
-			NotFound(c, appErr.Message)
-		case 409:
-			Conflict(c, appErr.Message)
-		case 423:
-			Locked(c, appErr.Message)
-		case 429:
-			TooManyRequests(c, appErr.Message)
-		case 500:
-			InternalServerError(c, appErr.Message)
-		default:
-			// 未知状态码，默认返回500
-			InternalServerError(c, appErr.Message)
+		// 构建响应，包含业务错误码
+		response := APIResponse{
+			Code:         appErr.Code,
+			BusinessCode: appErr.BusinessCode,
+			Message:      appErr.Message,
 		}
+		c.JSON(appErr.Code, response)
 		return
 	}
 	
 	// 如果不是自定义错误，默认返回500
-	InternalServerError(c, err.Error())
+	c.JSON(http.StatusInternalServerError, APIResponse{
+		Code:         http.StatusInternalServerError,
+		BusinessCode: apperrors.CodeInternalError,
+		Message:      "内部服务错误",
+	})
 }

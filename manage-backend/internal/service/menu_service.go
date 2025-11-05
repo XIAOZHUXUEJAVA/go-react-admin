@@ -7,6 +7,8 @@ import (
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/logger"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+
+	apperrors "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/errors"
 )
 
 // MenuRepositoryInterface 定义菜单仓库接口
@@ -49,9 +51,9 @@ func (s *MenuService) Create(req *model.CreateMenuRequest) (*model.MenuResponse,
 		_, err := s.menuRepo.GetByID(*req.ParentID)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, errors.New("父菜单不存在")
+				return nil, apperrors.NewMenuParentNotFoundError()
 			}
-			return nil, err
+			return nil, apperrors.NewMenuParentGetFailedError()
 		}
 	}
 
@@ -60,9 +62,9 @@ func (s *MenuService) Create(req *model.CreateMenuRequest) (*model.MenuResponse,
 		_, err := s.permissionRepo.GetByCode(req.PermissionCode)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, errors.New("权限代码不存在")
+				return nil, apperrors.NewPermissionNotFoundError("权限代码不存在")
 			}
-			return nil, err
+			return nil, apperrors.NewMenuPermissionGetFailedError()
 		}
 	}
 
@@ -83,7 +85,7 @@ func (s *MenuService) Create(req *model.CreateMenuRequest) (*model.MenuResponse,
 
 	if err := s.menuRepo.Create(menu); err != nil {
 		logger.Error("创建菜单失败", zap.String("name", req.Name), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewMenuCreateFailedError()
 	}
 
 	logger.Info("创建菜单成功",
@@ -99,10 +101,10 @@ func (s *MenuService) GetByID(id uint) (*model.MenuResponse, error) {
 	menu, err := s.menuRepo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("菜单不存在")
+			return nil, apperrors.NewMenuNotFoundError()
 		}
 		logger.Error("获取菜单失败", zap.Uint("menu_id", id), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewMenuGetFailedError()
 	}
 
 	return s.toMenuResponse(menu), nil
@@ -114,25 +116,25 @@ func (s *MenuService) Update(id uint, req *model.UpdateMenuRequest) (*model.Menu
 	menu, err := s.menuRepo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("菜单不存在")
+			return nil, apperrors.NewMenuNotFoundError()
 		}
 		logger.Error("获取菜单失败", zap.Uint("menu_id", id), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewMenuGetFailedError()
 	}
 
 	// 如果修改父菜单，验证父菜单是否存在
 	if req.ParentID != nil {
 		// 不能将菜单设置为自己的子菜单
 		if *req.ParentID == id {
-			return nil, errors.New("不能将菜单设置为自己的子菜单")
+			return nil, apperrors.NewMenuCannotBeOwnChildError()
 		}
 
 		_, err := s.menuRepo.GetByID(*req.ParentID)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, errors.New("父菜单不存在")
+				return nil, apperrors.NewMenuParentNotFoundError()
 			}
-			return nil, err
+			return nil, apperrors.NewMenuParentGetFailedError()
 		}
 		menu.ParentID = req.ParentID
 	}
@@ -142,9 +144,9 @@ func (s *MenuService) Update(id uint, req *model.UpdateMenuRequest) (*model.Menu
 		_, err := s.permissionRepo.GetByCode(req.PermissionCode)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, errors.New("权限代码不存在")
+				return nil, apperrors.NewPermissionNotFoundError("权限代码不存在")
 			}
-			return nil, err
+			return nil, apperrors.NewMenuPermissionGetFailedError()
 		}
 		menu.PermissionCode = req.PermissionCode
 	}
@@ -175,7 +177,7 @@ func (s *MenuService) Update(id uint, req *model.UpdateMenuRequest) (*model.Menu
 
 	if err := s.menuRepo.Update(menu); err != nil {
 		logger.Error("更新菜单失败", zap.Uint("menu_id", id), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewMenuUpdateFailedError()
 	}
 
 	logger.Info("更新菜单成功",
@@ -191,26 +193,26 @@ func (s *MenuService) Delete(id uint) error {
 	menu, err := s.menuRepo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("菜单不存在")
+			return apperrors.NewMenuNotFoundError()
 		}
 		logger.Error("获取菜单失败", zap.Uint("menu_id", id), zap.Error(err))
-		return err
+		return apperrors.NewMenuGetFailedError()
 	}
 
 	// 检查是否有子菜单
 	hasChildren, err := s.menuRepo.HasChildren(id)
 	if err != nil {
 		logger.Error("检查子菜单失败", zap.Uint("menu_id", id), zap.Error(err))
-		return err
+		return apperrors.NewMenuCheckChildrenFailedError()
 	}
 	if hasChildren {
-		return errors.New("该菜单存在子菜单，无法删除")
+		return apperrors.NewMenuHasChildrenError()
 	}
 
 	// 删除菜单
 	if err := s.menuRepo.Delete(id); err != nil {
 		logger.Error("删除菜单失败", zap.Uint("menu_id", id), zap.Error(err))
-		return err
+		return apperrors.NewMenuDeleteFailedError()
 	}
 
 	logger.Info("删除菜单成功",
@@ -225,7 +227,7 @@ func (s *MenuService) GetMenuTree() ([]model.MenuResponse, error) {
 	menus, err := s.menuRepo.GetAll()
 	if err != nil {
 		logger.Error("获取菜单列表失败", zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewMenuListFailedError()
 	}
 
 	return s.buildMenuTree(menus, nil), nil
@@ -236,7 +238,7 @@ func (s *MenuService) GetVisibleMenuTree() ([]model.MenuResponse, error) {
 	menus, err := s.menuRepo.GetVisibleMenus()
 	if err != nil {
 		logger.Error("获取可见菜单失败", zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewMenuVisibleListFailedError()
 	}
 
 	return s.buildMenuTree(menus, nil), nil
@@ -248,7 +250,7 @@ func (s *MenuService) GetUserMenuTree(userID uint, roleRepo RoleRepositoryInterf
 	roles, err := roleRepo.GetUserRoles(userID)
 	if err != nil {
 		logger.Error("获取用户角色失败", zap.Uint("user_id", userID), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewUserRoleGetFailedError()
 	}
 
 	if len(roles) == 0 {
@@ -267,7 +269,7 @@ func (s *MenuService) GetUserMenuTree(userID uint, roleRepo RoleRepositoryInterf
 	allVisibleMenus, err := s.menuRepo.GetVisibleMenus()
 	if err != nil {
 		logger.Error("获取可见菜单失败", zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewMenuVisibleListFailedError()
 	}
 
 	// 获取用户的所有权限代码
@@ -353,7 +355,7 @@ func (s *MenuService) UpdateMenuOrder(updates []model.MenuOrderUpdate) error {
 		menu, err := s.menuRepo.GetByID(update.ID)
 		if err != nil {
 			logger.Error("获取菜单失败", zap.Uint("menu_id", update.ID), zap.Error(err))
-			return errors.New("菜单不存在")
+			return apperrors.NewMenuNotFoundError()
 		}
 
 		menu.OrderNum = update.OrderNum
@@ -363,7 +365,7 @@ func (s *MenuService) UpdateMenuOrder(updates []model.MenuOrderUpdate) error {
 
 		if err := s.menuRepo.Update(menu); err != nil {
 			logger.Error("更新菜单顺序失败", zap.Uint("menu_id", update.ID), zap.Error(err))
-			return err
+			return apperrors.NewMenuOrderUpdateFailedError()
 		}
 	}
 

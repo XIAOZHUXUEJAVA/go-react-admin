@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
+	apperrors "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/errors"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/logger"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -27,10 +28,10 @@ func (s *PermissionService) Create(req *model.CreatePermissionRequest) (*model.P
 	exists, err := s.permissionRepo.CheckCodeExists(req.Code)
 	if err != nil {
 		logger.Error("检查权限代码失败", zap.String("code", req.Code), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewPermissionCheckFailedError()
 	}
 	if exists {
-		return nil, errors.New("权限代码已存在")
+		return nil, apperrors.NewConflictError("权限代码已存在")
 	}
 
 	// 创建权限
@@ -52,7 +53,7 @@ func (s *PermissionService) Create(req *model.CreatePermissionRequest) (*model.P
 
 	if err := s.permissionRepo.Create(permission); err != nil {
 		logger.Error("创建权限失败", zap.String("code", req.Code), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewPermissionCreateFailedError()
 	}
 
 	logger.Info("创建权限成功",
@@ -68,10 +69,10 @@ func (s *PermissionService) GetByID(id uint) (*model.PermissionResponse, error) 
 	permission, err := s.permissionRepo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("权限不存在")
+			return nil, apperrors.NewPermissionNotFoundError("")
 		}
 		logger.Error("获取权限失败", zap.Uint("permission_id", id), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewPermissionGetFailedError()
 	}
 
 	return s.toPermissionResponse(permission), nil
@@ -83,10 +84,10 @@ func (s *PermissionService) Update(id uint, req *model.UpdatePermissionRequest) 
 	permission, err := s.permissionRepo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("权限不存在")
+			return nil, apperrors.NewPermissionNotFoundError("")
 		}
 		logger.Error("获取权限失败", zap.Uint("permission_id", id), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewPermissionGetFailedError()
 	}
 
 	// 更新字段
@@ -108,7 +109,7 @@ func (s *PermissionService) Update(id uint, req *model.UpdatePermissionRequest) 
 
 	if err := s.permissionRepo.Update(permission); err != nil {
 		logger.Error("更新权限失败", zap.Uint("permission_id", id), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewPermissionUpdateFailedError()
 	}
 
 	logger.Info("更新权限成功",
@@ -124,16 +125,16 @@ func (s *PermissionService) Delete(id uint) error {
 	permission, err := s.permissionRepo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("权限不存在")
+			return apperrors.NewPermissionNotFoundError("")
 		}
 		logger.Error("获取权限失败", zap.Uint("permission_id", id), zap.Error(err))
-		return err
+		return apperrors.NewPermissionGetFailedError()
 	}
 
 	// 删除权限
 	if err := s.permissionRepo.Delete(id); err != nil {
 		logger.Error("删除权限失败", zap.Uint("permission_id", id), zap.Error(err))
-		return err
+		return apperrors.NewPermissionDeleteFailedError()
 	}
 
 	logger.Info("删除权限成功",
@@ -149,7 +150,7 @@ func (s *PermissionService) List(page, pageSize int) ([]model.PermissionResponse
 	permissions, total, err := s.permissionRepo.List(offset, pageSize)
 	if err != nil {
 		logger.Error("获取权限列表失败", zap.Error(err))
-		return nil, 0, err
+		return nil, 0, apperrors.NewPermissionListFailedError()
 	}
 
 	responses := make([]model.PermissionResponse, len(permissions))
@@ -165,7 +166,7 @@ func (s *PermissionService) GetAll() ([]model.PermissionResponse, error) {
 	permissions, err := s.permissionRepo.GetAll()
 	if err != nil {
 		logger.Error("获取所有权限失败", zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewPermissionListFailedError()
 	}
 
 	responses := make([]model.PermissionResponse, len(permissions))
@@ -181,7 +182,7 @@ func (s *PermissionService) GetByResource(resource string) ([]model.PermissionRe
 	permissions, err := s.permissionRepo.GetByResource(resource)
 	if err != nil {
 		logger.Error("根据资源获取权限失败", zap.String("resource", resource), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewPermissionByResourceFailedError()
 	}
 
 	responses := make([]model.PermissionResponse, len(permissions))
@@ -197,7 +198,7 @@ func (s *PermissionService) GetByType(permType string) ([]model.PermissionRespon
 	permissions, err := s.permissionRepo.GetByType(permType)
 	if err != nil {
 		logger.Error("根据类型获取权限失败", zap.String("type", permType), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewPermissionByTypeFailedError()
 	}
 
 	responses := make([]model.PermissionResponse, len(permissions))
@@ -213,7 +214,7 @@ func (s *PermissionService) GetPermissionTree() ([]model.PermissionTree, error) 
 	permissions, err := s.permissionRepo.GetAll()
 	if err != nil {
 		logger.Error("获取权限树失败", zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewPermissionTreeFailedError()
 	}
 
 	// 按资源分组
@@ -241,7 +242,7 @@ func (s *PermissionService) GetUserPermissions(userID uint, roleRepo RoleReposit
 	roles, err := roleRepo.GetUserRoles(userID)
 	if err != nil {
 		logger.Error("获取用户角色失败", zap.Uint("user_id", userID), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewUserRoleGetFailedError()
 	}
 
 	// 收集所有权限代码

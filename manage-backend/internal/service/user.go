@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
@@ -101,7 +100,7 @@ func (s *UserService) RegisterWithCreator(req *model.CreateUserRequest, creatorI
 		logger.Warn("用户注册失败：用户名已存在", 
 			zap.String("username", req.Username),
 			zap.String("operation", "register"))
-		return nil, apperrors.NewConflictError("用户名已存在")
+		return nil, apperrors.NewUsernameExistsError()
 	}
 
 	// 检查邮箱是否已存在
@@ -111,7 +110,7 @@ func (s *UserService) RegisterWithCreator(req *model.CreateUserRequest, creatorI
 			zap.String("username", req.Username),
 			zap.String("email", req.Email),
 			zap.String("operation", "register"))
-		return nil, apperrors.NewConflictError("邮箱已存在")
+		return nil, apperrors.NewEmailExistsError()
 	}
 
 	// 加密密码
@@ -121,7 +120,7 @@ func (s *UserService) RegisterWithCreator(req *model.CreateUserRequest, creatorI
 			zap.String("username", req.Username),
 			zap.Error(err),
 			zap.String("operation", "register"))
-		return nil, apperrors.NewInternalError("密码加密失败")
+		return nil, apperrors.NewPasswordHashFailedError()
 	}
 
 	user := &model.User{
@@ -146,7 +145,7 @@ func (s *UserService) RegisterWithCreator(req *model.CreateUserRequest, creatorI
 			zap.String("email", req.Email),
 			zap.Error(err),
 			zap.String("operation", "register"))
-		return nil, apperrors.NewInternalError("用户创建失败")
+		return nil, apperrors.NewUserCreateFailedError()
 	}
 
 	// 同步到 user_roles 表
@@ -189,7 +188,7 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 			logger.Warn("IP登录请求频率超限",
 				zap.String("ip", ipAddress),
 				zap.Int("remaining", remaining))
-			return nil, apperrors.NewRateLimitError("登录请求过于频繁，请1小时后再试")
+			return nil, apperrors.NewRateLimitErrorWithCode("")
 		}
 	}
 
@@ -206,7 +205,7 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 			logger.Warn("账户处于锁定状态",
 				zap.String("username", req.Username),
 				zap.Duration("remaining", ttl))
-			return nil, apperrors.NewAccountLockedError(fmt.Sprintf("账户已被锁定，请%d分钟后再试", minutes))
+			return nil, apperrors.NewAccountLockedErrorWithCode("")
 		}
 	}
 
@@ -218,7 +217,7 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 				zap.String("captcha_id", req.CaptchaID),
 				zap.String("ip_address", ipAddress),
 				zap.String("operation", "login"))
-			return nil, apperrors.NewInvalidCaptchaError("验证码错误")
+			return nil, apperrors.NewInvalidCaptchaErrorWithCode("")
 		}
 		logger.Debug("验证码验证通过", 
 			zap.String("username", req.Username),
@@ -232,13 +231,13 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 				zap.String("username", req.Username),
 				zap.String("ip_address", ipAddress),
 				zap.String("operation", "login"))
-			return nil, apperrors.NewInvalidCredentialsError("用户名或密码错误")
+			return nil, apperrors.NewInvalidCredentialsErrorWithCode("")
 		}
 		logger.Error("登录失败：查询用户时发生错误", 
 			zap.String("username", req.Username),
 			zap.Error(err),
 			zap.String("operation", "login"))
-		return nil, apperrors.NewInternalError("查询用户失败")
+		return nil, apperrors.NewUserQueryFailedError()
 	}
 
 	if !utils.CheckPassword(req.Password, user.Password) {
@@ -255,19 +254,19 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 				logger.Error("记录登录失败次数失败", zap.Error(err))
 			} else if shouldLock {
 				// 账户已被锁定
-				return nil, apperrors.NewAccountLockedError("连续登录失败5次，账户已被锁定15分钟")
+				return nil, apperrors.NewAccountLockedErrorWithCode("")
 			} else {
 				// 返回剩余尝试次数
 				remaining := MaxLoginFailsPerAccount - failCount
-				logger.Info("记录登录失败",
+				logger.Warn("登录失败：密码错误", 
 					zap.String("username", req.Username),
 					zap.Int("fail_count", failCount),
 					zap.Int("remaining", remaining))
-				return nil, apperrors.NewInvalidCredentialsError(fmt.Sprintf("用户名或密码错误（剩余%d次机会）", remaining))
+				return nil, apperrors.NewInvalidCredentialsErrorWithCode("")
 			}
 		}
 		
-		return nil, apperrors.NewInvalidCredentialsError("用户名或密码错误")
+		return nil, apperrors.NewInvalidCredentialsErrorWithCode("")
 	}
 
 	logger.Debug("用户认证成功", 
@@ -290,7 +289,7 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 			zap.Uint("user_id", user.ID),
 			zap.Error(err),
 			zap.String("operation", "login"))
-		return nil, apperrors.NewInternalError("生成令牌失败")
+		return nil, apperrors.NewTokenGenerateFailedError()
 	}
 
 	// 在 Redis 中创建会话
@@ -302,7 +301,7 @@ func (s *UserService) LoginWithContext(ctx context.Context, req *model.LoginRequ
 				zap.Uint("user_id", user.ID),
 				zap.Error(err),
 				zap.String("operation", "login"))
-			return nil, apperrors.NewInternalError("创建会话失败")
+			return nil, apperrors.NewSessionCreateFailedError()
 		}
 
 		// 设置用户为活跃状态
@@ -352,7 +351,7 @@ func (s *UserService) RefreshToken(ctx context.Context, req *model.RefreshTokenR
 	if s.sessionService == nil {
 		logger.Error("刷新令牌失败：会话服务不可用", 
 			zap.String("operation", "refresh_token"))
-		return nil, apperrors.NewInternalError("会话服务不可用")
+		return nil, apperrors.NewSessionServiceUnavailableError()
 	}
 
 	// 验证刷新令牌并获取会话
@@ -361,7 +360,7 @@ func (s *UserService) RefreshToken(ctx context.Context, req *model.RefreshTokenR
 		logger.Warn("刷新令牌失败：无效的刷新令牌", 
 			zap.Error(err),
 			zap.String("operation", "refresh_token"))
-		return nil, apperrors.NewUnauthorizedError("无效的刷新令牌")
+		return nil, apperrors.NewUnauthorizedErrorWithCode("")
 	}
 
 	logger.Debug("刷新令牌验证成功", 
@@ -376,7 +375,7 @@ func (s *UserService) RefreshToken(ctx context.Context, req *model.RefreshTokenR
 			zap.Uint("user_id", sessionInfo.UserID),
 			zap.Error(err),
 			zap.String("operation", "refresh_token"))
-		return nil, apperrors.NewInternalError("生成新令牌失败")
+		return nil, apperrors.NewTokenGenerateFailedError()
 	}
 
 	// 用新的刷新令牌更新会话
@@ -387,7 +386,7 @@ func (s *UserService) RefreshToken(ctx context.Context, req *model.RefreshTokenR
 			zap.Uint("user_id", sessionInfo.UserID),
 			zap.Error(err),
 			zap.String("operation", "refresh_token"))
-		return nil, apperrors.NewInternalError("更新会话失败")
+		return nil, apperrors.NewSessionUpdateFailedError()
 	}
 
 	// 更新最后活跃时间
@@ -415,7 +414,7 @@ func (s *UserService) Logout(ctx context.Context, userID uint, accessToken strin
 		logger.Error("登出失败：会话服务不可用", 
 			zap.Uint("user_id", userID),
 			zap.String("operation", "logout"))
-		return apperrors.NewInternalError("会话服务不可用")
+		return apperrors.NewSessionServiceUnavailableError()
 	}
 
 	// 验证并获取访问令牌声明
@@ -425,7 +424,7 @@ func (s *UserService) Logout(ctx context.Context, userID uint, accessToken strin
 			zap.Uint("user_id", userID),
 			zap.Error(err),
 			zap.String("operation", "logout"))
-		return apperrors.NewUnauthorizedError("无效的访问令牌")
+		return apperrors.NewUnauthorizedErrorWithCode("")
 	}
 
 	logger.Debug("访问令牌验证成功", 
@@ -437,12 +436,12 @@ func (s *UserService) Logout(ctx context.Context, userID uint, accessToken strin
 	if expiration > 0 {
 		err = s.sessionService.AddTokenToBlacklist(ctx, claims.JTI, expiration)
 		if err != nil {
-			logger.Error("添加访问令牌到黑名单失败", 
+			logger.Error("添加令牌到黑名单失败", 
 				zap.Uint("user_id", userID),
 				zap.String("jti", claims.JTI),
 				zap.Error(err),
 				zap.String("operation", "logout"))
-			return apperrors.NewInternalError("添加令牌到黑名单失败")
+			return apperrors.NewTokenBlacklistFailedError()
 		}
 		logger.Debug("访问令牌已加入黑名单", 
 			zap.Uint("user_id", userID),
@@ -474,7 +473,7 @@ func (s *UserService) Logout(ctx context.Context, userID uint, accessToken strin
 			zap.Uint("user_id", userID),
 			zap.Error(err),
 			zap.String("operation", "logout"))
-		return apperrors.NewInternalError("删除会话失败")
+		return apperrors.NewSessionDeleteFailedError()
 	}
 
 	logger.Info("用户登出成功", 
@@ -501,7 +500,7 @@ func (s *UserService) GetByID(id uint) (*model.User, error) {
 			zap.Uint("user_id", id),
 			zap.Error(err),
 			zap.String("operation", "get_user"))
-		return nil, apperrors.NewInternalError("查询用户失败")
+		return nil, apperrors.NewUserQueryFailedError()
 	}
 
 	logger.Debug("用户查询成功", 
@@ -529,7 +528,7 @@ func (s *UserService) Update(id uint, req *model.UpdateUserRequest) (*model.User
 			zap.Uint("user_id", id),
 			zap.Error(err),
 			zap.String("operation", "update_user"))
-		return nil, apperrors.NewInternalError("查询用户失败")
+		return nil, apperrors.NewUserQueryFailedError()
 	}
 
 	// 记录更新的字段
@@ -576,7 +575,7 @@ func (s *UserService) Update(id uint, req *model.UpdateUserRequest) (*model.User
 			zap.Strings("updated_fields", updatedFields),
 			zap.Error(err),
 			zap.String("operation", "update_user"))
-		return nil, apperrors.NewInternalError("用户更新失败")
+		return nil, apperrors.NewUserUpdateFailedError()
 	}
 
 	// 如果角色发生变化，同步到 user_roles 表
@@ -617,7 +616,7 @@ func (s *UserService) Delete(id uint) error {
 			zap.Uint("user_id", id),
 			zap.Error(err),
 			zap.String("operation", "delete_user"))
-		return apperrors.NewInternalError("查询用户失败")
+		return apperrors.NewUserQueryFailedError()
 	}
 
 	err = s.userRepo.Delete(id)
@@ -627,7 +626,7 @@ func (s *UserService) Delete(id uint) error {
 			zap.String("username", user.Username),
 			zap.Error(err),
 			zap.String("operation", "delete_user"))
-		return apperrors.NewInternalError("用户删除失败")
+		return apperrors.NewUserDeleteFailedError()
 	}
 
 	logger.Info("用户删除成功", 
@@ -652,7 +651,7 @@ func (s *UserService) List(page, pageSize int) ([]model.User, int64, error) {
 			zap.Int("page_size", pageSize),
 			zap.Error(err),
 			zap.String("operation", "list_users"))
-		return nil, 0, apperrors.NewInternalError("查询用户列表失败")
+		return nil, 0, apperrors.NewUserListFailedError()
 	}
 
 	logger.Debug("用户列表查询成功", 
@@ -711,7 +710,7 @@ func (s *UserService) CheckUsernameAvailable(username string) (bool, error) {
 			zap.String("username", username),
 			zap.Error(err),
 			zap.String("operation", "check_username"))
-		return false, apperrors.NewInternalError("检查用户名失败")
+		return false, apperrors.NewUsernameCheckFailedError()
 	}
 
 	available := !exists
@@ -735,7 +734,7 @@ func (s *UserService) CheckEmailAvailable(email string) (bool, error) {
 			zap.String("email", email),
 			zap.Error(err),
 			zap.String("operation", "check_email"))
-		return false, apperrors.NewInternalError("检查邮箱失败")
+		return false, apperrors.NewEmailCheckFailedError()
 	}
 
 	available := !exists
@@ -773,7 +772,7 @@ func (s *UserService) CheckUserDataAvailability(req *model.CheckAvailabilityRequ
 					zap.Uint("exclude_user_id", *req.ExcludeUserID),
 					zap.Error(err),
 					zap.String("operation", "check_availability"))
-				return nil, apperrors.NewInternalError("检查用户名失败")
+				return nil, apperrors.NewUsernameCheckFailedError()
 			}
 			available = !exists
 		} else {
@@ -814,7 +813,7 @@ func (s *UserService) CheckUserDataAvailability(req *model.CheckAvailabilityRequ
 					zap.Uint("exclude_user_id", *req.ExcludeUserID),
 					zap.Error(err),
 					zap.String("operation", "check_availability"))
-				return nil, apperrors.NewInternalError("检查邮箱失败")
+				return nil, apperrors.NewEmailCheckFailedError()
 			}
 			available = !exists
 		} else {
@@ -855,7 +854,7 @@ func (s *UserService) GetUserPermissions(userID uint) (*model.UserPermissionsRes
 		logger.Error("获取用户角色失败", 
 			zap.Uint("user_id", userID),
 			zap.Error(err))
-		return nil, apperrors.NewInternalError("获取用户角色失败")
+		return nil, apperrors.NewUserRoleGetFailedError()
 	}
 
 	// 提取角色代码
@@ -926,7 +925,7 @@ func (s *UserService) syncUserRole(userID uint, roleCode string) error {
 			zap.Uint("user_id", userID),
 			zap.String("role_code", roleCode),
 			zap.Error(err))
-		return apperrors.NewInternalError("查找角色失败")
+		return apperrors.NewRoleFindFailedError()
 	}
 
 	// 移除用户的所有现有角色
@@ -934,7 +933,7 @@ func (s *UserService) syncUserRole(userID uint, roleCode string) error {
 		logger.Error("移除用户角色失败", 
 			zap.Uint("user_id", userID),
 			zap.Error(err))
-		return apperrors.NewInternalError("移除用户角色失败")
+		return apperrors.NewUserRoleRemoveFailedError()
 	}
 
 	// 分配新角色到 user_roles 表
@@ -943,7 +942,7 @@ func (s *UserService) syncUserRole(userID uint, roleCode string) error {
 			zap.Uint("user_id", userID),
 			zap.Uint("role_id", role.ID),
 			zap.Error(err))
-		return apperrors.NewInternalError("分配角色失败")
+		return apperrors.NewUserRoleAssignFailedError()
 	}
 
 	logger.Info("同步用户角色成功", 

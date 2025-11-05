@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/repository"
@@ -68,17 +67,17 @@ func (s *DictTypeService) Create(req *model.CreateDictTypeRequest) (*model.DictT
 	// 检查代码是否已存在
 	exists, err := s.dictTypeRepo.CheckCodeExists(req.Code)
 	if err != nil {
-		logger.Error("检查字典类型代码失败",
+		logger.Error("检查字典类型代码是否存在失败",
 			zap.String("code", req.Code),
 			zap.Error(err),
 			zap.String("operation", "create_dict_type"))
-		return nil, err
+		return nil, apperrors.NewDictTypeCheckFailedError()
 	}
 	if exists {
 		logger.Warn("字典类型代码已存在",
 			zap.String("code", req.Code),
 			zap.String("operation", "create_dict_type"))
-		return nil, apperrors.NewConflictError("字典类型代码已存在")
+		return nil, apperrors.NewDictTypeExistsError()
 	}
 
 	// 创建字典类型
@@ -101,7 +100,7 @@ func (s *DictTypeService) Create(req *model.CreateDictTypeRequest) (*model.DictT
 			zap.String("code", req.Code),
 			zap.Error(err),
 			zap.String("operation", "create_dict_type"))
-		return nil, err
+		return nil, apperrors.NewDictTypeCreateFailedError()
 	}
 
 	logger.Info("字典类型创建成功",
@@ -129,8 +128,9 @@ func (s *DictTypeService) GetByID(id uint) (*model.DictType, error) {
 				zap.Uint("id", id),
 				zap.Error(err),
 				zap.String("operation", "get_dict_type"))
+			return nil, apperrors.NewDictTypeNotFoundError()
 		}
-		return nil, err
+		return nil, apperrors.NewDictTypeGetFailedError()
 	}
 
 	return dictType, nil
@@ -153,8 +153,9 @@ func (s *DictTypeService) GetByCode(code string) (*model.DictType, error) {
 				zap.String("code", code),
 				zap.Error(err),
 				zap.String("operation", "get_dict_type_by_code"))
+			return nil, apperrors.NewDictTypeNotFoundError()
 		}
-		return nil, err
+		return nil, apperrors.NewDictTypeGetFailedError()
 	}
 
 	return dictType, nil
@@ -178,8 +179,9 @@ func (s *DictTypeService) Update(id uint, req *model.UpdateDictTypeRequest) (*mo
 				zap.Uint("id", id),
 				zap.Error(err),
 				zap.String("operation", "update_dict_type"))
+			return nil, apperrors.NewDictTypeNotFoundError()
 		}
-		return nil, err
+		return nil, apperrors.NewDictTypeGetFailedError()
 	}
 
 	// 更新字段
@@ -202,7 +204,7 @@ func (s *DictTypeService) Update(id uint, req *model.UpdateDictTypeRequest) (*mo
 			zap.Uint("id", id),
 			zap.Error(err),
 			zap.String("operation", "update_dict_type"))
-		return nil, err
+		return nil, apperrors.NewDictTypeUpdateFailedError()
 	}
 
 	logger.Info("字典类型更新成功",
@@ -231,8 +233,9 @@ func (s *DictTypeService) Delete(id uint) error {
 				zap.Uint("id", id),
 				zap.Error(err),
 				zap.String("operation", "delete_dict_type"))
+			return apperrors.NewDictTypeNotFoundError()
 		}
-		return err
+		return apperrors.NewDictTypeGetFailedError()
 	}
 
 	// 检查是否为系统内置
@@ -241,7 +244,7 @@ func (s *DictTypeService) Delete(id uint) error {
 			zap.Uint("id", id),
 			zap.String("code", dictType.Code),
 			zap.String("operation", "delete_dict_type"))
-		return apperrors.NewPermissionDeniedError("系统内置字典类型不可删除")
+		return apperrors.NewPermissionDeniedErrorWithCode("系统内置字典类型不可删除")
 	}
 
 	// 检查是否有关联的字典项
@@ -251,7 +254,7 @@ func (s *DictTypeService) Delete(id uint) error {
 			zap.String("code", dictType.Code),
 			zap.Error(err),
 			zap.String("operation", "delete_dict_type"))
-		return err
+		return apperrors.NewDictTypeCountFailedError()
 	}
 	if count > 0 {
 		logger.Warn("字典类型下存在字典项，不可删除",
@@ -259,7 +262,7 @@ func (s *DictTypeService) Delete(id uint) error {
 			zap.String("code", dictType.Code),
 			zap.Int64("item_count", count),
 			zap.String("operation", "delete_dict_type"))
-		return fmt.Errorf("字典类型下存在 %d 个字典项，请先删除字典项", count)
+		return apperrors.NewDictTypeInUseError(count)
 	}
 
 	err = s.dictTypeRepo.Delete(id)
@@ -268,7 +271,7 @@ func (s *DictTypeService) Delete(id uint) error {
 			zap.Uint("id", id),
 			zap.Error(err),
 			zap.String("operation", "delete_dict_type"))
-		return err
+		return apperrors.NewDictTypeDeleteFailedError()
 	}
 
 	logger.Info("字典类型删除成功",
@@ -296,7 +299,7 @@ func (s *DictTypeService) List(page, pageSize int, status, keyword string) ([]mo
 			zap.Int("page_size", pageSize),
 			zap.Error(err),
 			zap.String("operation", "list_dict_types"))
-		return nil, 0, err
+		return nil, 0, apperrors.NewDictTypeListFailedError()
 	}
 
 	logger.Debug("字典类型列表查询成功",
@@ -318,7 +321,7 @@ func (s *DictTypeService) GetAll() ([]model.DictType, error) {
 		logger.Error("查询所有字典类型失败",
 			zap.Error(err),
 			zap.String("operation", "get_all_dict_types"))
-		return nil, err
+		return nil, apperrors.NewDictTypeListFailedError()
 	}
 
 	return dictTypes, nil
@@ -357,31 +360,31 @@ func (s *DictItemService) Create(req *model.CreateDictItemRequest) (*model.DictI
 			logger.Warn("字典类型不存在",
 				zap.String("dict_type_code", req.DictTypeCode),
 				zap.String("operation", "create_dict_item"))
-			return nil, apperrors.NewNotFoundError("字典类型不存在")
+			return nil, apperrors.NewDictTypeNotFoundError()
 		}
 		logger.Error("查询字典类型失败",
 			zap.String("dict_type_code", req.DictTypeCode),
 			zap.Error(err),
 			zap.String("operation", "create_dict_item"))
-		return nil, err
+		return nil, apperrors.NewDictItemTypeGetFailedError()
 	}
 
 	// 检查值是否已存在
 	exists, err := s.dictItemRepo.CheckValueExists(req.DictTypeCode, req.Value)
 	if err != nil {
-		logger.Error("检查字典项值失败",
+		logger.Error("检查字典项值是否存在失败",
 			zap.String("dict_type_code", req.DictTypeCode),
 			zap.String("value", req.Value),
 			zap.Error(err),
 			zap.String("operation", "create_dict_item"))
-		return nil, err
+		return nil, apperrors.NewDictItemValueCheckFailedError()
 	}
 	if exists {
 		logger.Warn("字典项值已存在",
 			zap.String("dict_type_code", req.DictTypeCode),
 			zap.String("value", req.Value),
 			zap.String("operation", "create_dict_item"))
-		return nil, apperrors.NewConflictError("字典项值已存在")
+		return nil, apperrors.NewDictItemExistsError()
 	}
 
 	// 转换 Extra
@@ -400,7 +403,7 @@ func (s *DictItemService) Create(req *model.CreateDictItemRequest) (*model.DictI
 				zap.String("dict_type_code", req.DictTypeCode),
 				zap.Error(err),
 				zap.String("operation", "create_dict_item"))
-			return nil, err
+			return nil, apperrors.NewDictItemDefaultClearFailedError()
 		}
 	}
 
@@ -428,7 +431,7 @@ func (s *DictItemService) Create(req *model.CreateDictItemRequest) (*model.DictI
 			zap.String("value", req.Value),
 			zap.Error(err),
 			zap.String("operation", "create_dict_item"))
-		return nil, err
+		return nil, apperrors.NewDictItemCreateFailedError()
 	}
 
 	logger.Info("字典项创建成功",
@@ -452,13 +455,13 @@ func (s *DictItemService) GetByID(id uint) (*model.DictItem, error) {
 			logger.Warn("字典项不存在",
 				zap.Uint("id", id),
 				zap.String("operation", "get_dict_item"))
-		} else {
-			logger.Error("查询字典项失败",
-				zap.Uint("id", id),
-				zap.Error(err),
-				zap.String("operation", "get_dict_item"))
+			return nil, apperrors.NewDictItemNotFoundError()
 		}
-		return nil, err
+		logger.Error("查询字典项失败",
+			zap.Uint("id", id),
+			zap.Error(err),
+			zap.String("operation", "get_dict_item"))
+		return nil, apperrors.NewDictItemGetFailedError()
 	}
 
 	return dictItem, nil
@@ -482,8 +485,9 @@ func (s *DictItemService) Update(id uint, req *model.UpdateDictItemRequest) (*mo
 				zap.Uint("id", id),
 				zap.Error(err),
 				zap.String("operation", "update_dict_item"))
+			return nil, apperrors.NewDictItemNotFoundError()
 		}
-		return nil, err
+		return nil, apperrors.NewDictItemGetFailedError()
 	}
 
 	// 更新字段
@@ -517,7 +521,7 @@ func (s *DictItemService) Update(id uint, req *model.UpdateDictItemRequest) (*mo
 				zap.String("dict_type_code", dictItem.DictTypeCode),
 				zap.Error(err),
 				zap.String("operation", "update_dict_item"))
-			return nil, err
+			return nil, apperrors.NewDictItemDefaultClearFailedError()
 		}
 		dictItem.IsDefault = true
 	} else if !req.IsDefault && dictItem.IsDefault {
@@ -530,7 +534,7 @@ func (s *DictItemService) Update(id uint, req *model.UpdateDictItemRequest) (*mo
 			zap.Uint("id", id),
 			zap.Error(err),
 			zap.String("operation", "update_dict_item"))
-		return nil, err
+		return nil, apperrors.NewDictItemUpdateFailedError()
 	}
 
 	logger.Info("字典项更新成功",
@@ -559,8 +563,9 @@ func (s *DictItemService) Delete(id uint) error {
 				zap.Uint("id", id),
 				zap.Error(err),
 				zap.String("operation", "delete_dict_item"))
+			return apperrors.NewDictItemNotFoundError()
 		}
-		return err
+		return apperrors.NewDictItemGetFailedError()
 	}
 
 	// 检查是否为系统内置
@@ -569,7 +574,7 @@ func (s *DictItemService) Delete(id uint) error {
 			zap.Uint("id", id),
 			zap.String("value", dictItem.Value),
 			zap.String("operation", "delete_dict_item"))
-		return apperrors.NewPermissionDeniedError("系统内置字典项不可删除")
+		return apperrors.NewPermissionDeniedErrorWithCode("系统内置字典项不可删除")
 	}
 
 	err = s.dictItemRepo.Delete(id)
@@ -578,7 +583,7 @@ func (s *DictItemService) Delete(id uint) error {
 			zap.Uint("id", id),
 			zap.Error(err),
 			zap.String("operation", "delete_dict_item"))
-		return err
+		return apperrors.NewDictItemDeleteFailedError()
 	}
 
 	logger.Info("字典项删除成功",
@@ -606,7 +611,7 @@ func (s *DictItemService) List(page, pageSize int, typeCode, status string) ([]m
 			zap.Int("page_size", pageSize),
 			zap.Error(err),
 			zap.String("operation", "list_dict_items"))
-		return nil, 0, err
+		return nil, 0, apperrors.NewDictItemListFailedError()
 	}
 
 	logger.Debug("字典项列表查询成功",
@@ -633,22 +638,22 @@ func (s *DictItemService) GetByTypeCode(typeCode string, activeOnly bool) ([]mod
 			logger.Warn("字典类型不存在",
 				zap.String("dict_type_code", typeCode),
 				zap.String("operation", "get_dict_items_by_type"))
-			return nil, apperrors.NewNotFoundError("字典类型不存在")
+			return nil, apperrors.NewDictTypeNotFoundError()
 		}
 		logger.Error("查询字典类型失败",
 			zap.String("dict_type_code", typeCode),
 			zap.Error(err),
 			zap.String("operation", "get_dict_items_by_type"))
-		return nil, err
+		return nil, apperrors.NewDictItemTypeGetFailedError()
 	}
 
 	dictItems, err := s.dictItemRepo.GetByTypeCode(typeCode, activeOnly)
 	if err != nil {
-		logger.Error("查询字典项失败",
+		logger.Error("根据类型获取字典项失败",
 			zap.String("dict_type_code", typeCode),
 			zap.Error(err),
 			zap.String("operation", "get_dict_items_by_type"))
-		return nil, err
+		return nil, apperrors.NewDictItemsByTypeGetFailedError()
 	}
 
 	return dictItems, nil

@@ -69,7 +69,7 @@ func (s *passwordResetService) RequestPasswordReset(ctx context.Context, email, 
 			logger.Warn("IP请求频率超限，拒绝请求",
 				zap.String("ip", ipAddress),
 				zap.Int("remaining", remaining))
-			return apperrors.NewRateLimitError(fmt.Sprintf("请求过于频繁，请1小时后再试（剩余次数：%d）", remaining))
+			return apperrors.NewRateLimitErrorWithCode(fmt.Sprintf("请求过于频繁，请1小时后再试（剩余次数：%d）", remaining))
 		} else {
 			logger.Debug("IP限流检查通过",
 				zap.String("ip", ipAddress),
@@ -86,7 +86,7 @@ func (s *passwordResetService) RequestPasswordReset(ctx context.Context, email, 
 			logger.Warn("邮箱请求频率超限，拒绝请求",
 				zap.String("email", email),
 				zap.Int("remaining", remaining))
-			return apperrors.NewRateLimitError(fmt.Sprintf("该邮箱请求过于频繁，请1小时后再试（剩余次数：%d）", remaining))
+			return apperrors.NewRateLimitErrorWithCode(fmt.Sprintf("该邮箱请求过于频繁，请1小时后再试（剩余次数：%d）", remaining))
 		} else {
 			logger.Debug("邮箱限流检查通过",
 				zap.String("email", email),
@@ -109,7 +109,7 @@ func (s *passwordResetService) RequestPasswordReset(ctx context.Context, email, 
 			zap.String("email", email),
 			zap.Error(err),
 			zap.String("operation", "request_password_reset"))
-		return fmt.Errorf("查询用户失败: %w", err)
+		return apperrors.NewPasswordResetUserQueryFailedError()
 	}
 
 	// 2. 检查用户状态
@@ -127,7 +127,7 @@ func (s *passwordResetService) RequestPasswordReset(ctx context.Context, email, 
 			zap.Uint("user_id", user.ID),
 			zap.Error(err),
 			zap.String("operation", "request_password_reset"))
-		return fmt.Errorf("清理旧Token失败: %w", err)
+		return apperrors.NewPasswordResetTokenCleanFailedError()
 	}
 
 	logger.Debug("已清理用户旧的重置Token",
@@ -153,7 +153,7 @@ func (s *passwordResetService) RequestPasswordReset(ctx context.Context, email, 
 			zap.String("email", email),
 			zap.Error(err),
 			zap.String("operation", "request_password_reset"))
-		return fmt.Errorf("创建重置Token失败: %w", err)
+		return apperrors.NewPasswordResetTokenCreateFailedError()
 	}
 
 	logger.Debug("重置Token创建成功",
@@ -178,7 +178,7 @@ func (s *passwordResetService) RequestPasswordReset(ctx context.Context, email, 
 			zap.String("email", email),
 			zap.Error(err),
 			zap.String("operation", "request_password_reset"))
-		return fmt.Errorf("发送重置邮件失败: %w", err)
+		return apperrors.NewPasswordResetEmailSendFailedError()
 	}
 
 	// 6. 记录审计日志
@@ -235,12 +235,12 @@ func (s *passwordResetService) VerifyResetToken(ctx context.Context, token strin
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				logger.Warn("验证失败：Token不存在",
 					zap.String("operation", "verify_reset_token"))
-				return nil, apperrors.NewInvalidTokenError("无效的重置链接")
+				return nil, apperrors.NewInvalidResetTokenError()
 			}
 			logger.Error("查询Token失败",
 				zap.Error(err),
 				zap.String("operation", "verify_reset_token"))
-			return nil, fmt.Errorf("查询Token失败: %w", err)
+			return nil, apperrors.NewPasswordResetTokenQueryFailedError()
 		}
 
 		// 验证Token有效性
@@ -250,14 +250,14 @@ func (s *passwordResetService) VerifyResetToken(ctx context.Context, token strin
 					zap.Uint("token_id", resetToken.ID),
 					zap.Time("expires_at", resetToken.ExpiresAt),
 					zap.String("operation", "verify_reset_token"))
-				return nil, apperrors.NewTokenExpiredError("重置链接已过期，请重新申请")
+				return nil, apperrors.NewResetTokenExpiredError()
 			}
 			if resetToken.IsUsed() {
 				logger.Warn("验证失败：Token已使用",
 					zap.Uint("token_id", resetToken.ID),
 					zap.Time("used_at", *resetToken.UsedAt),
 					zap.String("operation", "verify_reset_token"))
-				return nil, apperrors.NewTokenUsedError("重置链接已使用，请重新申请")
+				return nil, apperrors.NewInvalidResetTokenError()
 			}
 		}
 
@@ -288,7 +288,7 @@ func (s *passwordResetService) VerifyResetToken(ctx context.Context, token strin
 			zap.Uint("user_id", userID),
 			zap.Error(err),
 			zap.String("operation", "verify_reset_token"))
-		return nil, fmt.Errorf("查询用户失败: %w", err)
+		return nil, apperrors.NewPasswordResetUserQueryFailedError()
 	}
 
 	logger.Debug("Token验证成功",
@@ -323,7 +323,7 @@ func (s *passwordResetService) ResetPassword(ctx context.Context, token, newPass
 			zap.Uint("user_id", user.ID),
 			zap.Error(err),
 			zap.String("operation", "reset_password"))
-		return fmt.Errorf("密码加密失败: %w", err)
+		return apperrors.NewPasswordResetHashFailedError()
 	}
 
 	logger.Debug("新密码加密成功",
@@ -336,7 +336,7 @@ func (s *passwordResetService) ResetPassword(ctx context.Context, token, newPass
 			zap.String("username", user.Username),
 			zap.Error(err),
 			zap.String("operation", "reset_password"))
-		return fmt.Errorf("更新密码失败: %w", err)
+		return apperrors.NewPasswordResetUpdateFailedError()
 	}
 
 	logger.Debug("密码更新成功",

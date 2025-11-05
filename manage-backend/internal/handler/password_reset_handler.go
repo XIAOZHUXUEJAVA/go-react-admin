@@ -5,7 +5,6 @@ import (
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/service"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/utils"
-	apperrors "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/errors"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/logger"
 	"go.uber.org/zap"
 )

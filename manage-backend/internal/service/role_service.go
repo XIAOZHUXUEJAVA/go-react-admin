@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 
 
 		apperrors "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/errors"
@@ -88,10 +87,10 @@ func (s *RoleService) Create(req *model.CreateRoleRequest) (*model.RoleResponse,
 	exists, err := s.roleRepo.CheckCodeExists(req.Code)
 	if err != nil {
 		logger.Error("检查角色代码失败", zap.String("code", req.Code), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewRoleCheckFailedError()
 	}
 	if exists {
-		return nil, apperrors.NewConflictError("角色代码已存在")
+		return nil, apperrors.NewRoleExistsError()
 	}
 
 	// 创建角色
@@ -108,7 +107,7 @@ func (s *RoleService) Create(req *model.CreateRoleRequest) (*model.RoleResponse,
 
 	if err := s.roleRepo.Create(role); err != nil {
 		logger.Error("创建角色失败", zap.String("code", req.Code), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewRoleCreateFailedError()
 	}
 
 	logger.Info("创建角色成功",
@@ -124,10 +123,10 @@ func (s *RoleService) GetByID(id uint) (*model.RoleResponse, error) {
 	role, err := s.roleRepo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperrors.NewNotFoundError("角色不存在")
+			return nil, apperrors.NewRoleNotFoundError()
 		}
 		logger.Error("获取角色失败", zap.Uint("role_id", id), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewRoleGetFailedError()
 	}
 
 	return s.toRoleResponse(role), nil
@@ -139,15 +138,15 @@ func (s *RoleService) Update(id uint, req *model.UpdateRoleRequest) (*model.Role
 	role, err := s.roleRepo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperrors.NewNotFoundError("角色不存在")
+			return nil, apperrors.NewRoleNotFoundError()
 		}
 		logger.Error("获取角色失败", zap.Uint("role_id", id), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewRoleGetFailedError()
 	}
 
 	// 检查是否为系统角色
 	if role.IsSystem {
-		return nil, apperrors.NewPermissionDeniedError("系统角色不允许修改")
+		return nil, apperrors.NewPermissionDeniedErrorWithCode("系统角色不允许修改")
 	}
 
 	// 更新字段
@@ -163,7 +162,7 @@ func (s *RoleService) Update(id uint, req *model.UpdateRoleRequest) (*model.Role
 
 	if err := s.roleRepo.Update(role); err != nil {
 		logger.Error("更新角色失败", zap.Uint("role_id", id), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewRoleUpdateFailedError()
 	}
 
 	logger.Info("更新角色成功",
@@ -179,37 +178,37 @@ func (s *RoleService) Delete(id uint) error {
 	role, err := s.roleRepo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return apperrors.NewNotFoundError("角色不存在")
+			return apperrors.NewRoleNotFoundError()
 		}
 		logger.Error("获取角色失败", zap.Uint("role_id", id), zap.Error(err))
-		return err
+		return apperrors.NewRoleGetFailedError()
 	}
 
 	// 检查是否为系统角色
 	if role.IsSystem {
-		return apperrors.NewPermissionDeniedError("系统角色不允许删除")
+		return apperrors.NewPermissionDeniedErrorWithCode("系统角色不允许删除")
 	}
 
 	// 检查是否有用户使用该角色
 	userIDs, err := s.roleRepo.GetUsersByRole(id)
 	if err != nil {
 		logger.Error("检查角色使用情况失败", zap.Uint("role_id", id), zap.Error(err))
-		return err
+		return apperrors.NewRoleCheckUsageFailedError()
 	}
 	if len(userIDs) > 0 {
-		return fmt.Errorf("该角色正在被 %d 个用户使用，无法删除", len(userIDs))
+		return apperrors.NewRoleInUseError(len(userIDs))
 	}
 
 	// 删除 Casbin 中的角色权限
 	if err := s.casbinService.RemoveAllPermissionsForRole(role.Code); err != nil {
 		logger.Error("删除角色权限失败", zap.String("code", role.Code), zap.Error(err))
-		return err
+		return apperrors.NewRolePermissionDeleteFailedError()
 	}
 
 	// 删除角色
 	if err := s.roleRepo.Delete(id); err != nil {
 		logger.Error("删除角色失败", zap.Uint("role_id", id), zap.Error(err))
-		return err
+		return apperrors.NewRoleDeleteFailedError()
 	}
 
 	logger.Info("删除角色成功",
@@ -225,7 +224,7 @@ func (s *RoleService) List(page, pageSize int) ([]model.RoleResponse, int64, err
 	roles, total, err := s.roleRepo.List(offset, pageSize)
 	if err != nil {
 		logger.Error("获取角色列表失败", zap.Error(err))
-		return nil, 0, err
+		return nil, 0, apperrors.NewRoleListFailedError()
 	}
 
 	responses := make([]model.RoleResponse, len(roles))
@@ -241,7 +240,7 @@ func (s *RoleService) GetAll() ([]model.RoleResponse, error) {
 	roles, err := s.roleRepo.GetAll()
 	if err != nil {
 		logger.Error("获取所有角色失败", zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewRoleListFailedError()
 	}
 
 	responses := make([]model.RoleResponse, len(roles))
@@ -258,17 +257,17 @@ func (s *RoleService) AssignPermissions(roleID uint, req *model.AssignRolePermis
 	role, err := s.roleRepo.GetByID(roleID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return apperrors.NewNotFoundError("角色不存在")
+			return apperrors.NewRoleNotFoundError()
 		}
 		logger.Error("获取角色失败", zap.Uint("role_id", roleID), zap.Error(err))
-		return err
+		return apperrors.NewRoleGetFailedError()
 	}
 
 	// 获取权限列表
 	permissions, err := s.permissionRepo.GetByIDs(req.PermissionIDs)
 	if err != nil {
 		logger.Error("获取权限列表失败", zap.Error(err))
-		return err
+		return apperrors.NewPermissionListFailedError()
 	}
 
 	logger.Info("获取到的权限数量",
@@ -279,7 +278,7 @@ func (s *RoleService) AssignPermissions(roleID uint, req *model.AssignRolePermis
 		logger.Warn("部分权限不存在",
 			zap.Uints("requested_ids", req.PermissionIDs),
 			zap.Int("found_count", len(permissions)))
-		return apperrors.NewNotFoundError("部分权限不存在")
+		return apperrors.NewPermissionNotFoundError("部分权限不存在")
 	}
 
 	// 构建 Casbin 策略
@@ -313,7 +312,7 @@ func (s *RoleService) AssignPermissions(roleID uint, req *model.AssignRolePermis
 			zap.Uint("role_id", roleID),
 			zap.String("code", role.Code),
 			zap.Error(err))
-		return err
+		return apperrors.NewCasbinUpdateFailedError()
 	}
 
 	// 更新数据库中的角色-权限关联（包括所有类型的权限）
@@ -321,7 +320,7 @@ func (s *RoleService) AssignPermissions(roleID uint, req *model.AssignRolePermis
 		logger.Error("更新数据库角色权限失败",
 			zap.Uint("role_id", roleID),
 			zap.Error(err))
-		return err
+		return apperrors.NewRolePermissionUpdateFailedError()
 	}
 
 	logger.Info("分配角色权限成功",
@@ -339,17 +338,17 @@ func (s *RoleService) GetRolePermissions(roleID uint) (*model.RoleWithPermission
 	role, err := s.roleRepo.GetByID(roleID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperrors.NewNotFoundError("角色不存在")
+			return nil, apperrors.NewRoleNotFoundError()
 		}
 		logger.Error("获取角色失败", zap.Uint("role_id", roleID), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewRoleGetFailedError()
 	}
 
 	// 获取所有权限用于匹配
 	allPermissions, err := s.permissionRepo.GetAll()
 	if err != nil {
 		logger.Error("获取所有权限失败", zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewPermissionListFailedError()
 	}
 
 	// 如果是超级管理员，返回所有权限
@@ -381,7 +380,7 @@ func (s *RoleService) GetRolePermissions(roleID uint) (*model.RoleWithPermission
 	permissionIDs, err := s.roleRepo.GetRolePermissionIDs(roleID)
 	if err != nil {
 		logger.Error("获取角色权限ID失败", zap.Uint("role_id", roleID), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewRolePermissionGetFailedError()
 	}
 
 	// 根据ID匹配权限
@@ -423,22 +422,22 @@ func (s *RoleService) AssignRolesToUser(userID uint, req *model.AssignUserRolesR
 		_, err := s.roleRepo.GetByID(roleID)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("角色 ID %d 不存在", roleID)
+				return apperrors.NewRoleNotFoundError()
 			}
-			return err
+			return apperrors.NewRoleGetFailedError()
 		}
 	}
 
 	// 移除用户的所有现有角色
 	if err := s.roleRepo.RemoveAllRolesFromUser(userID); err != nil {
 		logger.Error("移除用户角色失败", zap.Uint("user_id", userID), zap.Error(err))
-		return err
+		return apperrors.NewUserRoleRemoveFailedError()
 	}
 
 	// 移除 Casbin 中的用户角色关系
 	if err := s.casbinService.RemoveAllRolesForUser(userID); err != nil {
 		logger.Error("移除用户Casbin角色失败", zap.Uint("user_id", userID), zap.Error(err))
-		return err
+		return apperrors.NewUserCasbinRoleRemoveFailedError()
 	}
 
 	// 分配新角色
@@ -447,20 +446,20 @@ func (s *RoleService) AssignRolesToUser(userID uint, req *model.AssignUserRolesR
 
 		// 添加到数据库
 		if err := s.roleRepo.AssignRoleToUser(userID, roleID, assignedBy); err != nil {
-			logger.Error("分配角色失败",
+			logger.Error("分配用户角色失败",
 				zap.Uint("user_id", userID),
 				zap.Uint("role_id", roleID),
 				zap.Error(err))
-			return err
+			return apperrors.NewUserRoleAssignFailedError()
 		}
 
 		// 添加到 Casbin
 		if err := s.casbinService.AddRoleForUser(userID, role.Code); err != nil {
-			logger.Error("添加Casbin角色失败",
+			logger.Error("添加用户Casbin角色失败",
 				zap.Uint("user_id", userID),
 				zap.String("role_code", role.Code),
 				zap.Error(err))
-			return err
+			return apperrors.NewUserCasbinRoleAddFailedError()
 		}
 	}
 
@@ -476,7 +475,7 @@ func (s *RoleService) GetUserRoles(userID uint) ([]model.RoleResponse, error) {
 	roles, err := s.roleRepo.GetUserRoles(userID)
 	if err != nil {
 		logger.Error("获取用户角色失败", zap.Uint("user_id", userID), zap.Error(err))
-		return nil, err
+		return nil, apperrors.NewUserRoleGetFailedError()
 	}
 
 	responses := make([]model.RoleResponse, len(roles))
