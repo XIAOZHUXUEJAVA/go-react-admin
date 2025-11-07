@@ -1483,3 +1483,49 @@ func NewDictItemExistsError() *AppError {
 		BusinessCode: code,
 	}
 }
+
+// ========== 审计日志模块错误 ==========
+
+// NewAuditLogNotFoundError 审计日志不存在
+func NewAuditLogNotFoundError() *AppError {
+	code := CodeAuditLogNotFound
+	return &AppError{
+		Type:         ErrorTypeNotFound,
+		Message:      GetBusinessCodeMessage(code),
+		Code:         404,
+		BusinessCode: code,
+	}
+}
+
+// NewAuditLogGetFailedError 获取审计日志失败
+func NewAuditLogGetFailedError() *AppError {
+	code := CodeAuditLogGetFailed
+	return &AppError{
+		Type:         ErrorTypeInternal,
+		Message:      GetBusinessCodeMessage(code),
+		Code:         500,
+		BusinessCode: code,
+	}
+}
+
+// NewAuditLogQueryFailedError 查询审计日志失败
+func NewAuditLogQueryFailedError() *AppError {
+	code := CodeAuditLogQueryFailed
+	return &AppError{
+		Type:         ErrorTypeInternal,
+		Message:      GetBusinessCodeMessage(code),
+		Code:         500,
+		BusinessCode: code,
+	}
+}
+
+// NewAuditLogCleanFailedError 清理审计日志失败
+func NewAuditLogCleanFailedError() *AppError {
+	code := CodeAuditLogCleanFailed
+	return &AppError{
+		Type:         ErrorTypeInternal,
+		Message:      GetBusinessCodeMessage(code),
+		Code:         500,
+		BusinessCode: code,
+	}
+}

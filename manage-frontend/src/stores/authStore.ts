@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { AuthStore, LoginRequest, RegisterRequest } from "@/types/auth";
 import { authApi, userApi } from "@/api";
 import { toast } from "sonner";
-import { ErrorHandler, parseError } from "@/lib/errorHandler";
+import { parseError } from "@/lib/errorHandler";
 import {
   getAccessToken,
   getRefreshToken,
@@ -40,8 +40,6 @@ export const useAuthStore = create<AuthStore>()(
           set({ isLoading: true });
 
           const response = await authApi.login(credentials);
-
-          console.log(response);
 
           if (response.data) {
             const { access_token, refresh_token, expires_in, user } =
@@ -82,7 +80,6 @@ export const useAuthStore = create<AuthStore>()(
         } catch (error) {
           set({ isLoading: false });
 
-          console.log("error", error);
           // 使用错误处理工具解析错误
           const standardError = parseError(error, {
             defaultMessage: "登录失败，请稍后重试",

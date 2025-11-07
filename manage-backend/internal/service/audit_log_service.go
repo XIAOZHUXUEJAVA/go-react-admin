@@ -1,7 +1,10 @@
 package service
 
 import (
+	"errors"
+
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/internal/model"
+	apperrors "github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/errors"
 	"github.com/XIAOZHUXUEJAVA/go-manage-starter/manage-backend/pkg/logger"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -31,11 +34,17 @@ func NewAuditLogService(auditLogRepo AuditLogRepositoryInterface) *AuditLogServi
 func (s *AuditLogService) GetByID(id uint) (*model.AuditLogResponse, error) {
 	log, err := s.auditLogRepo.GetByID(id)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logger.Warn("审计日志不存在",
+				zap.Uint("id", id),
+				zap.String("operation", "get_audit_log"))
+			return nil, apperrors.NewAuditLogNotFoundError()
 		}
-		logger.Error("获取审计日志失败", zap.Uint("id", id), zap.Error(err))
-		return nil, err
+		logger.Error("获取审计日志失败",
+			zap.Uint("id", id),
+			zap.Error(err),
+			zap.String("operation", "get_audit_log"))
+		return nil, apperrors.NewAuditLogGetFailedError()
 	}
 
 	return s.toAuditLogResponse(log), nil
@@ -56,8 +65,10 @@ func (s *AuditLogService) Query(query *model.AuditLogQuery) ([]model.AuditLogRes
 
 	logs, total, err := s.auditLogRepo.Query(query)
 	if err != nil {
-		logger.Error("查询审计日志失败", zap.Error(err))
-		return nil, 0, err
+		logger.Error("查询审计日志失败",
+			zap.Error(err),
+			zap.String("operation", "query_audit_logs"))
+		return nil, 0, apperrors.NewAuditLogQueryFailedError()
 	}
 
 	responses := make([]model.AuditLogResponse, len(logs))
@@ -76,11 +87,16 @@ func (s *AuditLogService) CleanOldLogs(days int) error {
 
 	err := s.auditLogRepo.DeleteOldLogs(days)
 	if err != nil {
-		logger.Error("清理旧审计日志失败", zap.Int("days", days), zap.Error(err))
-		return err
+		logger.Error("清理旧审计日志失败",
+			zap.Int("days", days),
+			zap.Error(err),
+			zap.String("operation", "clean_old_logs"))
+		return apperrors.NewAuditLogCleanFailedError()
 	}
 
-	logger.Info("清理旧审计日志成功", zap.Int("days", days))
+	logger.Info("清理旧审计日志成功",
+		zap.Int("days", days),
+		zap.String("operation", "clean_old_logs"))
 	return nil
 }
 

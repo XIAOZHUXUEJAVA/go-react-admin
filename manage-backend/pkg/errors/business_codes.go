@@ -174,6 +174,15 @@ const (
 	CodePasswordResetTokenQueryFailed  = 60115 // 查询Token失败
 	CodePasswordResetHashFailed        = 60116 // 密码加密失败
 	CodePasswordResetUpdateFailed      = 60117 // 更新密码失败
+
+	// ========== 审计日志模块 (70xxx) ==========
+	// 审计日志相关 (701xx)
+	CodeAuditLogNotFound = 70101 // 审计日志不存在
+
+	// 审计日志操作内部错误 (702xx)
+	CodeAuditLogGetFailed   = 70201 // 获取审计日志失败
+	CodeAuditLogQueryFailed = 70202 // 查询审计日志失败
+	CodeAuditLogCleanFailed = 70203 // 清理审计日志失败
 )
 
 // GetBusinessCodeMessage 获取业务错误码对应的默认消息
@@ -332,6 +341,14 @@ func GetBusinessCodeMessage(code int) string {
 		CodePasswordResetTokenQueryFailed:  "查询Token失败",
 		CodePasswordResetHashFailed:        "密码加密失败",
 		CodePasswordResetUpdateFailed:      "更新密码失败",
+
+		// 审计日志模块
+		CodeAuditLogNotFound: "审计日志不存在",
+
+		// 审计日志操作内部错误
+		CodeAuditLogGetFailed:   "获取审计日志失败",
+		CodeAuditLogQueryFailed: "查询审计日志失败",
+		CodeAuditLogCleanFailed: "清理审计日志失败",
 	}
 
 	if msg, ok := messages[code]; ok {
